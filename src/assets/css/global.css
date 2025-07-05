@@ -12,8 +12,8 @@ html {
 body {
   font-family: 'Poppins', sans-serif;
   line-height: 1.6;
-  color: #333;
-  background-color: #f8f9fa;
+  color: #e0e0e0;
+  background-color: #1a1a1a;
 }
 
 /* 容器样式 */
@@ -42,7 +42,7 @@ body {
 .section-subtitle {
   font-size: 1.2rem;
   text-align: center;
-  color: #666;
+  color: #b0b0b0;
   margin-bottom: 3rem;
   max-width: 600px;
   margin-left: auto;
@@ -94,28 +94,28 @@ body {
 
 /* 卡片样式 */
 .card {
-  background: white;
+  background: #2d2d2d;
   border-radius: 20px;
   padding: 2rem;
-  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
   transition: all 0.3s ease;
-  border: 1px solid #e9ecef;
+  border: 1px solid #404040;
 }
 
 .card:hover {
   transform: translateY(-5px);
-  box-shadow: 0 20px 40px rgba(0, 0, 0, 0.15);
+  box-shadow: 0 20px 40px rgba(0, 0, 0, 0.4);
 }
 
 .card-title {
   font-size: 1.5rem;
   font-weight: 600;
   margin-bottom: 1rem;
-  color: #333;
+  color: #e0e0e0;
 }
 
 .card-text {
-  color: #666;
+  color: #b0b0b0;
   line-height: 1.6;
 }
 

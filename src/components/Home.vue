@@ -404,9 +404,9 @@ export default {
   align-items: center;
   margin-bottom: 3rem;
   padding: 2rem;
-  background: white;
+  background: #2d2d2d;
   border-radius: 20px;
-  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
 }
 
 .showcase-image {
@@ -434,12 +434,12 @@ export default {
   font-size: 2rem;
   font-weight: 600;
   margin-bottom: 1rem;
-  color: #333;
+  color: #e0e0e0;
 }
 
 .showcase-content p {
   font-size: 1.1rem;
-  color: #666;
+  color: #b0b0b0;
   line-height: 1.8;
 }
 
@@ -451,7 +451,7 @@ export default {
 
 /* 社区展示样式 */
 .community-showcase {
-  background: white;
+  background: #2d2d2d;
 }
 
 .community-grid {
@@ -515,7 +515,7 @@ export default {
   align-items: center;
   gap: 1rem;
   padding: 1.5rem;
-  background: #f8f9fa;
+  background: #3a3a3a;
   border-radius: 15px;
   transition: all 0.3s ease;
 }
@@ -534,11 +534,11 @@ export default {
   font-size: 1.2rem;
   font-weight: 600;
   margin-bottom: 0.5rem;
-  color: #333;
+  color: #e0e0e0;
 }
 
 .feature-content p {
-  color: #666;
+  color: #b0b0b0;
   margin: 0;
 }
 

@@ -280,7 +280,7 @@ export default {
 
 /* 平台介绍样式 */
 .intro {
-  background: white;
+  background: #2d2d2d;
   padding: 4rem 0;
 }
 
@@ -295,13 +295,13 @@ export default {
   font-size: 2.5rem;
   font-weight: 700;
   margin-bottom: 2rem;
-  color: #333;
+  color: #e0e0e0;
 }
 
 .intro-text p {
   font-size: 1.1rem;
   line-height: 1.8;
-  color: #666;
+  color: #b0b0b0;
   margin-bottom: 1.5rem;
 }
 
@@ -335,11 +335,11 @@ export default {
   font-size: 1.3rem;
   font-weight: 600;
   margin-bottom: 1rem;
-  color: #333;
+  color: #e0e0e0;
 }
 
 .visual-card p {
-  color: #666;
+  color: #b0b0b0;
   line-height: 1.6;
 }
 

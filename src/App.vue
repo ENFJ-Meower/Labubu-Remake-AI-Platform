@@ -104,16 +104,16 @@ export default {
   left: 0;
   right: 0;
   z-index: 1000;
-  background: rgba(255, 255, 255, 0.95);
+  background: rgba(26, 26, 26, 0.95);
   backdrop-filter: blur(10px);
   transition: all 0.3s ease;
   padding: 0;
-  box-shadow: 0 2px 20px rgba(0, 0, 0, 0.1);
+  box-shadow: 0 2px 20px rgba(0, 0, 0, 0.3);
 }
 
 .navbar-scrolled {
-  background: rgba(255, 255, 255, 0.98);
-  box-shadow: 0 2px 30px rgba(0, 0, 0, 0.15);
+  background: rgba(26, 26, 26, 0.98);
+  box-shadow: 0 2px 30px rgba(0, 0, 0, 0.4);
 }
 
 .nav-container {
@@ -134,7 +134,7 @@ export default {
   display: flex;
   align-items: center;
   text-decoration: none;
-  color: #333;
+  color: #e0e0e0;
   font-weight: 700;
   font-size: 1.5rem;
 }
@@ -171,7 +171,7 @@ export default {
   align-items: center;
   gap: 0.5rem;
   text-decoration: none;
-  color: #666;
+  color: #b0b0b0;
   font-weight: 500;
   padding: 0.5rem 1rem;
   border-radius: 25px;
@@ -207,7 +207,7 @@ export default {
 .mobile-menu-toggle span {
   width: 25px;
   height: 3px;
-  background: #333;
+  background: #e0e0e0;
   margin: 3px 0;
   transition: 0.3s;
 }
@@ -260,7 +260,7 @@ export default {
     left: -100%;
     width: 100%;
     height: calc(100vh - 70px);
-    background: white;
+    background: #1a1a1a;
     flex-direction: column;
     justify-content: flex-start;
     align-items: center;

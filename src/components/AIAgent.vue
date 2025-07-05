@@ -239,16 +239,16 @@ export default {
 /* 特色功能样式 */
 .features {
   padding: 4rem 0;
-  background: #f8f9fa;
+  background: #3a3a3a;
 }
 
 .features .card {
-  background: white;
+  background: #2d2d2d;
   border-radius: 20px;
   padding: 2.5rem;
   text-align: center;
   transition: all 0.3s ease;
-  border: 1px solid #e9ecef;
+  border: 1px solid #404040;
 }
 
 .features .card:hover {
@@ -264,7 +264,7 @@ export default {
 /* 工作区域样式 */
 .workspace {
   padding: 4rem 0;
-  background: white;
+  background: #2d2d2d;
 }
 
 .workspace-grid {
@@ -275,7 +275,7 @@ export default {
 }
 
 .workspace-sidebar {
-  background: #f8f9fa;
+  background: #3a3a3a;
   border-radius: 20px;
   padding: 2rem;
   height: fit-content;
@@ -289,7 +289,7 @@ export default {
   font-size: 1.2rem;
   font-weight: 600;
   margin-bottom: 1rem;
-  color: #333;
+  color: #e0e0e0;
 }
 
 .template-list {
@@ -309,8 +309,8 @@ export default {
 }
 
 .template-item:hover {
-  background: white;
-  box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+  background: #4a4a4a;
+  box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
 }
 
 .template-item.active {
@@ -345,9 +345,9 @@ export default {
 }
 
 .workspace-main {
-  background: white;
+  background: #2d2d2d;
   border-radius: 20px;
-  border: 1px solid #e9ecef;
+  border: 1px solid #404040;
   overflow: hidden;
 }
 
@@ -356,14 +356,14 @@ export default {
   justify-content: space-between;
   align-items: center;
   padding: 1.5rem 2rem;
-  background: #f8f9fa;
-  border-bottom: 1px solid #e9ecef;
+  background: #3a3a3a;
+  border-bottom: 1px solid #404040;
 }
 
 .workspace-header h3 {
   font-size: 1.3rem;
   font-weight: 600;
-  color: #333;
+  color: #e0e0e0;
 }
 
 .header-actions {
@@ -383,7 +383,7 @@ export default {
   font-size: 1.1rem;
   font-weight: 600;
   margin-bottom: 1rem;
-  color: #333;
+  color: #e0e0e0;
 }
 
 .form-group {
@@ -394,7 +394,7 @@ export default {
   display: block;
   margin-bottom: 0.5rem;
   font-weight: 500;
-  color: #555;
+  color: #b0b0b0;
 }
 
 .form-group input,
@@ -402,9 +402,11 @@ export default {
 .form-group select {
   width: 100%;
   padding: 0.8rem 1rem;
-  border: 1px solid #ddd;
+  border: 1px solid #555;
   border-radius: 10px;
   font-size: 1rem;
+  background: #3a3a3a;
+  color: #e0e0e0;
   transition: border-color 0.3s ease;
 }
 
@@ -429,13 +431,13 @@ export default {
 .parameter-item label {
   flex: 1;
   font-weight: 500;
-  color: #555;
+  color: #b0b0b0;
 }
 
 .parameter-item input[type="range"] {
   flex: 2;
   height: 6px;
-  background: #ddd;
+  background: #555;
   border-radius: 3px;
   outline: none;
 }

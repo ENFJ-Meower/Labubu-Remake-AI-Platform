@@ -280,7 +280,7 @@ export default {
 
 /* 统计样式 */
 .stats {
-  background: white;
+  background: #2d2d2d;
   padding: 4rem 0;
 }
 
@@ -318,7 +318,7 @@ export default {
 
 /* 功能特色样式 */
 .features {
-  background: #f8f9fa;
+  background: #3a3a3a;
   padding: 4rem 0;
 }
 
@@ -329,13 +329,13 @@ export default {
 }
 
 .feature-card {
-  background: white;
+  background: #2d2d2d;
   padding: 2.5rem;
   border-radius: 20px;
   text-align: center;
-  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
   transition: all 0.3s ease;
-  border: 1px solid #e9ecef;
+  border: 1px solid #404040;
 }
 
 .feature-card:hover {
@@ -352,17 +352,17 @@ export default {
   font-size: 1.5rem;
   font-weight: 600;
   margin-bottom: 1rem;
-  color: #333;
+  color: #e0e0e0;
 }
 
 .feature-card p {
-  color: #666;
+  color: #b0b0b0;
   line-height: 1.6;
 }
 
 /* 动态信息流样式 */
 .feed {
-  background: white;
+  background: #2d2d2d;
   padding: 4rem 0;
 }
 
@@ -373,7 +373,7 @@ export default {
 }
 
 .feed-sidebar {
-  background: #f8f9fa;
+  background: #3a3a3a;
   padding: 2rem;
   border-radius: 20px;
   height: fit-content;
@@ -387,7 +387,7 @@ export default {
   font-size: 1.2rem;
   font-weight: 600;
   margin-bottom: 1rem;
-  color: #333;
+  color: #e0e0e0;
 }
 
 .tag-cloud {
@@ -422,7 +422,7 @@ export default {
   align-items: center;
   gap: 1rem;
   padding: 1rem;
-  background: white;
+  background: #2d2d2d;
   border-radius: 10px;
   cursor: pointer;
   transition: all 0.3s ease;
