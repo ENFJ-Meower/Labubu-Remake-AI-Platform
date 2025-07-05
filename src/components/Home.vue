@@ -394,7 +394,7 @@ export default {
 
 /* 功能展示样式 */
 .features {
-  background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+  background: linear-gradient(135deg, #1a1a1a 0%, #2d2d2d 100%);
 }
 
 .feature-showcase {
@@ -718,7 +718,7 @@ export default {
 
 /* 联系我们样式 */
 .contact {
-  background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+  background: linear-gradient(135deg, #1a1a1a 0%, #2d2d2d 100%);
 }
 
 .contact-content {

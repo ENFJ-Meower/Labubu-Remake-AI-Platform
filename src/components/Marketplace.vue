@@ -630,7 +630,7 @@ export default {
   align-items: center;
   margin-bottom: 2rem;
   padding-bottom: 1rem;
-  border-bottom: 1px solid #e9ecef;
+  border-bottom: 1px solid #404040;
 }
 
 .results-count {
