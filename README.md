@@ -24,7 +24,7 @@ Labubu-Remake-AI-Platform/
 │   │       ├── home1.jpg      # Home page image 1 (57KB)
 │   │       ├── home2.png      # Home page image 2 (2.0MB)
 │   │       ├── home3.png      # Home page image 3 (2.4MB)
-│   │       └── labubu-logo.png # Logo image (1KB)
+│   │       └── logo.png       # Brand logo image (376KB)
 │   ├── components/            # Vue components
 │   │   ├── About.vue          # About page (644 lines)
 │   │   ├── AIAgent.vue        # AI Agent page (587 lines)
@@ -135,7 +135,7 @@ Labubu-Remake-AI-Platform/
 │   │       ├── home1.jpg      # 首页图片1 (57KB)
 │   │       ├── home2.png      # 首页图片2 (2.0MB)
 │   │       ├── home3.png      # 首页图片3 (2.4MB)
-│   │       └── labubu-logo.png # Logo图片 (1KB)
+│   │       └── logo.png       # 品牌Logo图片 (376KB)
 │   ├── components/            # Vue组件
 │   │   ├── About.vue          # 关于页面 (644行)
 │   │   ├── AIAgent.vue        # AI智能体页面 (587行)

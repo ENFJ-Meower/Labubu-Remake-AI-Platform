@@ -6,7 +6,7 @@
         <!-- Logo -->
         <div class="nav-logo">
           <router-link to="/" class="logo-link">
-            <img src="./assets/images/labubu-logo.png" alt="Labubu AI" class="logo-img" />
+            <img src="./assets/images/logo.png" alt="Labubu AI" class="logo-img" />
             <span class="logo-text">Labubu AI</span>
           </router-link>
         </div>
@@ -140,10 +140,17 @@ export default {
 }
 
 .logo-img {
-  width: 40px;
-  height: 40px;
-  margin-right: 0.5rem;
-  border-radius: 50%;
+  width: 45px;
+  height: 45px;
+  margin-right: 0.8rem;
+  border-radius: 12px;
+  transition: all 0.3s ease;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+}
+
+.logo-img:hover {
+  transform: scale(1.05);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
 }
 
 .logo-text {
