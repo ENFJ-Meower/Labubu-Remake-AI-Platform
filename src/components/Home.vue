@@ -635,7 +635,7 @@ export default {
 
 /* 关于我们样式 */
 .about-us {
-  background: white;
+  background: #2d2d2d;
 }
 
 .about-content {
@@ -649,11 +649,11 @@ export default {
   font-size: 1.5rem;
   font-weight: 600;
   margin-bottom: 1rem;
-  color: #333;
+  color: #e0e0e0;
 }
 
 .about-text p {
-  color: #666;
+  color: #b0b0b0;
   line-height: 1.8;
   margin-bottom: 2rem;
 }
@@ -665,7 +665,7 @@ export default {
 
 .about-text li {
   padding: 0.5rem 0;
-  color: #666;
+  color: #b0b0b0;
 }
 
 .vision-card {
@@ -694,7 +694,7 @@ export default {
 }
 
 .value-item {
-  background: #f8f9fa;
+  background: #3a3a3a;
   padding: 1.5rem;
   border-radius: 15px;
   text-align: center;
@@ -713,7 +713,7 @@ export default {
 
 .value-text {
   font-weight: 600;
-  color: #333;
+  color: #e0e0e0;
 }
 
 /* 联系我们样式 */

@@ -345,7 +345,7 @@ export default {
 
 /* 核心价值样式 */
 .values {
-  background: #f8f9fa;
+  background: #3a3a3a;
   padding: 4rem 0;
 }
 
@@ -356,13 +356,13 @@ export default {
 }
 
 .value-card {
-  background: white;
+  background: #2d2d2d;
   padding: 2.5rem;
   border-radius: 20px;
   text-align: center;
-  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
   transition: all 0.3s ease;
-  border: 1px solid #e9ecef;
+  border: 1px solid #404040;
 }
 
 .value-card:hover {
@@ -379,17 +379,17 @@ export default {
   font-size: 1.5rem;
   font-weight: 600;
   margin-bottom: 1rem;
-  color: #333;
+  color: #e0e0e0;
 }
 
 .value-card p {
-  color: #666;
+  color: #b0b0b0;
   line-height: 1.6;
 }
 
 /* 平台特色样式 */
 .features {
-  background: white;
+  background: #2d2d2d;
   padding: 4rem 0;
 }
 
@@ -404,10 +404,10 @@ export default {
   align-items: flex-start;
   gap: 2rem;
   padding: 2.5rem;
-  background: #f8f9fa;
+  background: #3a3a3a;
   border-radius: 20px;
   transition: all 0.3s ease;
-  border: 1px solid #e9ecef;
+  border: 1px solid #404040;
 }
 
 .feature-item:hover {
@@ -438,18 +438,18 @@ export default {
   font-size: 1.5rem;
   font-weight: 600;
   margin-bottom: 1rem;
-  color: #333;
+  color: #e0e0e0;
 }
 
 .feature-info p {
-  color: #666;
+  color: #b0b0b0;
   line-height: 1.6;
   font-size: 1.1rem;
 }
 
 /* 团队样式 */
 .team {
-  background: #f8f9fa;
+  background: #3a3a3a;
   padding: 4rem 0;
 }
 
@@ -460,11 +460,11 @@ export default {
 }
 
 .team-member {
-  background: white;
+  background: #2d2d2d;
   padding: 2.5rem;
   border-radius: 20px;
   text-align: center;
-  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
   transition: all 0.3s ease;
 }
 
@@ -490,7 +490,7 @@ export default {
   font-size: 1.5rem;
   font-weight: 600;
   margin-bottom: 0.5rem;
-  color: #333;
+  color: #e0e0e0;
 }
 
 .member-role {
@@ -500,14 +500,14 @@ export default {
 }
 
 .member-bio {
-  color: #666;
+  color: #b0b0b0;
   line-height: 1.6;
   font-size: 0.95rem;
 }
 
 /* 联系我们样式 */
 .contact {
-  background: white;
+  background: #2d2d2d;
   padding: 4rem 0;
 }
 
@@ -523,13 +523,13 @@ export default {
 }
 
 .contact-card {
-  background: white;
+  background: #3a3a3a;
   padding: 2.5rem;
   border-radius: 20px;
   text-align: center;
-  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
   transition: all 0.3s ease;
-  border: 1px solid #e9ecef;
+  border: 1px solid #404040;
 }
 
 .contact-card:hover {

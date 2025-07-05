@@ -303,7 +303,7 @@ export default {
 
 /* 统计样式 */
 .stats {
-  background: white;
+  background: #2d2d2d;
   padding: 4rem 0;
 }
 
@@ -341,7 +341,7 @@ export default {
 
 /* 搜索和筛选样式 */
 .search-filter {
-  background: #f8f9fa;
+  background: #3a3a3a;
   padding: 3rem 0;
 }
 
@@ -362,11 +362,12 @@ export default {
   border: none;
   font-size: 1rem;
   outline: none;
-  background: white;
+  background: #2d2d2d;
+  color: #e0e0e0;
 }
 
 .search-bar input::placeholder {
-  color: #999;
+  color: #b0b0b0;
 }
 
 .search-btn {
@@ -393,12 +394,13 @@ export default {
 
 .filter-tab {
   padding: 1rem 2rem;
-  background: white;
-  border: 2px solid #e9ecef;
+  background: #2d2d2d;
+  border: 2px solid #404040;
   border-radius: 25px;
   cursor: pointer;
   transition: all 0.3s ease;
   font-weight: 500;
+  color: #e0e0e0;
 }
 
 .filter-tab.active {
@@ -414,7 +416,7 @@ export default {
 
 /* 特色商品样式 */
 .featured {
-  background: white;
+  background: #2d2d2d;
   padding: 4rem 0;
 }
 
@@ -425,10 +427,10 @@ export default {
 }
 
 .featured-item {
-  background: white;
+  background: #3a3a3a;
   border-radius: 20px;
   overflow: hidden;
-  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
   transition: all 0.3s ease;
 }
 
@@ -474,11 +476,11 @@ export default {
   font-size: 1.5rem;
   font-weight: 600;
   margin-bottom: 0.5rem;
-  color: #333;
+  color: #e0e0e0;
 }
 
 .item-creator {
-  color: #666;
+  color: #b0b0b0;
   font-size: 0.9rem;
   margin-bottom: 1rem;
 }
@@ -507,7 +509,7 @@ export default {
 
 /* 商品布局样式 */
 .products {
-  background: #f8f9fa;
+  background: #3a3a3a;
   padding: 4rem 0;
 }
 
@@ -518,11 +520,11 @@ export default {
 }
 
 .products-sidebar {
-  background: white;
+  background: #2d2d2d;
   border-radius: 20px;
   padding: 2rem;
   height: fit-content;
-  box-shadow: 0 5px 20px rgba(0, 0, 0, 0.1);
+  box-shadow: 0 5px 20px rgba(0, 0, 0, 0.3);
 }
 
 .sidebar-section {
@@ -533,7 +535,7 @@ export default {
   font-size: 1.2rem;
   font-weight: 600;
   margin-bottom: 1rem;
-  color: #333;
+  color: #e0e0e0;
 }
 
 .category-list {
@@ -553,7 +555,7 @@ export default {
 }
 
 .category-item:hover {
-  background: #f8f9fa;
+  background: #4a4a4a;
 }
 
 .category-item.active {
@@ -593,7 +595,7 @@ export default {
   display: flex;
   justify-content: space-between;
   font-size: 0.9rem;
-  color: #666;
+  color: #b0b0b0;
 }
 
 .condition-list {
@@ -616,10 +618,10 @@ export default {
 }
 
 .products-main {
-  background: white;
+  background: #2d2d2d;
   border-radius: 20px;
   padding: 2rem;
-  box-shadow: 0 5px 20px rgba(0, 0, 0, 0.1);
+  box-shadow: 0 5px 20px rgba(0, 0, 0, 0.3);
 }
 
 .products-header {
@@ -632,16 +634,18 @@ export default {
 }
 
 .results-count {
-  color: #666;
+  color: #b0b0b0;
   font-size: 0.9rem;
 }
 
 .sort-options select {
   padding: 0.5rem 1rem;
-  border: 1px solid #ddd;
+  border: 1px solid #555;
   border-radius: 8px;
   outline: none;
   cursor: pointer;
+  background: #3a3a3a;
+  color: #e0e0e0;
 }
 
 .products-grid {
@@ -652,10 +656,10 @@ export default {
 }
 
 .product-card {
-  background: white;
+  background: #3a3a3a;
   border-radius: 15px;
   overflow: hidden;
-  box-shadow: 0 5px 20px rgba(0, 0, 0, 0.1);
+  box-shadow: 0 5px 20px rgba(0, 0, 0, 0.3);
   transition: all 0.3s ease;
 }
 
@@ -688,11 +692,11 @@ export default {
   font-size: 1.2rem;
   font-weight: 600;
   margin-bottom: 0.5rem;
-  color: #333;
+  color: #e0e0e0;
 }
 
 .product-creator {
-  color: #666;
+  color: #b0b0b0;
   font-size: 0.9rem;
   margin-bottom: 1rem;
 }
@@ -719,12 +723,13 @@ export default {
 
 .page-btn {
   padding: 0.8rem 1.2rem;
-  background: white;
-  border: 2px solid #e9ecef;
+  background: #2d2d2d;
+  border: 2px solid #404040;
   border-radius: 8px;
   cursor: pointer;
   transition: all 0.3s ease;
   font-weight: 500;
+  color: #e0e0e0;
 }
 
 .page-btn:hover {
@@ -740,7 +745,7 @@ export default {
 
 /* 卖家工具样式 */
 .seller-tools {
-  background: white;
+  background: #2d2d2d;
   padding: 4rem 0;
 }
 
@@ -751,13 +756,13 @@ export default {
 }
 
 .tool-card {
-  background: white;
+  background: #3a3a3a;
   border-radius: 20px;
   padding: 2.5rem;
   text-align: center;
-  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
   transition: all 0.3s ease;
-  border: 1px solid #e9ecef;
+  border: 1px solid #404040;
 }
 
 .tool-card:hover {
@@ -774,11 +779,11 @@ export default {
   font-size: 1.5rem;
   font-weight: 600;
   margin-bottom: 1rem;
-  color: #333;
+  color: #e0e0e0;
 }
 
 .tool-card p {
-  color: #666;
+  color: #b0b0b0;
   line-height: 1.6;
 }
 

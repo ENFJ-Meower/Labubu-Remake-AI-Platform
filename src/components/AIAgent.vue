@@ -456,20 +456,20 @@ export default {
   min-width: 40px;
   text-align: center;
   font-weight: 600;
-  color: #333;
+  color: #e0e0e0;
 }
 
 /* 示例展示样式 */
 .examples {
   padding: 4rem 0;
-  background: #f8f9fa;
+  background: #3a3a3a;
 }
 
 .example-card {
-  background: white;
+  background: #2d2d2d;
   border-radius: 20px;
   padding: 2rem;
-  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
   transition: all 0.3s ease;
 }
 
@@ -499,11 +499,11 @@ export default {
   font-size: 1.5rem;
   font-weight: 600;
   margin-bottom: 1rem;
-  color: #333;
+  color: #e0e0e0;
 }
 
 .example-content p {
-  color: #666;
+  color: #b0b0b0;
   margin-bottom: 1.5rem;
   line-height: 1.6;
 }
