@@ -10,305 +10,381 @@
 
 <p align="center">
   <img src="https://img.shields.io/badge/Vue.js-3.3.4-4FC08D?style=for-the-badge&logo=vue.js&logoColor=white" alt="Vue.js" />
+  <img src="https://img.shields.io/badge/Node.js-18.0+-339933?style=for-the-badge&logo=node.js&logoColor=white" alt="Node.js" />
   <img src="https://img.shields.io/badge/Vite-4.4.9-646CFF?style=for-the-badge&logo=vite&logoColor=white" alt="Vite" />
-  <img src="https://img.shields.io/badge/CSS3-1572B6?style=for-the-badge&logo=css3&logoColor=white" alt="CSS3" />
-  <img src="https://img.shields.io/badge/JavaScript-F7DF1E?style=for-the-badge&logo=javascript&logoColor=black" alt="JavaScript" />
+  <img src="https://img.shields.io/badge/Express.js-4.18+-000000?style=for-the-badge&logo=express&logoColor=white" alt="Express" />
+  <img src="https://img.shields.io/badge/MongoDB-6.0+-47A248?style=for-the-badge&logo=mongodb&logoColor=white" alt="MongoDB" />
 </p>
 
 ---
 
-## 🌟 项目简介
+## 📖 English Documentation
 
-Labubu AI 云创平台是一个结合AI生成技术与Labubu IP形象再创作的创意型社区平台，旨在为用户提供一个集AI agent自定义搭建、互动社区交流与二手改造展示于一体的多功能创作空间。
+### 🌟 Project Overview
+
+Labubu AI Creative Platform is an innovative community platform that combines AI generation technology with Labubu IP character recreation. It provides users with a comprehensive creative space featuring AI agent customization, interactive community engagement, and a marketplace for creative works and modifications.
+
+### 🎯 Core Features
+
+- **🤖 AI Agent Studio**: Custom AI agent building tools with intuitive visual configuration interface
+- **👥 Interactive Community**: Vibrant creator community with real-time chat, artwork sharing, and creative challenges
+- **🛍️ Creative Marketplace**: Secure marketplace for trading Labubu peripherals and custom artworks
+- **📚 Learning Hub**: Comprehensive AI creation tutorials and prompt libraries
+
+---
+
+### 📁 Complete Project Structure
+
+```
+labubu-ai-platform/
+├── 📁 Frontend (Vue.js Application)
+│   ├── 📁 public/                     # Static public assets
+│   ├── 📁 src/                       # Source code directory
+│   │   ├── 📁 assets/                # Resource files
+│   │   │   ├── 📁 css/
+│   │   │   │   └── 📄 global.css     # Global CSS styles
+│   │   │   └── 📁 images/            # Image resources
+│   │   │       ├── 🖼️ bg.png         # Main background image (552KB)
+│   │   │       ├── 🖼️ home1.jpg      # AI Agent showcase image (57KB)
+│   │   │       ├── 🖼️ home2.png      # Community feature image (2.0MB)
+│   │   │       ├── 🖼️ home3.png      # Marketplace showcase image (2.4MB)
+│   │   │       └── 🖼️ labubu-logo.png # Platform logo
+│   │   ├── 📁 components/            # Vue.js components
+│   │   │   ├── 📄 Home.vue           # Homepage component (20KB, 796 lines)
+│   │   │   ├── 📄 AIAgent.vue        # AI Agent studio page (14KB, 587 lines)
+│   │   │   ├── 📄 Community.vue      # Community interaction page (12KB, 430 lines)
+│   │   │   ├── 📄 Marketplace.vue    # Marketplace page (20KB, 863 lines)
+│   │   │   └── 📄 About.vue          # About us page (16KB, 644 lines)
+│   │   ├── 📄 App.vue               # Root Vue component (6.0KB, 280 lines)
+│   │   └── 📄 main.js               # Application entry point (1.1KB, 41 lines)
+│   ├── 📄 index.html                # HTML template (756B, 16 lines)
+│   ├── 📄 package.json              # Frontend dependencies & scripts (710B, 30 lines)
+│   ├── 📄 package-lock.json         # Dependency lock file (37KB, 1111 lines)
+│   └── 📄 vite.config.js            # Vite build configuration (332B, 17 lines)
+│
+├── 📁 Backend (Node.js/Express.js API)
+│   ├── 📁 config/                   # Configuration files
+│   │   └── 📄 env.example           # Environment variables template
+│   ├── 📁 middleware/               # Express middleware
+│   │   ├── 📄 auth.js              # Authentication middleware (8.3KB, 354 lines)
+│   │   ├── 📄 errorHandler.js      # Error handling middleware (8.4KB, 342 lines)
+│   │   └── 📄 logger.js            # Logging middleware (9.9KB, 375 lines)
+│   ├── 📁 models/                  # Database models (MongoDB/Mongoose)
+│   │   ├── 📄 User.js              # User data model (8.2KB, 364 lines)
+│   │   ├── 📄 AIAgent.js           # AI Agent model (10KB, 481 lines)
+│   │   ├── 📄 Post.js              # Community post model (14KB, 593 lines)
+│   │   ├── 📄 Product.js           # Marketplace product model (17KB, 713 lines)
+│   │   ├── 📄 Conversation.js      # Chat conversation model (16KB, 678 lines)
+│   │   └── 📄 Notification.js      # Notification system model (16KB, 642 lines)
+│   ├── 📁 routes/                  # API route handlers
+│   │   └── 📄 auth.js              # Authentication routes (16KB, 596 lines)
+│   ├── 📄 server.js                # Express server setup (9.5KB, 322 lines)
+│   ├── 📄 package.json             # Backend dependencies (1.1KB, 48 lines)
+│   ├── 📄 package-lock.json        # Backend dependency lock file (242KB, 6629 lines)
+│   └── 📄 README.md                # Backend documentation (27KB, 1261 lines)
+│
+├── 📄 .gitignore                   # Git ignore rules (1.2KB, 95 lines)
+└── 📄 README.md                    # Main project documentation
+```
+
+### 🗂️ Detailed File Descriptions
+
+#### Frontend Components
+
+| File | Purpose | Key Features |
+|------|---------|--------------|
+| `Home.vue` | Main landing page | Hero section, feature showcase, statistics, CTA buttons |
+| `AIAgent.vue` | AI Agent creation studio | Drag-drop interface, parameter controls, template library |
+| `Community.vue` | Social interaction hub | Post feed, real-time chat, user profiles, activity timeline |
+| `Marketplace.vue` | E-commerce platform | Product listings, search/filter, payment integration |
+| `About.vue` | Company information | Team profiles, mission statement, contact details |
+
+#### Backend Data Models
+
+| Model | Purpose | Key Fields |
+|-------|---------|------------|
+| `User.js` | User management | Authentication, profiles, preferences, activity history |
+| `AIAgent.js` | AI Agent definitions | Templates, parameters, configurations, usage statistics |
+| `Post.js` | Community content | Text posts, images, comments, likes, sharing |
+| `Product.js` | Marketplace items | Listings, pricing, inventory, reviews, categories |
+| `Conversation.js` | Chat system | Messages, participants, timestamps, thread management |
+| `Notification.js` | Alert system | User notifications, system alerts, email triggers |
+
+#### Middleware Components
+
+| Middleware | Purpose | Functionality |
+|------------|---------|---------------|
+| `auth.js` | Security layer | JWT token validation, role-based access control |
+| `errorHandler.js` | Error management | Global error catching, logging, user-friendly responses |
+| `logger.js` | Activity tracking | Request logging, performance monitoring, audit trails |
+
+### 🚀 Quick Start Guide
+
+#### Prerequisites
+- **Node.js** (v18.0 or higher)
+- **npm** or **yarn** package manager
+- **MongoDB** (v6.0 or higher)
+- Modern web browser (Chrome 90+, Firefox 88+, Safari 14+)
+
+#### Installation Steps
+
+1. **Clone Repository**
+   ```bash
+   git clone https://github.com/ENFJ-Meower/Labubu-Remake-AI-Platform.git
+   cd Labubu-Remake-AI-Platform
+   git checkout W  # Switch to W branch
+   ```
+
+2. **Frontend Setup**
+   ```bash
+   # Install frontend dependencies
+   npm install
+   
+   # Start development server
+   npm run dev
+   # Access at http://localhost:3000
+   ```
+
+3. **Backend Setup**
+   ```bash
+   # Navigate to backend directory
+   cd backend
+   
+   # Install backend dependencies
+   npm install
+   
+   # Configure environment variables
+   cp config/env.example .env
+   # Edit .env file with your MongoDB connection and other settings
+   
+   # Start backend server
+   npm start
+   # API available at http://localhost:5000
+   ```
+
+#### Production Build
+```bash
+# Build frontend for production
+npm run build
+
+# Preview production build
+npm run preview
+```
+
+### 🛠️ Technology Stack
+
+#### Frontend Architecture
+- **Vue.js 3**: Progressive JavaScript framework with Composition API
+- **Vue Router 4**: Client-side routing for single-page application
+- **Vite**: Next-generation build tool with hot module replacement
+- **CSS3**: Modern styling with Grid, Flexbox, custom properties
+- **Responsive Design**: Mobile-first approach with adaptive layouts
+
+#### Backend Architecture
+- **Node.js**: JavaScript runtime for server-side development
+- **Express.js**: Web application framework for RESTful APIs
+- **MongoDB**: NoSQL database for flexible data storage
+- **Mongoose**: ODM library for MongoDB object modeling
+- **JWT**: JSON Web Tokens for secure authentication
+
+#### Development Tools
+- **ESLint**: Code quality and style enforcement
+- **Prettier**: Automatic code formatting
+- **Git**: Version control with branch-based workflow
+
+---
+
+## 📖 中文文档
+
+### 🌟 项目概述
+
+Labubu AI 云创平台是一个创新的社区平台，结合AI生成技术与Labubu IP形象再创作，为用户提供集AI代理定制、互动社区交流和创作作品交易于一体的综合性创作空间。
 
 ### 🎯 核心功能
 
 - **🤖 AI Agent Studio**: 自定义AI代理搭建工具，提供直观的可视化配置界面
-- **👥 Interactive Community**: 活跃的创作者社区，支持实时聊天、作品分享和创意挑战
-- **🛍️ Creative Marketplace**: 安全的二手交易平台，支持Labubu周边和定制作品交易
-- **📚 Learning Hub**: 系统化的AI创作教程和提示词库
+- **👥 互动社区**: 活跃的创作者社区，支持实时聊天、作品分享和创意挑战
+- **🛍️ 创意市场**: 安全的交易平台，支持Labubu周边和定制作品交易
+- **📚 学习中心**: 系统化的AI创作教程和提示词库
 
 ---
 
-## 🔄 最新更新
-
-### 📁 项目结构优化 (2024年)
-- **🖼️ 图片文件夹整理**: 新增 `src/assets/images/` 专用图片文件夹
-- **🏠 主页视觉优化**: 添加了三张home系列图片，分别展示AI创作、社区互动和市场功能
-- **📱 响应式增强**: 优化了所有图片在移动端的显示效果
-- **🎨 视觉效果升级**: 新增图片悬停动画和阴影效果
-
-### 图片资源
-- `home1.jpg` - AI Agent Studio功能展示图
-- `home2.png` - 社区互动功能展示图  
-- `home3.png` - 创意市场功能展示图
-- `bg.png` - 主页背景图片
-- `labubu-logo.png` - 平台Logo
-
----
-
-## 🚀 快速开始
-
-### 前置要求
-
-确保您的开发环境已安装以下工具：
-
-- **Node.js** (版本 >= 16.0.0)
-- **npm** 或 **yarn** 包管理器
-- 现代浏览器 (Chrome 90+, Firefox 88+, Safari 14+)
-
-### 安装步骤
-
-1. **克隆项目仓库**
-   ```bash
-   git clone https://github.com/your-username/labubu-ai-platform.git
-   cd labubu-ai-platform
-   ```
-
-2. **安装项目依赖**
-   ```bash
-   npm install
-   # 或者使用 yarn
-   yarn install
-   ```
-
-3. **启动开发服务器**
-   ```bash
-   npm run dev
-   # 或者使用 yarn
-   yarn dev
-   ```
-
-4. **访问应用**
-   
-   打开浏览器访问 `http://localhost:3000`
-
-### 构建部署
-
-```bash
-# 构建生产版本
-npm run build
-
-# 本地预览构建结果
-npm run preview
-```
-
----
-
-## 📁 项目结构
+### 📁 完整项目结构说明
 
 ```
 labubu-ai-platform/
-├── public/                     # 静态资源文件
-├── src/                       # 源代码目录
-│   ├── assets/                # 资源文件
-│   │   ├── css/
-│   │   │   └── global.css     # 全局样式文件
-│   │   └── images/            # 图片资源文件夹 🆕
-│   │       ├── bg.png         # 主背景图片
-│   │       ├── home1.jpg      # AI功能展示图 🆕
-│   │       ├── home2.png      # 社区展示图 🆕
-│   │       ├── home3.png      # 市场展示图 🆕
-│   │       └── labubu-logo.png # 平台Logo
-│   ├── components/            # Vue 组件
-│   │   ├── Home.vue           # 主页组件 ✨优化
-│   │   ├── AIAgent.vue        # AI代理页面
-│   │   ├── Community.vue      # 社区页面
-│   │   ├── Marketplace.vue    # 市场页面
-│   │   └── About.vue          # 关于页面
-│   ├── App.vue               # 根组件
-│   └── main.js               # 应用入口文件
-├── backend/                  # 后端代码目录
-├── index.html               # HTML 模板
-├── package.json             # 项目配置
-├── vite.config.js           # Vite 配置
-└── README.md               # 项目说明文档
+├── 📁 前端 (Vue.js 应用程序)
+│   ├── 📁 public/                     # 静态公共资源
+│   ├── 📁 src/                       # 源代码目录
+│   │   ├── 📁 assets/                # 资源文件
+│   │   │   ├── 📁 css/
+│   │   │   │   └── 📄 global.css     # 全局CSS样式
+│   │   │   └── 📁 images/            # 图片资源
+│   │   │       ├── 🖼️ bg.png         # 主背景图片 (552KB)
+│   │   │       ├── 🖼️ home1.jpg      # AI代理展示图 (57KB)
+│   │   │       ├── 🖼️ home2.png      # 社区功能图 (2.0MB)
+│   │   │       ├── 🖼️ home3.png      # 市场展示图 (2.4MB)
+│   │   │       └── 🖼️ labubu-logo.png # 平台Logo
+│   │   ├── 📁 components/            # Vue.js 组件
+│   │   │   ├── 📄 Home.vue           # 主页组件 (20KB, 796行)
+│   │   │   ├── 📄 AIAgent.vue        # AI代理工作室页面 (14KB, 587行)
+│   │   │   ├── 📄 Community.vue      # 社区互动页面 (12KB, 430行)
+│   │   │   ├── 📄 Marketplace.vue    # 市场页面 (20KB, 863行)
+│   │   │   └── 📄 About.vue          # 关于我们页面 (16KB, 644行)
+│   │   ├── 📄 App.vue               # 根Vue组件 (6.0KB, 280行)
+│   │   └── 📄 main.js               # 应用程序入口 (1.1KB, 41行)
+│   ├── 📄 index.html                # HTML模板 (756B, 16行)
+│   ├── 📄 package.json              # 前端依赖和脚本 (710B, 30行)
+│   ├── 📄 package-lock.json         # 依赖锁定文件 (37KB, 1111行)
+│   └── 📄 vite.config.js            # Vite构建配置 (332B, 17行)
+│
+├── 📁 后端 (Node.js/Express.js API)
+│   ├── 📁 config/                   # 配置文件
+│   │   └── 📄 env.example           # 环境变量模板
+│   ├── 📁 middleware/               # Express中间件
+│   │   ├── 📄 auth.js              # 身份验证中间件 (8.3KB, 354行)
+│   │   ├── 📄 errorHandler.js      # 错误处理中间件 (8.4KB, 342行)
+│   │   └── 📄 logger.js            # 日志记录中间件 (9.9KB, 375行)
+│   ├── 📁 models/                  # 数据库模型 (MongoDB/Mongoose)
+│   │   ├── 📄 User.js              # 用户数据模型 (8.2KB, 364行)
+│   │   ├── 📄 AIAgent.js           # AI代理模型 (10KB, 481行)
+│   │   ├── 📄 Post.js              # 社区帖子模型 (14KB, 593行)
+│   │   ├── 📄 Product.js           # 市场商品模型 (17KB, 713行)
+│   │   ├── 📄 Conversation.js      # 聊天会话模型 (16KB, 678行)
+│   │   └── 📄 Notification.js      # 通知系统模型 (16KB, 642行)
+│   ├── 📁 routes/                  # API路由处理器
+│   │   └── 📄 auth.js              # 身份验证路由 (16KB, 596行)
+│   ├── 📄 server.js                # Express服务器设置 (9.5KB, 322行)
+│   ├── 📄 package.json             # 后端依赖 (1.1KB, 48行)
+│   ├── 📄 package-lock.json        # 后端依赖锁定文件 (242KB, 6629行)
+│   └── 📄 README.md                # 后端文档 (27KB, 1261行)
+│
+├── 📄 .gitignore                   # Git忽略规则 (1.2KB, 95行)
+└── 📄 README.md                    # 主项目文档
 ```
 
----
+### 🗂️ 详细文件说明
 
-## 🎨 功能特色
+#### 前端组件
 
-### 1. AI Agent Studio
-- **📊 可视化配置界面**: 拖拽式组件配置，无需编程基础
-- **⚙️ 参数调节**: 创意水平、响应速度、质量焦点等可调节参数
-- **📋 模板库**: 预置多种AI代理模板（艺术生成器、内容写手、音乐创作等）
-- **💾 项目管理**: 支持保存、导入和导出AI代理配置
+| 文件 | 用途 | 主要功能 |
+|------|------|----------|
+| `Home.vue` | 主页landing页面 | 英雄区、功能展示、统计数据、行动号召按钮 |
+| `AIAgent.vue` | AI代理创建工作室 | 拖拽界面、参数控制、模板库 |
+| `Community.vue` | 社交互动中心 | 帖子动态、实时聊天、用户档案、活动时间线 |
+| `Marketplace.vue` | 电商平台 | 商品列表、搜索筛选、支付集成 |
+| `About.vue` | 公司信息 | 团队介绍、使命宣言、联系方式 |
 
-### 2. Interactive Community
-- **💬 实时聊天**: WebSocket实现的即时通讯功能
-- **🎨 作品画廊**: 美观的网格布局展示用户创作
-- **🏆 创意挑战**: 定期举办主题创作比赛
-- **👥 兴趣小组**: 基于兴趣分类的专业社群
+#### 后端数据模型
 
-### 3. Creative Marketplace
-- **🛡️ 安全交易**: 内置支付保护和质量认证
-- **🔍 智能搜索**: 基于AI的商品推荐和搜索
-- **📊 数据分析**: 为卖家提供详细的销售分析
-- **⭐ 评价系统**: 完善的买家评价和信誉体系
+| 模型 | 用途 | 关键字段 |
+|------|------|----------|
+| `User.js` | 用户管理 | 身份验证、个人资料、偏好设置、活动历史 |
+| `AIAgent.js` | AI代理定义 | 模板、参数、配置、使用统计 |
+| `Post.js` | 社区内容 | 文本帖子、图片、评论、点赞、分享 |
+| `Product.js` | 市场商品 | 商品列表、定价、库存、评价、分类 |
+| `Conversation.js` | 聊天系统 | 消息、参与者、时间戳、话题管理 |
+| `Notification.js` | 通知系统 | 用户通知、系统警告、邮件触发 |
 
-### 4. 响应式设计
-- **📱 移动端优化**: 完美适配手机和平板设备
-- **🎯 用户体验**: 流畅的动画效果和交互设计
-- **⚡ 性能优化**: 懒加载、代码分割等性能优化技术
+#### 中间件组件
 
----
+| 中间件 | 用途 | 功能 |
+|--------|------|------|
+| `auth.js` | 安全层 | JWT令牌验证、基于角色的访问控制 |
+| `errorHandler.js` | 错误管理 | 全局错误捕获、日志记录、用户友好响应 |
+| `logger.js` | 活动跟踪 | 请求日志、性能监控、审计跟踪 |
 
-## 🛠️ 技术栈
+### 🚀 快速开始指南
 
-### 前端框架
-- **Vue.js 3**: 渐进式JavaScript框架，提供响应式数据绑定
-- **Vue Router 4**: 官方路由管理器，支持单页应用导航
-- **Vite**: 下一代前端构建工具，快速的开发服务器
+#### 环境要求
+- **Node.js** (v18.0 或更高版本)
+- **npm** 或 **yarn** 包管理器
+- **MongoDB** (v6.0 或更高版本)
+- 现代网络浏览器 (Chrome 90+, Firefox 88+, Safari 14+)
 
-### 样式方案
-- **原生CSS3**: 使用现代CSS特性，包括Grid、Flexbox、自定义属性
-- **响应式设计**: 移动端优先的响应式布局
-- **动画效果**: CSS动画和过渡效果，提升用户体验
+#### 安装步骤
 
-### 开发工具
-- **ESLint**: 代码质量检查工具
-- **Prettier**: 代码格式化工具
-- **Git**: 版本控制系统
+1. **克隆仓库**
+   ```bash
+   git clone https://github.com/ENFJ-Meower/Labubu-Remake-AI-Platform.git
+   cd Labubu-Remake-AI-Platform
+   git checkout W  # 切换到W分支
+   ```
 
----
+2. **前端设置**
+   ```bash
+   # 安装前端依赖
+   npm install
+   
+   # 启动开发服务器
+   npm run dev
+   # 访问地址：http://localhost:3000
+   ```
 
-## 🎯 页面介绍
+3. **后端设置**
+   ```bash
+   # 进入后端目录
+   cd backend
+   
+   # 安装后端依赖
+   npm install
+   
+   # 配置环境变量
+   cp config/env.example .env
+   # 编辑.env文件，设置MongoDB连接和其他配置
+   
+   # 启动后端服务器
+   npm start
+   # API地址：http://localhost:5000
+   ```
 
-### 🏠 主页 (Home)
-- **英雄区域**: 大屏背景展示，包含主要行动号召按钮
-- **功能展示**: AI Agent、社区、市场功能的卡片式介绍
-- **统计数据**: 动态显示平台用户数、作品数等关键指标
-- **关于我们**: 平台愿景、团队介绍和联系方式
+#### 生产构建
+```bash
+# 构建前端生产版本
+npm run build
 
-### 🤖 AI Agent Studio
-- **工作区界面**: 分屏设计，左侧模板选择，右侧配置面板
-- **参数控制**: 滑块控制创意水平、速度、质量等参数
-- **实时预览**: 配置更改的即时效果预览
-- **示例展示**: 其他用户创建的优秀AI代理案例
+# 预览生产构建
+npm run preview
+```
 
-### 👥 社区 (Community)
-- **动态信息流**: 类似社交媒体的用户动态展示
-- **话题标签**: 热门话题和标签云
-- **活动日历**: 即将举行的比赛和活动
-- **用户统计**: 社区活跃度和参与度数据
+### 🛠️ 技术栈
 
-### 🛍️ 市场 (Marketplace)
-- **商品网格**: 响应式商品展示网格
-- **筛选搜索**: 多维度筛选和搜索功能
-- **特色推荐**: 精选商品和热门商品展示
-- **卖家工具**: 为卖家提供的分析和营销工具
+#### 前端架构
+- **Vue.js 3**: 渐进式JavaScript框架，使用Composition API
+- **Vue Router 4**: 单页应用的客户端路由
+- **Vite**: 下一代构建工具，支持热模块替换
+- **CSS3**: 现代样式设计，使用Grid、Flexbox、自定义属性
+- **响应式设计**: 移动端优先的自适应布局
 
-### ℹ️ 关于我们 (About)
-- **企业介绍**: 公司历史、使命和愿景
-- **团队展示**: 核心团队成员介绍
-- **价值观**: 企业核心价值观和文化
-- **联系方式**: 多渠道联系方式和社交媒体
+#### 后端架构
+- **Node.js**: 服务器端JavaScript运行环境
+- **Express.js**: RESTful API的Web应用框架
+- **MongoDB**: 灵活数据存储的NoSQL数据库
+- **Mongoose**: MongoDB对象建模的ODM库
+- **JWT**: 安全身份验证的JSON Web令牌
 
----
-
-## 🎨 设计系统
-
-### 色彩方案
-- **主色调**: `#ff6b6b` (珊瑚红) - 活力与创造力
-- **辅助色**: `#4ecdc4` (青绿色) - 科技与创新
-- **中性色**: `#333333` (深灰) - 文本主色
-- **背景色**: `#f8f9fa` (浅灰) - 页面背景
-
-### 字体系统
-- **主字体**: `Poppins` - 现代无衬线字体，英文界面专用
-- **字体大小**: 响应式字体系统，移动端自动缩放
-- **字重**: 300 (Light), 400 (Regular), 500 (Medium), 600 (SemiBold), 700 (Bold)
-
-### 动画效果
-- **入场动画**: `fadeInUp`, `fadeInLeft`, `fadeInRight`
-- **悬停效果**: 卡片阴影变化、位移效果
-- **过渡动画**: 0.3s 缓动过渡，提升用户体验
-
----
-
-## 🚀 性能优化
-
-### 前端优化
-- **代码分割**: 路由级别的懒加载
-- **图片优化**: 响应式图片和懒加载
-- **CSS优化**: 关键CSS内联，非关键CSS异步加载
-- **JavaScript优化**: Tree shaking，去除未使用代码
-
-### 用户体验优化
-- **加载动画**: 优雅的加载状态提示
-- **错误处理**: 友好的错误页面和提示
-- **离线支持**: 基础的离线缓存策略
-- **无障碍访问**: 符合WCAG 2.1标准的无障碍设计
+#### 开发工具
+- **ESLint**: 代码质量和风格强制执行
+- **Prettier**: 自动代码格式化
+- **Git**: 基于分支工作流的版本控制
 
 ---
 
-## 🔧 开发指南
+## 📝 Development Notes
 
-### 添加新页面
-1. 在 `src/components/` 中创建新的Vue组件
-2. 在 `src/main.js` 中添加路由配置
-3. 更新导航组件链接
+### Latest Updates (Branch W)
+- ✅ **Image Organization**: Created dedicated `src/assets/images/` folder
+- ✅ **Homepage Enhancement**: Added three showcase images for different platform features
+- ✅ **Responsive Design**: Optimized image display for mobile devices
+- ✅ **Visual Effects**: Added hover animations and shadow effects
+- ✅ **Documentation**: Comprehensive file structure documentation
 
-### 自定义样式
-1. 全局样式请修改 `src/assets/css/global.css`
-2. 组件样式使用scoped CSS
-3. 遵循BEM命名规范
-
-### 组件开发规范
-- 使用Vue 3 Composition API
-- 保持组件单一职责
-- 添加适当的注释和文档
-- 确保响应式兼容性
+### Contributing
+Please ensure you're working on the **W branch** for development. All contributions should maintain the existing code structure and follow the established coding conventions.
 
 ---
 
-## 🤝 贡献指南
-
-我们欢迎所有形式的贡献！请遵循以下步骤：
-
-1. **Fork** 项目仓库
-2. 创建您的功能分支 (`git checkout -b feature/AmazingFeature`)
-3. 提交您的更改 (`git commit -m 'Add some AmazingFeature'`)
-4. 推送到分支 (`git push origin feature/AmazingFeature`)
-5. 开启一个 **Pull Request**
-
-### 代码规范
-- 使用ESLint进行代码检查
-- 遵循Vue.js官方风格指南
-- 编写清晰的提交信息
-- 添加必要的测试用例
-
----
-
-## 📄 许可证
-
-本项目采用 MIT 许可证 - 查看 [LICENSE](LICENSE) 文件了解详情。
-
----
-
-## 🌐 相关链接
-
-- **项目主页**: [https://labubu-ai.com](https://labubu-ai.com)
-- **文档中心**: [https://docs.labubu-ai.com](https://docs.labubu-ai.com)
-- **社区论坛**: [https://community.labubu-ai.com](https://community.labubu-ai.com)
-- **问题反馈**: [GitHub Issues](https://github.com/your-username/labubu-ai-platform/issues)
-
----
-
-## 📞 联系我们
-
-- **邮箱**: hello@labubu-ai.com
-- **技术支持**: support@labubu-ai.com
-- **社交媒体**: [@LabubuAI](https://twitter.com/LabubuAI)
-- **Discord**: [LabubuAI Community](https://discord.gg/labubuai)
-
----
-
-<p align="center">
-  <strong>🎨 让创意无界，让AI赋能艺术！</strong>
-</p>
-
-<p align="center">
-  Made with ❤️ by the Labubu AI Team
-</p> 
+**Repository**: https://github.com/ENFJ-Meower/Labubu-Remake-AI-Platform  
+**Branch**: W  
+**License**: MIT  
+**Version**: 1.0.0 
