@@ -1,34 +1,31 @@
 <template>
   <div class="ai-agent-builder">
-    <!-- 顶部工具栏 -->
+    <!-- Top toolbar -->
     <div class="top-toolbar">
       <div class="toolbar-left">
         <div class="agent-info">
-          <div class="agent-avatar">
-            <img :src="currentAgent.avatar || '/logo.png'" alt="Agent Avatar" />
-          </div>
           <div class="agent-meta">
-            <h2 class="agent-name">{{ currentAgent.name || '未命名Agent' }}</h2>
+            <h2 class="agent-name">{{ currentAgent.name || 'Unnamed Agent' }}</h2>
             <p class="agent-status">{{ getAgentStatus() }}</p>
           </div>
         </div>
       </div>
       <div class="toolbar-right">
         <button class="btn btn-secondary" @click="saveAgent">
-          <i class="icon">💾</i> 保存
+          <i class="icon">💾</i> Save
         </button>
         <button class="btn btn-primary" @click="testAgent">
-          <i class="icon">🧪</i> 测试
+          <i class="icon">🧪</i> Test
         </button>
         <button class="btn btn-success" @click="deployAgent">
-          <i class="icon">🚀</i> 发布
+          <i class="icon">🚀</i> Deploy
         </button>
       </div>
     </div>
 
-    <!-- 主要内容区域 -->
+    <!-- Main content area -->
     <div class="main-container">
-      <!-- 左侧导航面板 -->
+      <!-- Left navigation panel -->
       <div class="sidebar">
         <div class="nav-tabs">
           <div 
@@ -36,6 +33,7 @@
             :key="tab.id"
             class="nav-tab"
             :class="{ active: activeTab === tab.id }"
+            :data-tab="tab.id"
             @click="setActiveTab(tab.id)"
           >
             <div class="tab-icon">{{ tab.icon }}</div>
@@ -48,122 +46,99 @@
         </div>
       </div>
 
-      <!-- 右侧编辑区域 -->
+      <!-- Right editing area -->
       <div class="editor-area">
-        <!-- 基本信息编辑 -->
+        <!-- Basic information editing -->
         <div v-if="activeTab === 'basic'" class="editor-content">
           <div class="section-header">
-            <h3>基本信息</h3>
-            <p>设置Agent的基本属性和身份信息</p>
+            <h3>Basic Information</h3>
+            <p>Configure Agent's basic properties and identity information</p>
           </div>
           
           <div class="form-section">
             <div class="form-group">
-              <label>Agent名称</label>
+              <label>Agent Name</label>
               <input 
                 v-model="currentAgent.name" 
                 type="text" 
-                placeholder="为你的Agent起个名字"
+                placeholder="Give your Agent a name"
                 class="form-input"
               />
             </div>
             
             <div class="form-group">
-              <label>Agent描述</label>
+              <label>Agent Description</label>
               <textarea 
                 v-model="currentAgent.description" 
-                placeholder="简要描述这个Agent的功能和用途"
+                placeholder="Briefly describe your Agent's features and purpose"
                 class="form-textarea"
                 rows="3"
               ></textarea>
             </div>
-            
-            <div class="form-group">
-              <label>Agent头像</label>
-              <div class="avatar-upload">
-                <div class="avatar-preview">
-                  <img :src="currentAgent.avatar || '/logo.png'" alt="Avatar" />
-                </div>
-                <div class="upload-actions">
-                  <button class="btn btn-outline">上传图片</button>
-                  <button class="btn btn-outline">选择模板</button>
-                </div>
-              </div>
-            </div>
-
-            <div class="form-group">
-              <label>Agent类型</label>
-              <select v-model="currentAgent.type" class="form-select">
-                <option value="chat">对话助手</option>
-                <option value="task">任务执行</option>
-                <option value="creative">创意生成</option>
-                <option value="analysis">数据分析</option>
-              </select>
-            </div>
           </div>
         </div>
 
-        <!-- Prompt编辑器 -->
+        <!-- Prompt editor -->
         <div v-else-if="activeTab === 'prompt'" class="editor-content">
           <div class="section-header">
-            <h3>Prompt构建器</h3>
-            <p>设计Agent的核心提示词和行为模式</p>
+            <h3>Prompt Builder</h3>
+            <p>Design Agent's core prompts and behavior patterns</p>
           </div>
           
           <div class="prompt-editor">
             <div class="prompt-toolbar">
-              <button class="btn btn-sm">系统Prompt</button>
-              <button class="btn btn-sm btn-outline">Few-shot示例</button>
-              <button class="btn btn-sm btn-outline">变量插入</button>
+              <button class="btn btn-sm">System Prompt</button>
+              <button class="btn btn-sm btn-outline">Few-shot Examples</button>
+              <button class="btn btn-sm btn-outline">Insert Variables</button>
             </div>
             
             <div class="prompt-content">
               <textarea 
                 v-model="currentAgent.systemPrompt"
-                placeholder="在这里编写系统提示词，定义Agent的角色、能力和行为规范..."
+                placeholder="Write system prompt here to define Agent's role, capabilities and behavior guidelines..."
                 class="prompt-textarea"
                 rows="12"
               ></textarea>
             </div>
             
             <div class="prompt-examples">
-              <h4>Few-shot示例</h4>
+              <h4>Few-shot Examples</h4>
               <div v-for="(example, index) in currentAgent.examples" :key="index" class="example-item">
                 <div class="example-header">
-                  <span>示例 {{ index + 1 }}</span>
+                  <span>Example {{ index + 1 }}</span>
                   <button @click="removeExample(index)" class="btn-remove">×</button>
                 </div>
                 <div class="example-pair">
                   <div class="example-input">
-                    <label>用户输入</label>
-                    <input v-model="example.input" placeholder="用户会这样问..." />
+                    <label>User Input</label>
+                    <input v-model="example.input" placeholder="User might ask this..." />
                   </div>
                   <div class="example-output">
-                    <label>期望回复</label>
-                    <input v-model="example.output" placeholder="Agent应该这样回答..." />
+                    <label>Expected Response</label>
+                    <input v-model="example.output" placeholder="Agent should respond like this..." />
                   </div>
                 </div>
               </div>
-              <button @click="addExample" class="btn btn-outline btn-sm">+ 添加示例</button>
+              <button @click="addExample" class="btn btn-outline btn-sm">+ Add Example</button>
             </div>
           </div>
         </div>
 
-        <!-- 知识库配置 -->
+        <!-- Knowledge base configuration -->
         <div v-else-if="activeTab === 'knowledge'" class="editor-content">
           <div class="section-header">
-            <h3>知识库配置</h3>
-            <p>上传文档、配置外部API，为Agent提供专业知识</p>
+            <h3>Knowledge Base Configuration</h3>
+            <p>Upload documents and configure external APIs to provide professional knowledge for Agent</p>
           </div>
           
           <div class="knowledge-sections">
             <div class="knowledge-section">
-              <h4>📄 文档上传</h4>
+              <h4>📄 Document Upload</h4>
               <div class="upload-area">
                 <div class="upload-zone" @click="uploadDocument">
                   <div class="upload-icon">📁</div>
-                  <p>点击上传文档</p>
-                  <small>支持 PDF, TXT, DOCX, MD 格式</small>
+                  <p>Click to upload documents</p>
+                  <small>Supports PDF, TXT, DOCX, MD formats</small>
                 </div>
               </div>
               <div class="document-list">
@@ -182,213 +157,296 @@
             </div>
             
             <div class="knowledge-section">
-              <h4>🔗 API集成</h4>
+              <h4>🔗 API Integration</h4>
               <div class="api-config">
                 <div class="form-group">
-                  <label>API名称</label>
-                  <input type="text" placeholder="给API起个名字" class="form-input" />
+                  <label>API Name</label>
+                  <input type="text" placeholder="Give API a name" class="form-input" />
                 </div>
                 <div class="form-group">
-                  <label>API端点</label>
+                  <label>API Endpoint</label>
                   <input type="url" placeholder="https://api.example.com/v1" class="form-input" />
                 </div>
                 <div class="form-group">
-                  <label>认证方式</label>
+                  <label>Authentication</label>
                   <select class="form-select">
                     <option>API Key</option>
                     <option>Bearer Token</option>
                     <option>Basic Auth</option>
                   </select>
                 </div>
-                <button class="btn btn-primary btn-sm">测试连接</button>
+                <button class="btn btn-primary btn-sm">Test Connection</button>
               </div>
             </div>
           </div>
         </div>
 
-        <!-- 对话流程编辑 -->
-        <div v-else-if="activeTab === 'workflow'" class="editor-content">
-          <div class="section-header">
-            <h3>对话流程</h3>
-            <p>设计复杂的对话逻辑和条件分支</p>
-          </div>
-          
-          <div class="workflow-editor">
-            <div class="workflow-toolbar">
-              <button class="btn btn-sm">+ 添加节点</button>
-              <button class="btn btn-sm btn-outline">条件判断</button>
-              <button class="btn btn-sm btn-outline">API调用</button>
-              <button class="btn btn-sm btn-outline">数据处理</button>
+        <!-- Conversation flow editing -->
+        <div v-else-if="activeTab === 'workflow'" class="editor-content workflow-container">
+          <div class="workflow-main">
+            <!-- 左侧工具栏 -->
+            <div class="workflow-sidebar">
+              <div class="node-palette">
+                <h4>节点类型</h4>
+                <div class="palette-nodes">
+                  <div class="palette-node" draggable="true" @dragstart="onDragStart($event, 'start')">
+                    <div class="node-icon">🚀</div>
+                    <span>Start</span>
+                  </div>
+                  <div class="palette-node" draggable="true" @dragstart="onDragStart($event, 'browse')">
+                    <div class="node-icon">🌐</div>
+                    <span>Browse</span>
+                  </div>
+                  <div class="palette-node" draggable="true" @dragstart="onDragStart($event, 'llm')">
+                    <div class="node-icon">🧠</div>
+                    <span>LLM</span>
+                  </div>
+                  <div class="palette-node" draggable="true" @dragstart="onDragStart($event, 'process')">
+                    <div class="node-icon">⚙️</div>
+                    <span>Process</span>
+                  </div>
+                  <div class="palette-node" draggable="true" @dragstart="onDragStart($event, 'condition')">
+                    <div class="node-icon">❓</div>
+                    <span>Condition</span>
+                  </div>
+                  <div class="palette-node" draggable="true" @dragstart="onDragStart($event, 'end')">
+                    <div class="node-icon">✅</div>
+                    <span>End</span>
+                  </div>
+                </div>
+              </div>
             </div>
             
-            <div class="workflow-canvas">
-              <div class="workflow-node start-node">
-                <div class="node-header">🚀 开始</div>
-                <div class="node-content">对话开始</div>
-              </div>
-              
-              <div class="workflow-connection"></div>
-              
-              <div class="workflow-node processing-node">
-                <div class="node-header">🤖 处理</div>
-                <div class="node-content">分析用户输入</div>
-              </div>
-              
-              <div class="workflow-connection"></div>
-              
-              <div class="workflow-node end-node">
-                <div class="node-header">✅ 响应</div>
-                <div class="node-content">生成回复</div>
-              </div>
-            </div>
-          </div>
-        </div>
-
-        <!-- 多模态设置 -->
-        <div v-else-if="activeTab === 'multimodal'" class="editor-content">
-          <div class="section-header">
-            <h3>多模态能力</h3>
-            <p>配置语音、图像、视频等多媒体处理能力</p>
-          </div>
-          
-          <div class="multimodal-config">
-            <div class="capability-grid">
-              <div class="capability-card">
-                <div class="capability-icon">🗣️</div>
-                <h4>文字转语音 (TTS)</h4>
-                <p>让Agent能够语音回复</p>
-                <div class="capability-toggle">
-                  <label class="switch">
-                    <input type="checkbox" v-model="currentAgent.capabilities.tts" />
-                    <span class="slider"></span>
-                  </label>
+            <!-- 中央画布区域 -->
+            <div class="workflow-canvas-container">
+              <div class="canvas-header">
+                <h3>{{ currentAgent.name || 'AI Agent' }} - Workflow Designer</h3>
+                <div class="canvas-actions">
+                  <button class="btn btn-sm btn-outline" @click="clearCanvas">
+                    <i class="icon">🗑️</i> Clear
+                  </button>
+                  <button class="btn btn-sm btn-secondary" @click="saveWorkflow">
+                    <i class="icon">💾</i> Save
+                  </button>
                 </div>
               </div>
               
-              <div class="capability-card">
-                <div class="capability-icon">🎤</div>
-                <h4>语音识别 (STT)</h4>
-                <p>理解用户的语音输入</p>
-                <div class="capability-toggle">
-                  <label class="switch">
-                    <input type="checkbox" v-model="currentAgent.capabilities.stt" />
-                    <span class="slider"></span>
-                  </label>
+              <div class="workflow-canvas" 
+                   @drop="onDrop" 
+                   @dragover="onDragOver"
+                   @click="deselectNode"
+                   ref="canvas">
+                
+                <!-- 连接线 -->
+                <svg class="connection-lines" :width="canvasWidth" :height="canvasHeight">
+                  <defs>
+                    <!-- 简洁箭头 -->
+                    <marker id="arrowhead" markerWidth="8" markerHeight="6" 
+                            refX="7" refY="3" orient="auto">
+                      <polygon points="0 0, 7 3, 0 6" fill="#3b82f6" />
+                    </marker>
+                    
+                    <!-- 悬停状态箭头 -->
+                    <marker id="arrowhead-hover" markerWidth="8" markerHeight="6" 
+                            refX="7" refY="3" orient="auto">
+                      <polygon points="0 0, 7 3, 0 6" fill="#1d4ed8" />
+                    </marker>
+                    
+                    <!-- 连接点标记 -->
+                    <marker id="connection-dot" markerWidth="6" markerHeight="6" 
+                            refX="3" refY="3" orient="auto">
+                      <circle cx="3" cy="3" r="2" fill="#3b82f6" />
+                    </marker>
+                  </defs>
+                  
+                  <g v-for="connection in connections" :key="connection.id">
+                    <!-- 连接线 -->
+                    <path :data-connection-id="connection.id"
+                          :d="getConnectionPath(connection)"
+                          stroke="#3b82f6"
+                          stroke-width="2"
+                          fill="none"
+                          marker-end="url(#arrowhead)"
+                          class="connection-line"
+                          @mouseenter="setConnectionHover(connection, true)"
+                          @mouseleave="setConnectionHover(connection, false)"/>
+                    
+                    <!-- 调试：显示连接线起点 -->
+                    <circle :cx="getConnectionStartPoint(connection).x" 
+                            :cy="getConnectionStartPoint(connection).y" 
+                            r="4" 
+                            fill="#ff0000" 
+                            opacity="0.8"/>
+                    
+                    <!-- 调试：显示连接线终点 -->
+                    <circle :cx="getConnectionEndPoint(connection).x" 
+                            :cy="getConnectionEndPoint(connection).y" 
+                            r="4" 
+                            fill="#00ff00" 
+                            opacity="0.8"/>
+                  </g>
+                </svg>
+                
+                <!-- 工作流节点 -->
+                <div v-for="node in workflowNodes" 
+                     :key="node.id"
+                     class="workflow-node"
+                     :class="[
+                       `node-${node.type}`, 
+                       { 'node-selected': selectedNode === node.id }
+                     ]"
+                     :style="{ left: node.x + 'px', top: node.y + 'px' }"
+                     @click="selectNode(node)"
+                     @mousedown="startDrag(node, $event)"
+                     draggable="false">
+                  
+                  <!-- 节点头部 -->
+                  <div class="node-header">
+                    <div class="node-icon">{{ getNodeIcon(node.type) }}</div>
+                    <span class="node-title">{{ node.title }}</span>
+                    <div class="node-actions">
+                      <button class="node-btn" @click.stop="editNode(node)">⚙️</button>
+                      <button class="node-btn" @click.stop="deleteNode(node)">🗑️</button>
+                    </div>
+                  </div>
+                  
+                  <!-- 节点内容 -->
+                  <div class="node-body">
+                    <div class="node-description">{{ node.description }}</div>
+                    
+                    <!-- 输入参数 -->
+                    <div v-if="node.inputs && node.inputs.length > 0" class="node-inputs">
+                      <div class="input-label">Input:</div>
+                      <div v-for="input in node.inputs" :key="input.name" class="input-item">
+                        <span class="input-name">{{ input.name }}</span>
+                        <span class="input-type">{{ input.type }}</span>
+                      </div>
+                    </div>
+                    
+                    <!-- 输出参数 -->
+                    <div v-if="node.outputs && node.outputs.length > 0" class="node-outputs">
+                      <div class="output-label">Output:</div>
+                      <div v-for="output in node.outputs" :key="output.name" class="output-item">
+                        <span class="output-name">{{ output.name }}</span>
+                        <span class="output-type">{{ output.type }}</span>
+                      </div>
+                    </div>
+                  </div>
+                  
+                  <!-- 连接点 -->
+                  <div class="connection-points">
+                    <div v-if="node.type !== 'start'" 
+                         class="connection-point input-point"
+                         @click.stop="startConnection(node, 'input')"
+                         title="Input connection point">
+                    </div>
+                    <div v-if="node.type !== 'end'" 
+                         class="connection-point output-point"
+                         @click.stop="startConnection(node, 'output')"
+                         title="Output connection point - click to connect">
+                    </div>
+                  </div>
                 </div>
               </div>
               
-              <div class="capability-card">
-                <div class="capability-icon">👁️</div>
-                <h4>图像识别</h4>
-                <p>分析和理解图片内容</p>
-                <div class="capability-toggle">
-                  <label class="switch">
-                    <input type="checkbox" v-model="currentAgent.capabilities.vision" />
-                    <span class="slider"></span>
-                  </label>
+              <!-- 底部工具栏 -->
+              <div class="canvas-footer">
+                <div class="canvas-stats">
+                  <span>Nodes: {{ workflowNodes.length }}</span>
+                  <span>Connections: {{ connections.length }}</span>
+                  <span>Status: {{ workflowStatus }}</span>
+                </div>
+                <div class="canvas-controls">
+                  <button class="btn btn-success" @click="testWorkflow">
+                    <i class="icon">🧪</i> Test Run
+                  </button>
+                  <button class="btn btn-primary" @click="deployWorkflow">
+                    <i class="icon">🚀</i> Deploy
+                  </button>
                 </div>
               </div>
-              
-              <div class="capability-card">
-                <div class="capability-icon">🎨</div>
-                <h4>图像生成</h4>
-                <p>根据描述生成图片</p>
-                <div class="capability-toggle">
-                  <label class="switch">
-                    <input type="checkbox" v-model="currentAgent.capabilities.imageGen" />
-                    <span class="slider"></span>
-                  </label>
-                </div>
-              </div>
-            </div>
-          </div>
-        </div>
-
-        <!-- 模型配置 -->
-        <div v-else-if="activeTab === 'model'" class="editor-content">
-          <div class="section-header">
-            <h3>模型配置</h3>
-            <p>选择和配置AI模型参数</p>
-          </div>
-          
-          <div class="model-config">
-            <div class="form-group">
-              <label>基础模型</label>
-              <select v-model="currentAgent.model" class="form-select">
-                <option value="gpt-4">GPT-4</option>
-                <option value="gpt-3.5-turbo">GPT-3.5 Turbo</option>
-                <option value="claude-3">Claude 3</option>
-                <option value="custom">自定义模型</option>
-              </select>
             </div>
             
-            <div class="model-params">
-              <div class="param-group">
-                <label>Temperature: {{ currentAgent.temperature }}</label>
-                <input 
-                  type="range" 
-                  min="0" 
-                  max="1" 
-                  step="0.1" 
-                  v-model="currentAgent.temperature"
-                  class="param-slider"
-                />
-                <small>控制回复的创造性和随机性</small>
+            <!-- 右侧配置面板 -->
+            <div class="workflow-config-panel" v-if="selectedNode">
+              <div class="config-header">
+                <h4>Node Configuration</h4>
+                <button class="btn-close" @click="deselectNode">×</button>
               </div>
               
-              <div class="param-group">
-                <label>Max Tokens: {{ currentAgent.maxTokens }}</label>
-                <input 
-                  type="range" 
-                  min="100" 
-                  max="4000" 
-                  step="100" 
-                  v-model="currentAgent.maxTokens"
-                  class="param-slider"
-                />
-                <small>单次回复的最大长度</small>
+              <div class="config-content">
+                <div class="config-section">
+                  <label>Node Name</label>
+                  <input v-model="selectedNodeData.title" type="text" class="form-input">
+                </div>
+                
+                <div class="config-section">
+                  <label>Description</label>
+                  <textarea v-model="selectedNodeData.description" class="form-textarea" rows="3"></textarea>
+                </div>
+                
+                <!-- 根据节点类型显示不同的配置 -->
+                <div v-if="selectedNodeData.type === 'llm'" class="config-section">
+                  <label>Model Type</label>
+                  <select v-model="selectedNodeData.model" class="form-select">
+                    <option value="gpt-4">GPT-4</option>
+                    <option value="gpt-3.5">GPT-3.5</option>
+                    <option value="claude">Claude</option>
+                  </select>
+                </div>
+                
+                <div v-if="selectedNodeData.type === 'browse'" class="config-section">
+                  <label>Browser Configuration</label>
+                  <input v-model="selectedNodeData.url" type="url" placeholder="Target URL" class="form-input">
+                </div>
+                
+                <div class="config-section">
+                  <button class="btn btn-primary" @click="saveNodeConfig">Save Configuration</button>
+                </div>
               </div>
             </div>
           </div>
         </div>
 
-        <!-- 测试与部署 -->
+
+
+        <!-- Testing and deployment -->
         <div v-else-if="activeTab === 'deploy'" class="editor-content">
           <div class="section-header">
-            <h3>测试与部署</h3>
-            <p>测试Agent功能并发布到生产环境</p>
+            <h3>Testing & Deployment</h3>
+            <p>Test Agent functionality and publish to production environment</p>
           </div>
           
           <div class="deploy-sections">
             <div class="deploy-section">
-              <h4>🧪 功能测试</h4>
+              <h4>🧪 Function Testing</h4>
               <div class="test-area">
-                <button class="btn btn-primary">启动测试对话</button>
-                <button class="btn btn-outline">批量测试</button>
-                <button class="btn btn-outline">性能测试</button>
+                <button class="btn btn-primary">Start Test Chat</button>
+                <button class="btn btn-outline">Batch Testing</button>
+                <button class="btn btn-outline">Performance Test</button>
               </div>
             </div>
             
             <div class="deploy-section">
-              <h4>🚀 部署配置</h4>
+              <h4>🚀 Deployment Configuration</h4>
               <div class="deploy-config">
                 <div class="form-group">
-                  <label>访问权限</label>
+                  <label>Access Permissions</label>
                   <select class="form-select">
-                    <option>公开访问</option>
-                    <option>仅团队成员</option>
-                    <option>密码保护</option>
+                    <option>Public Access</option>
+                    <option>Team Members Only</option>
+                    <option>Password Protected</option>
                   </select>
                 </div>
                 <div class="form-group">
-                  <label>部署环境</label>
+                  <label>Deployment Environment</label>
                   <select class="form-select">
-                    <option>开发环境</option>
-                    <option>测试环境</option>
-                    <option>生产环境</option>
+                    <option>Development</option>
+                    <option>Testing</option>
+                    <option>Production</option>
                   </select>
                 </div>
-                <button class="btn btn-success">发布Agent</button>
+                <button class="btn btn-success">Publish Agent</button>
               </div>
             </div>
           </div>
@@ -396,11 +454,11 @@
       </div>
     </div>
 
-    <!-- 测试对话框 -->
+    <!-- Test dialog -->
     <div v-if="showTestChat" class="test-chat-overlay" @click.self="closeTestChat">
       <div class="test-chat-container">
         <div class="chat-header">
-          <h3>🧪 测试对话</h3>
+          <h3>🧪 Test Chat</h3>
           <button @click="closeTestChat" class="btn-close">×</button>
         </div>
         <div class="chat-messages">
@@ -413,10 +471,10 @@
           <input 
             v-model="testInput" 
             @keyup.enter="sendTestMessage"
-            placeholder="输入消息测试Agent..."
+            placeholder="Enter message to test Agent..."
             class="chat-input-field"
           />
-          <button @click="sendTestMessage" class="btn btn-primary">发送</button>
+          <button @click="sendTestMessage" class="btn btn-primary">Send</button>
         </div>
       </div>
     </div>
@@ -428,93 +486,144 @@ export default {
   name: 'AIAgent',
   data() {
     return {
-      activeTab: 'basic',
+      activeTab: 'workflow',
       showTestChat: false,
       testInput: '',
       testMessages: [
         {
           id: 1,
           type: 'system',
-          content: '测试环境已准备就绪，您可以开始测试Agent功能',
+          content: 'Test environment is ready, you can start testing Agent functionality',
           time: '10:00'
         }
       ],
       currentAgent: {
         name: '',
         description: '',
-        avatar: '',
-        type: 'chat',
         systemPrompt: '',
         examples: [],
         documents: [
           {
             id: 1,
-            name: 'API文档.pdf',
+            name: 'API Documentation.pdf',
             size: '2.3MB',
             uploadTime: '2024-01-15'
           }
-        ],
-        capabilities: {
-          tts: false,
-          stt: false,
-          vision: false,
-          imageGen: false
-        },
-        model: 'gpt-3.5-turbo',
-        temperature: 0.7,
-        maxTokens: 2000
+        ]
       },
       navigationTabs: [
         {
           id: 'basic',
           icon: '🤖',
-          title: '基本信息',
-          description: 'Agent名称、描述、头像',
+          title: 'Basic Info',
+          description: 'Agent name and description',
           hasContent: false
         },
         {
           id: 'prompt',
           icon: '📝',
-          title: 'Prompt构建器',
-          description: '系统prompt、Few-shot示例',
+          title: 'Prompt Builder',
+          description: 'System prompt, Few-shot examples',
           hasContent: false
         },
         {
           id: 'knowledge',
           icon: '📚',
-          title: '知识库/插件',
-          description: 'RAG、API工具对接',
+          title: 'Knowledge Base',
+          description: 'RAG, API tool integration',
           hasContent: true
         },
         {
           id: 'workflow',
           icon: '🔄',
-          title: '对话流',
-          description: 'Workflow/Flowchart构建',
-          hasContent: false
+          title: 'Conversation Flow',
+          description: 'Main workflow design - Core feature',
+          hasContent: true
         },
-        {
-          id: 'multimodal',
-          icon: '🎭',
-          title: '多模态设置',
-          description: 'TTS、STT、Vision、工具接入',
-          hasContent: false
-        },
-        {
-          id: 'model',
-          icon: '⚙️',
-          title: '模型配置',
-          description: '模型选择、参数调优',
-          hasContent: false
-        },
+
         {
           id: 'deploy',
           icon: '🚀',
-          title: '发布与部署',
-          description: '测试、部署、权限管理',
+          title: 'Deploy & Publish',
+          description: 'Testing, deployment, permissions',
           hasContent: false
         }
-      ]
+      ],
+      // 工作流相关数据
+      workflowNodes: [
+        {
+          id: 'start-1',
+          type: 'start',
+          title: 'Start',
+          description: 'Workflow start',
+          x: 100,
+          y: 100,
+          inputs: [],
+          outputs: [{ name: 'trigger', type: 'event' }]
+        },
+        {
+          id: 'browse-1',
+          type: 'browse',
+          title: 'Browse',
+          description: 'Browse web content',
+          x: 350,
+          y: 100,
+          inputs: [{ name: 'url', type: 'string' }],
+          outputs: [{ name: 'content', type: 'text' }]
+        },
+        {
+          id: 'llm-1',
+          type: 'llm',
+          title: 'LLM',
+          description: 'Large language model processing',
+          x: 600,
+          y: 100,
+          inputs: [{ name: 'prompt', type: 'text' }],
+          outputs: [{ name: 'response', type: 'text' }],
+          model: 'gpt-4'
+        },
+        {
+          id: 'end-1',
+          type: 'end',
+          title: 'End',
+          description: 'Workflow end',
+          x: 850,
+          y: 100,
+          inputs: [{ name: 'result', type: 'any' }],
+          outputs: []
+        }
+      ],
+      connections: [
+        {
+          id: 'conn-1',
+          from: 'start-1',
+          to: 'browse-1',
+          fromPort: 'trigger',
+          toPort: 'url'
+        },
+        {
+          id: 'conn-2',
+          from: 'browse-1',
+          to: 'llm-1',
+          fromPort: 'content',
+          toPort: 'prompt'
+        },
+        {
+          id: 'conn-3',
+          from: 'llm-1',
+          to: 'end-1',
+          fromPort: 'response',
+          toPort: 'result'
+        }
+      ],
+      selectedNode: null,
+      selectedNodeData: {},
+      draggedNode: null,
+      dragOffset: { x: 0, y: 0 },
+      canvasWidth: 1200,
+      canvasHeight: 800,
+      workflowStatus: 'Ready',
+      nodeIdCounter: 1
     }
   },
   methods: {
@@ -522,20 +631,20 @@ export default {
       this.activeTab = tabId
     },
     getAgentStatus() {
-      if (!this.currentAgent.name) return '未配置'
-      if (!this.currentAgent.systemPrompt) return '配置中'
-      return '已配置'
+      if (!this.currentAgent.name) return 'Not Configured'
+      if (!this.currentAgent.systemPrompt) return 'In Progress'
+      return 'Configured'
     },
     saveAgent() {
-      // 保存Agent配置
-      console.log('保存Agent配置')
+      // Save Agent configuration
+      console.log('Save Agent configuration')
     },
     testAgent() {
       this.showTestChat = true
     },
     deployAgent() {
-      // 部署Agent
-      console.log('部署Agent')
+      // Deploy Agent
+      console.log('Deploy Agent')
     },
     closeTestChat() {
       this.showTestChat = false
@@ -543,24 +652,24 @@ export default {
     sendTestMessage() {
       if (!this.testInput.trim()) return
       
-      // 添加用户消息
+      // Add user message
       this.testMessages.push({
         id: Date.now(),
         type: 'user',
         content: this.testInput,
-        time: new Date().toLocaleTimeString('zh-CN', { hour: '2-digit', minute: '2-digit' })
+        time: new Date().toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit' })
       })
       
       const userInput = this.testInput
       this.testInput = ''
       
-      // 模拟Agent回复
+      // Simulate Agent response
       setTimeout(() => {
         this.testMessages.push({
           id: Date.now(),
           type: 'assistant',
-          content: `这是对"${userInput}"的模拟回复。Agent正在根据您的配置进行响应。`,
-          time: new Date().toLocaleTimeString('zh-CN', { hour: '2-digit', minute: '2-digit' })
+          content: `This is a simulated response to "${userInput}". Agent is responding based on your configuration.`,
+          time: new Date().toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit' })
         })
       }, 1000)
     },
@@ -574,8 +683,270 @@ export default {
       this.currentAgent.examples.splice(index, 1)
     },
     uploadDocument() {
-      // 文档上传逻辑
-      console.log('上传文档')
+      // Document upload logic
+      console.log('Upload document')
+    },
+    // Workflow methods
+    getNodeIcon(nodeType) {
+      const icons = {
+        start: '🚀',
+        browse: '🌐',
+        llm: '🧠',
+        process: '⚙️',
+        condition: '❓',
+        end: '✅'
+      }
+      return icons[nodeType] || '📦'
+    },
+    getNodeTypeLabel(type) {
+      const labels = {
+        start: 'Start',
+        browse: 'Browse',
+        llm: 'LLM',
+        process: 'Process',
+        condition: 'Condition',
+        end: 'End'
+      }
+      return labels[type] || type
+    },
+    onDragStart(event, nodeType) {
+      event.dataTransfer.setData('nodeType', nodeType)
+      event.dataTransfer.effectAllowed = 'copy'
+    },
+    onDragOver(event) {
+      event.preventDefault()
+      event.dataTransfer.dropEffect = 'copy'
+    },
+    onDrop(event) {
+      event.preventDefault()
+      const nodeType = event.dataTransfer.getData('nodeType')
+      if (!nodeType) return
+      
+      const canvasRect = this.$refs.canvas.getBoundingClientRect()
+      const x = event.clientX - canvasRect.left
+      const y = event.clientY - canvasRect.top
+      
+      this.createNode(nodeType, x, y)
+    },
+    createNode(nodeType, x, y) {
+      const nodeId = `${nodeType}-${++this.nodeIdCounter}`
+      const nodeTemplates = {
+        start: {
+          title: 'Start',
+          description: 'Workflow start',
+          inputs: [],
+          outputs: [{ name: 'trigger', type: 'event' }]
+        },
+        browse: {
+          title: 'Browse',
+          description: 'Browse web content',
+          inputs: [{ name: 'url', type: 'string' }],
+          outputs: [{ name: 'content', type: 'text' }]
+        },
+        llm: {
+          title: 'LLM',
+          description: 'Large language model processing',
+          inputs: [{ name: 'prompt', type: 'text' }],
+          outputs: [{ name: 'response', type: 'text' }],
+          model: 'gpt-4'
+        },
+        process: {
+          title: 'Process',
+          description: 'Data processing',
+          inputs: [{ name: 'input', type: 'any' }],
+          outputs: [{ name: 'output', type: 'any' }]
+        },
+        condition: {
+          title: 'Condition',
+          description: 'Condition judgment',
+          inputs: [{ name: 'condition', type: 'boolean' }],
+          outputs: [{ name: 'true', type: 'any' }, { name: 'false', type: 'any' }]
+        },
+        end: {
+          title: 'End',
+          description: 'Workflow end',
+          inputs: [{ name: 'result', type: 'any' }],
+          outputs: []
+        }
+      }
+      
+      const template = nodeTemplates[nodeType] || nodeTemplates.process
+      const newNode = {
+        id: nodeId,
+        type: nodeType,
+        ...template,
+        x: x - 75, // 调整节点位置，使其居中
+        y: y - 50
+      }
+      
+      this.workflowNodes.push(newNode)
+    },
+    selectNode(node) {
+      this.selectedNode = node.id
+      this.selectedNodeData = { ...node }
+    },
+    deselectNode() {
+      this.selectedNode = null
+      this.selectedNodeData = {}
+    },
+    editNode(node) {
+      this.selectNode(node)
+    },
+    deleteNode(node) {
+      // Delete node
+      this.workflowNodes = this.workflowNodes.filter(n => n.id !== node.id)
+              // Delete related connections
+      this.connections = this.connections.filter(conn => 
+        conn.from !== node.id && conn.to !== node.id
+      )
+              // If it's the currently selected node, deselect it
+      if (this.selectedNode === node.id) {
+        this.deselectNode()
+      }
+    },
+    startDrag(node, event) {
+      this.draggedNode = node
+      this.dragOffset = {
+        x: event.clientX - node.x,
+        y: event.clientY - node.y
+      }
+      
+      const handleMouseMove = (e) => {
+        if (this.draggedNode) {
+          this.draggedNode.x = e.clientX - this.dragOffset.x
+          this.draggedNode.y = e.clientY - this.dragOffset.y
+        }
+      }
+      
+      const handleMouseUp = () => {
+        this.draggedNode = null
+        document.removeEventListener('mousemove', handleMouseMove)
+        document.removeEventListener('mouseup', handleMouseUp)
+      }
+      
+      document.addEventListener('mousemove', handleMouseMove)
+      document.addEventListener('mouseup', handleMouseUp)
+    },
+    startConnection(node, portType) {
+      console.log('Start connection:', node.id, portType)
+              // Connection logic to be implemented
+    },
+    getConnectionPath(connection) {
+      const fromNode = this.workflowNodes.find(n => n.id === connection.from)
+      const toNode = this.workflowNodes.find(n => n.id === connection.to)
+      
+      if (!fromNode || !toNode) return ''
+      
+      // 节点尺寸
+      const nodeWidth = 200
+      const nodeHeight = 100
+      
+      // 从节点右侧中间的连接点出发（精确匹配.output-point的位置）
+      // output-point: right: -6px 意味着它在节点右边界外6px处
+      const fromX = fromNode.x + nodeWidth + 6 // 节点右边界 + 6px
+      const fromY = fromNode.y + nodeHeight / 2  // 节点垂直中心
+      
+      // 到节点左侧中间的连接点结束（精确匹配.input-point的位置）
+      // input-point: left: -6px 意味着它在节点左边界外6px处
+      const toX = toNode.x - 6 // 节点左边界 - 6px
+      const toY = toNode.y + nodeHeight / 2 // 节点垂直中心
+      
+      // 确保连接线从连接点中心开始（连接点宽度12px，半径6px）
+      const adjustedFromX = fromX
+      const adjustedToX = toX
+      
+      // 柔和的贝塞尔曲线连接
+      const deltaX = adjustedToX - adjustedFromX
+      const deltaY = toY - fromY
+      const distance = Math.sqrt(deltaX * deltaX + deltaY * deltaY)
+      
+      // 根据距离动态调整曲线弯曲度
+      const curvature = Math.min(distance * 0.4, 120)
+      
+      const cp1X = adjustedFromX + curvature
+      const cp1Y = fromY
+      const cp2X = adjustedToX - curvature
+      const cp2Y = toY
+      
+            return `M ${adjustedFromX} ${fromY} C ${cp1X} ${cp1Y}, ${cp2X} ${cp2Y}, ${adjustedToX} ${toY}`
+    },
+    getConnectionStartPoint(connection) {
+      const fromNode = this.workflowNodes.find(n => n.id === connection.from)
+      if (!fromNode) return { x: 0, y: 0 }
+      
+      const nodeWidth = 200
+      const nodeHeight = 100
+      
+      return {
+        x: fromNode.x + nodeWidth + 6,
+        y: fromNode.y + nodeHeight / 2
+      }
+    },
+    getConnectionEndPoint(connection) {
+      const toNode = this.workflowNodes.find(n => n.id === connection.to)
+      if (!toNode) return { x: 0, y: 0 }
+      
+      const nodeHeight = 100
+      
+      return {
+        x: toNode.x - 6,
+        y: toNode.y + nodeHeight / 2
+      }
+    },
+            setConnectionHover(connection, isHover) {
+        // Connection hover effect
+        if (isHover) {
+          // Can add special hover styles
+          console.log('Connection hover:', connection.id)
+        }
+      },
+    clearCanvas() {
+      this.workflowNodes = []
+      this.connections = []
+      this.deselectNode()
+    },
+    saveWorkflow() {
+      const workflow = {
+        nodes: this.workflowNodes,
+        connections: this.connections
+      }
+              console.log('Save workflow:', workflow)
+              // Backend save logic can be added here
+    },
+    testWorkflow() {
+      this.workflowStatus = 'Testing...'
+      // Simulate test process
+      setTimeout(() => {
+        this.workflowStatus = 'Test Complete'
+        alert('Workflow test completed!')
+      }, 2000)
+    },
+    deployWorkflow() {
+      this.workflowStatus = 'Deploying...'
+      // Simulate deployment process
+      setTimeout(() => {
+        this.workflowStatus = 'Deployed'
+        alert('Workflow deployed successfully!')
+      }, 3000)
+    },
+    saveNodeConfig() {
+      const nodeIndex = this.workflowNodes.findIndex(n => n.id === this.selectedNode)
+      if (nodeIndex !== -1) {
+        this.workflowNodes[nodeIndex] = { ...this.selectedNodeData }
+      }
+    },
+    setConnectionHover(connection, isHover) {
+      // Dynamic arrow style change
+      const connectionElements = document.querySelectorAll(`path[data-connection-id="${connection.id}"]`)
+      connectionElements.forEach(element => {
+        if (isHover) {
+          element.setAttribute('marker-end', 'url(#arrowhead-hover)')
+          element.setAttribute('stroke-width', '3')
+        } else {
+          element.setAttribute('marker-end', 'url(#arrowhead)')
+          element.setAttribute('stroke-width', '2')
+        }
+      })
     }
   }
 }
@@ -590,7 +961,7 @@ export default {
   flex-direction: column;
 }
 
-/* 顶部工具栏 */
+/* Top toolbar */
 .top-toolbar {
   display: flex;
   justify-content: space-between;
@@ -646,14 +1017,14 @@ export default {
   padding: 0.5rem 1rem;
 }
 
-/* 主容器 */
+/* Main container */
 .main-container {
   display: flex;
   flex: 1;
   height: calc(100vh - 80px);
 }
 
-/* 左侧边栏 */
+/* Left sidebar */
 .sidebar {
   width: 300px;
   background: #2d2d2d;
@@ -684,6 +1055,21 @@ export default {
   border-left-color: #ff6b6b;
 }
 
+/* Highlight workflow tab as main feature */
+.nav-tab[data-tab="workflow"] {
+  border: 2px solid #ff6b6b;
+  position: relative;
+}
+
+.nav-tab[data-tab="workflow"]:before {
+  content: "⭐";
+  position: absolute;
+  top: 0.5rem;
+  right: 0.5rem;
+  color: #ff6b6b;
+  font-size: 1rem;
+}
+
 .tab-icon {
   font-size: 1.5rem;
   margin-right: 1rem;
@@ -712,7 +1098,7 @@ export default {
   margin-left: 0.5rem;
 }
 
-/* 右侧编辑区域 */
+/* Right editing area */
 .editor-area {
   flex: 1;
   overflow-y: auto;
@@ -738,7 +1124,7 @@ export default {
   color: #b0b0b0;
 }
 
-/* 表单样式 */
+/* Form styles */
 .form-section {
   display: flex;
   flex-direction: column;
@@ -775,7 +1161,7 @@ export default {
   min-height: 100px;
 }
 
-/* 头像上传 */
+/* Avatar upload */
 .avatar-upload {
   display: flex;
   align-items: center;
@@ -801,7 +1187,7 @@ export default {
   gap: 0.5rem;
 }
 
-/* Prompt编辑器 */
+/* Prompt editor */
 .prompt-editor {
   display: flex;
   flex-direction: column;
@@ -904,7 +1290,7 @@ export default {
   color: #e0e0e0;
 }
 
-/* 知识库配置 */
+/* Knowledge base configuration */
 .knowledge-sections {
   display: flex;
   flex-direction: column;
@@ -1001,28 +1387,50 @@ export default {
   background: #404040;
 }
 
-/* API配置 */
+/* API configuration */
 .api-config {
   display: flex;
   flex-direction: column;
   gap: 1rem;
 }
 
-/* 工作流编辑器 */
+/* Workflow editor */
 .workflow-editor {
   display: flex;
   flex-direction: column;
   gap: 1rem;
+  height: 700px;
 }
 
 .workflow-toolbar {
   display: flex;
-  gap: 0.5rem;
+  gap: 2rem;
+  padding: 1rem;
+  background: #2d2d2d;
+  border-radius: 8px;
+  border: 1px solid #404040;
   flex-wrap: wrap;
 }
 
+.toolbar-section {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.toolbar-section h4 {
+  margin: 0;
+  font-size: 0.9rem;
+  color: #4ecdc4;
+}
+
+.toolbar-section .btn {
+  margin-right: 0.5rem;
+  margin-bottom: 0.5rem;
+}
+
 .workflow-canvas {
-  background: #2d2d2d;
+  background: #1a1a1a;
   border: 1px solid #404040;
   border-radius: 12px;
   padding: 2rem;
@@ -1031,10 +1439,12 @@ export default {
   flex-direction: column;
   align-items: center;
   gap: 1rem;
+  flex: 1;
+  overflow: auto;
 }
 
 .workflow-node {
-  background: #1a1a1a;
+  background: #2d2d2d;
   border: 2px solid #404040;
   border-radius: 12px;
   padding: 1rem;
@@ -1047,14 +1457,58 @@ export default {
   border-color: #4ecdc4;
 }
 
-.workflow-node.end-node {
+.workflow-node.message-node {
   border-color: #ff6b6b;
+}
+
+.workflow-node.condition-node {
+  border-color: #ffd93d;
+}
+
+.workflow-node.processing-node {
+  border-color: #45b7d1;
+}
+
+.workflow-node.api-node {
+  border-color: #a8e6cf;
+}
+
+.workflow-node.end-node {
+  border-color: #96ceb4;
 }
 
 .node-header {
   font-weight: 600;
   margin-bottom: 0.5rem;
   color: #4ecdc4;
+}
+
+.node-content {
+  font-size: 0.9rem;
+  color: #b0b0b0;
+  margin-bottom: 0.5rem;
+}
+
+.node-actions {
+  display: flex;
+  gap: 0.5rem;
+  justify-content: flex-end;
+}
+
+.node-btn {
+  background: none;
+  border: none;
+  cursor: pointer;
+  padding: 0.2rem;
+  border-radius: 4px;
+  font-size: 0.8rem;
+  color: #b0b0b0;
+  transition: all 0.2s ease;
+}
+
+.node-btn:hover {
+  background: rgba(255, 255, 255, 0.1);
+  color: #fff;
 }
 
 .workflow-connection {
@@ -1076,149 +1530,55 @@ export default {
   border-top: 8px solid #404040;
 }
 
-/* 多模态配置 */
-.multimodal-config {
+.workflow-branches {
   display: flex;
-  flex-direction: column;
+  justify-content: space-between;
   gap: 2rem;
-}
-
-.capability-grid {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
-  gap: 1.5rem;
-}
-
-.capability-card {
-  background: #2d2d2d;
-  border: 1px solid #404040;
-  border-radius: 12px;
-  padding: 1.5rem;
-  text-align: center;
-  position: relative;
-}
-
-.capability-icon {
-  font-size: 2.5rem;
-  margin-bottom: 1rem;
-}
-
-.capability-card h4 {
-  margin: 0 0 0.5rem 0;
-  color: #ff6b6b;
-}
-
-.capability-card p {
-  margin: 0 0 1rem 0;
-  color: #b0b0b0;
-  font-size: 0.9rem;
-}
-
-.capability-toggle {
-  position: absolute;
-  top: 1rem;
-  right: 1rem;
-}
-
-/* 开关样式 */
-.switch {
-  position: relative;
-  display: inline-block;
-  width: 50px;
-  height: 24px;
-}
-
-.switch input {
-  opacity: 0;
-  width: 0;
-  height: 0;
-}
-
-.slider {
-  position: absolute;
-  cursor: pointer;
-  top: 0;
-  left: 0;
-  right: 0;
-  bottom: 0;
-  background-color: #404040;
-  transition: 0.4s;
-  border-radius: 24px;
-}
-
-.slider:before {
-  position: absolute;
-  content: "";
-  height: 18px;
-  width: 18px;
-  left: 3px;
-  bottom: 3px;
-  background-color: white;
-  transition: 0.4s;
-  border-radius: 50%;
-}
-
-input:checked + .slider {
-  background-color: #ff6b6b;
-}
-
-input:checked + .slider:before {
-  transform: translateX(26px);
-}
-
-/* 模型配置 */
-.model-config {
-  display: flex;
-  flex-direction: column;
-  gap: 2rem;
-}
-
-.model-params {
-  display: flex;
-  flex-direction: column;
-  gap: 1.5rem;
-}
-
-.param-group {
-  display: flex;
-  flex-direction: column;
-  gap: 0.5rem;
-}
-
-.param-slider {
+  margin: 2rem 0;
   width: 100%;
-  height: 6px;
-  border-radius: 3px;
-  background: #404040;
-  outline: none;
-  -webkit-appearance: none;
 }
 
-.param-slider::-webkit-slider-thumb {
-  -webkit-appearance: none;
-  appearance: none;
-  width: 20px;
-  height: 20px;
-  border-radius: 50%;
-  background: #ff6b6b;
-  cursor: pointer;
+.branch-left, .branch-right {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
 }
 
-.param-slider::-moz-range-thumb {
-  width: 20px;
-  height: 20px;
-  border-radius: 50%;
-  background: #ff6b6b;
-  cursor: pointer;
-  border: none;
+.workflow-panel {
+  background: #2d2d2d;
+  border-radius: 8px;
+  border: 1px solid #404040;
+  padding: 1rem;
+  height: 200px;
 }
 
-.param-group small {
-  color: #b0b0b0;
-  font-size: 0.8rem;
+.workflow-panel h4 {
+  margin: 0 0 1rem 0;
+  color: #4ecdc4;
 }
 
-/* 部署配置 */
+.node-config {
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+}
+
+.config-placeholder {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.5rem;
+  color: #666;
+}
+
+.placeholder-icon {
+  font-size: 2rem;
+}
+
+/* Deployment configuration */
 .deploy-sections {
   display: flex;
   flex-direction: column;
@@ -1252,7 +1612,7 @@ input:checked + .slider:before {
   gap: 1rem;
 }
 
-/* 测试对话框 */
+/* Test dialog */
 .test-chat-overlay {
   position: fixed;
   top: 0;
@@ -1349,7 +1709,502 @@ input:checked + .slider:before {
   margin-bottom: 0.25rem;
 }
 
-.message-time {
+/* 工作流编辑器样式 */
+.workflow-container {
+  height: calc(100vh - 80px);
+  display: flex;
+  flex-direction: column;
+}
+
+.workflow-main {
+  flex: 1;
+  display: flex;
+  background: #1a1a1a;
+  border-radius: 8px;
+  overflow: hidden;
+}
+
+/* 左侧工具栏 */
+.workflow-sidebar {
+  width: 250px;
+  background: #2d2d2d;
+  border-right: 1px solid #404040;
+  padding: 1rem;
+  box-shadow: 2px 0 8px rgba(0, 0, 0, 0.3);
+}
+
+.node-palette h4 {
+  margin: 0 0 1rem 0;
+  color: #e0e0e0;
+  font-size: 1.1rem;
+  font-weight: 600;
+}
+
+.palette-nodes {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.palette-node {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  padding: 0.75rem 1rem;
+  background: #404040;
+  border: 1px solid #555555;
+  border-radius: 8px;
+  cursor: grab;
+  transition: all 0.2s ease;
+}
+
+.palette-node:hover {
+  background: #4a4a4a;
+  border-color: #3b82f6;
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+}
+
+.palette-node:active {
+  cursor: grabbing;
+}
+
+.palette-node .node-icon {
+  font-size: 1.2rem;
+}
+
+.palette-node span {
+  color: #e0e0e0;
+  font-weight: 500;
+}
+
+/* 画布容器 */
+.workflow-canvas-container {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  background: #1a1a1a;
+}
+
+.canvas-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 1rem 1.5rem;
+  background: #2d2d2d;
+  border-bottom: 1px solid #404040;
+}
+
+.canvas-header h3 {
+  margin: 0;
+  color: #e0e0e0;
+  font-size: 1.2rem;
+  font-weight: 600;
+}
+
+.canvas-actions {
+  display: flex;
+  gap: 0.5rem;
+}
+
+/* 工作流画布 */
+.workflow-canvas {
+  flex: 1;
+  position: relative;
+  background: #1a1a1a;
+  background-image: 
+    radial-gradient(circle at 1px 1px, #404040 1px, transparent 1px);
+  background-size: 20px 20px;
+  overflow: hidden;
+}
+
+.connection-lines {
+  position: absolute;
+  top: 0;
+  left: 0;
+  pointer-events: none;
+  z-index: 1;
+}
+
+.connection-line {
+  opacity: 1;
+  transition: all 0.2s ease;
+  cursor: pointer;
+  filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.3));
+}
+
+.connection-line:hover {
+  stroke: #1d4ed8 !important;
+  stroke-width: 3 !important;
+  filter: drop-shadow(0 4px 8px rgba(0, 0, 0, 0.5));
+}
+
+/* 工作流节点 */
+.workflow-node {
+  position: absolute;
+  width: 200px;
+  background: #2d2d2d;
+  border: 2px solid #404040;
+  border-radius: 12px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+  cursor: move;
+  transition: all 0.2s ease;
+  z-index: 10;
+}
+
+.workflow-node:hover {
+  box-shadow: 0 6px 20px rgba(0, 0, 0, 0.4);
+  transform: translateY(-2px);
+}
+
+.workflow-node:hover .connection-point {
+  animation: none;
+  background: #1d4ed8;
+  box-shadow: 
+    0 0 0 4px rgba(59, 130, 246, 0.7),
+    0 0 16px rgba(59, 130, 246, 0.6);
+  transform: scale(1.2);
+}
+
+.workflow-node.node-selected {
+  border-color: #3b82f6;
+  box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.3);
+}
+
+/* 不同类型节点的颜色 */
+.node-start {
+  border-color: #28a745;
+}
+
+.node-start .node-header {
+  background: linear-gradient(135deg, #28a745, #20c997);
+  color: white;
+}
+
+.node-browse {
+  border-color: #007bff;
+}
+
+.node-browse .node-header {
+  background: linear-gradient(135deg, #007bff, #0056b3);
+  color: white;
+}
+
+.node-llm {
+  border-color: #6f42c1;
+}
+
+.node-llm .node-header {
+  background: linear-gradient(135deg, #6f42c1, #563d7c);
+  color: white;
+}
+
+.node-process {
+  border-color: #fd7e14;
+}
+
+.node-process .node-header {
+  background: linear-gradient(135deg, #fd7e14, #e8590c);
+  color: white;
+}
+
+.node-condition {
+  border-color: #ffc107;
+}
+
+.node-condition .node-header {
+  background: linear-gradient(135deg, #ffc107, #e0a800);
+  color: #333;
+}
+
+.node-end {
+  border-color: #dc3545;
+}
+
+.node-end .node-header {
+  background: linear-gradient(135deg, #dc3545, #c82333);
+  color: white;
+}
+
+.node-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0.75rem 1rem;
+  border-radius: 10px 10px 0 0;
+  background: #404040;
+  border-bottom: 1px solid #555555;
+}
+
+.node-header .node-icon {
+  font-size: 1.1rem;
+  margin-right: 0.5rem;
+}
+
+.node-title {
+  font-weight: 600;
+  font-size: 0.9rem;
+  flex: 1;
+}
+
+.node-actions {
+  display: flex;
+  gap: 0.25rem;
+}
+
+.node-btn {
+  background: none;
+  border: none;
+  color: rgba(255, 255, 255, 0.7);
+  cursor: pointer;
+  font-size: 0.8rem;
+  padding: 0.25rem;
+  border-radius: 4px;
+  transition: all 0.2s ease;
+}
+
+.node-btn:hover {
+  background: rgba(255, 255, 255, 0.2);
+  color: white;
+}
+
+.node-body {
+  padding: 1rem;
+}
+
+.node-description {
+  color: #b0b0b0;
+  font-size: 0.85rem;
+  margin-bottom: 0.75rem;
+}
+
+.node-inputs, .node-outputs {
+  margin-bottom: 0.5rem;
+}
+
+.input-label, .output-label {
+  font-size: 0.75rem;
+  font-weight: 600;
+  color: #e0e0e0;
+  margin-bottom: 0.25rem;
+}
+
+.input-item, .output-item {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 0.25rem 0;
+  font-size: 0.8rem;
+}
+
+.input-name, .output-name {
+  color: #b0b0b0;
+}
+
+.input-type, .output-type {
+  color: #909090;
+  font-size: 0.7rem;
+  background: #404040;
+  padding: 0.125rem 0.5rem;
+  border-radius: 12px;
+  border: 1px solid #555555;
+}
+
+/* 连接点 */
+.connection-points {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  pointer-events: none;
+}
+
+.connection-point {
+  position: absolute;
+  width: 12px;
+  height: 12px;
+  background: #3b82f6;
+  border: 2px solid #1a1a1a;
+  border-radius: 50%;
+  pointer-events: all;
+  cursor: crosshair;
+  transition: all 0.2s ease;
+  opacity: 1;
+  z-index: 15;
+  box-shadow: 
+    0 0 0 2px rgba(59, 130, 246, 0.3),
+    0 0 8px rgba(59, 130, 246, 0.2);
+  animation: pulse 2s infinite;
+}
+
+@keyframes pulse {
+  0%, 100% {
+    box-shadow: 
+      0 0 0 2px rgba(59, 130, 246, 0.3),
+      0 0 8px rgba(59, 130, 246, 0.2);
+  }
+  50% {
+    box-shadow: 
+      0 0 0 4px rgba(59, 130, 246, 0.6),
+      0 0 12px rgba(59, 130, 246, 0.4);
+  }
+}
+
+.connection-point:hover {
+  background: #1d4ed8;
+  transform: scale(1.4);
+  opacity: 1;
+  border-color: #ffffff;
+  box-shadow: 
+    0 0 0 4px rgba(59, 130, 246, 0.7),
+    0 0 20px rgba(59, 130, 246, 0.8);
+  animation: none;
+}
+
+.input-point {
+  left: -6px;
+  top: 50%;
+  transform: translateY(-50%);
+}
+
+.output-point {
+  right: -6px;
+  top: 50%;
+  transform: translateY(-50%);
+}
+
+/* 底部工具栏 */
+.canvas-footer {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 1rem 1.5rem;
+  background: #2d2d2d;
+  border-top: 1px solid #404040;
+}
+
+.canvas-stats {
+  display: flex;
+  gap: 1rem;
+  font-size: 0.9rem;
+  color: #b0b0b0;
+}
+
+.canvas-controls {
+  display: flex;
+  gap: 0.5rem;
+}
+
+/* 右侧配置面板 */
+.workflow-config-panel {
+  width: 300px;
+  background: #2d2d2d;
+  border-left: 1px solid #404040;
+  display: flex;
+  flex-direction: column;
+  box-shadow: -2px 0 8px rgba(0, 0, 0, 0.3);
+}
+
+.config-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 1rem 1.5rem;
+  background: #404040;
+  border-bottom: 1px solid #555555;
+}
+
+.config-header h4 {
+  margin: 0;
+  color: #e0e0e0;
+  font-size: 1.1rem;
+  font-weight: 600;
+}
+
+.config-content {
+  flex: 1;
+  padding: 1.5rem;
+  overflow-y: auto;
+}
+
+.config-section {
+  margin-bottom: 1.5rem;
+}
+
+.config-section label {
+  display: block;
+  margin-bottom: 0.5rem;
+  color: #e0e0e0;
+  font-weight: 500;
+  font-size: 0.9rem;
+}
+
+.config-section .form-input,
+.config-section .form-textarea,
+.config-section .form-select {
+  width: 100%;
+  padding: 0.75rem;
+  border: 1px solid #555555;
+  border-radius: 6px;
+  font-size: 0.9rem;
+  background: #404040;
+  color: #e0e0e0;
+}
+
+.config-section .form-input:focus,
+.config-section .form-textarea:focus,
+.config-section .form-select:focus {
+  outline: none;
+  border-color: #3b82f6;
+  box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.2);
+}
+
+/* 响应式设计 */
+@media (max-width: 1200px) {
+  .workflow-sidebar {
+    width: 200px;
+  }
+  
+  .workflow-config-panel {
+    width: 250px;
+  }
+}
+
+@media (max-width: 768px) {
+  .workflow-main {
+    flex-direction: column;
+  }
+  
+  .workflow-sidebar {
+    width: 100%;
+    height: 120px;
+    border-right: none;
+    border-bottom: 1px solid #e0e0e0;
+  }
+  
+  .palette-nodes {
+    flex-direction: row;
+    overflow-x: auto;
+    gap: 0.5rem;
+  }
+  
+  .palette-node {
+    min-width: 100px;
+    flex-direction: column;
+    text-align: center;
+    padding: 0.5rem;
+  }
+  
+  .workflow-config-panel {
+    width: 100%;
+    height: 200px;
+    border-left: none;
+    border-top: 1px solid #e0e0e0;
+  }
+ }
+ 
+ .message-time {
   font-size: 0.7rem;
   opacity: 0.7;
 }
@@ -1375,7 +2230,7 @@ input:checked + .slider:before {
   border-color: #ff6b6b;
 }
 
-/* 按钮样式 */
+/* Button styles */
 .btn {
   padding: 0.5rem 1rem;
   border: none;
@@ -1431,7 +2286,7 @@ input:checked + .slider:before {
   font-size: 0.85rem;
 }
 
-/* 响应式设计 */
+/* Responsive design */
 @media (max-width: 768px) {
   .main-container {
     flex-direction: column;

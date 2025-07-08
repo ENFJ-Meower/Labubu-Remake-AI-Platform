@@ -824,7 +824,8 @@ export default {
   width: 100%;
   height: 100%;
   z-index: -1;
-  background: linear-gradient(135deg, #1a1a1a 0%, #2d2d2d 50%, #1a1a1a 100%);
+  background: url('../assets/images/home1.jpg') center center/cover no-repeat;
+  background-attachment: fixed;
 }
 
 
@@ -837,7 +838,8 @@ export default {
   left: 0;
   width: 100%;
   height: 100%;
-  background: linear-gradient(45deg, rgba(255, 107, 107, 0.1), rgba(78, 205, 196, 0.1));
+  background: linear-gradient(45deg, rgba(0, 0, 0, 0.5), rgba(0, 0, 0, 0.3)), 
+              linear-gradient(45deg, rgba(255, 107, 107, 0.2), rgba(78, 205, 196, 0.2));
   z-index: 0;
 }
 
