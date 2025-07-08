@@ -259,37 +259,23 @@
                     </marker>
                   </defs>
                   
-                  <g v-for="connection in connections" :key="connection.id">
-                    <!-- 连接线 -->
-                    <path :data-connection-id="connection.id"
-                          :d="getConnectionPath(connection)"
-                          stroke="#3b82f6"
-                          stroke-width="2"
-                          fill="none"
-                          marker-end="url(#arrowhead)"
-                          class="connection-line"
-                          @mouseenter="setConnectionHover(connection, true)"
-                          @mouseleave="setConnectionHover(connection, false)"/>
-                    
-                    <!-- 调试：显示连接线起点 -->
-                    <circle :cx="getConnectionStartPoint(connection).x" 
-                            :cy="getConnectionStartPoint(connection).y" 
-                            r="4" 
-                            fill="#ff0000" 
-                            opacity="0.8"/>
-                    
-                    <!-- 调试：显示连接线终点 -->
-                    <circle :cx="getConnectionEndPoint(connection).x" 
-                            :cy="getConnectionEndPoint(connection).y" 
-                            r="4" 
-                            fill="#00ff00" 
-                            opacity="0.8"/>
-                  </g>
+                  <path v-for="connection in connections" 
+                        :key="connection.id"
+                        :data-connection-id="connection.id"
+                        :d="getConnectionPath(connection)"
+                        stroke="#3b82f6"
+                        stroke-width="2"
+                        fill="none"
+                        marker-end="url(#arrowhead)"
+                        class="connection-line"
+                        @mouseenter="setConnectionHover(connection, true)"
+                        @mouseleave="setConnectionHover(connection, false)"/>
                 </svg>
                 
                 <!-- 工作流节点 -->
-                <div v-for="node in workflowNodes" 
-                     :key="node.id"
+                                  <div v-for="node in workflowNodes" 
+                     :key="node.id" 
+                     :data-node-id="node.id"
                      class="workflow-node"
                      :class="[
                        `node-${node.type}`, 
@@ -831,69 +817,49 @@ export default {
       console.log('Start connection:', node.id, portType)
               // Connection logic to be implemented
     },
-    getConnectionPath(connection) {
+        getConnectionPath(connection) {
       const fromNode = this.workflowNodes.find(n => n.id === connection.from)
       const toNode = this.workflowNodes.find(n => n.id === connection.to)
       
       if (!fromNode || !toNode) return ''
       
-      // 节点尺寸
-      const nodeWidth = 200
-      const nodeHeight = 100
+      // 直接获取连接点元素的实际位置
+      const fromOutputPoint = document.querySelector(`[data-node-id="${fromNode.id}"] .output-point`)
+      const toInputPoint = document.querySelector(`[data-node-id="${toNode.id}"] .input-point`)
+      const canvas = document.querySelector('.workflow-canvas')
       
-      // 从节点右侧中间的连接点出发（精确匹配.output-point的位置）
-      // output-point: right: -6px 意味着它在节点右边界外6px处
-      const fromX = fromNode.x + nodeWidth + 6 // 节点右边界 + 6px
-      const fromY = fromNode.y + nodeHeight / 2  // 节点垂直中心
+      if (!fromOutputPoint || !toInputPoint || !canvas) {
+        return ''
+      }
       
-      // 到节点左侧中间的连接点结束（精确匹配.input-point的位置）
-      // input-point: left: -6px 意味着它在节点左边界外6px处
-      const toX = toNode.x - 6 // 节点左边界 - 6px
-      const toY = toNode.y + nodeHeight / 2 // 节点垂直中心
+      // 获取canvas的偏移量
+      const canvasRect = canvas.getBoundingClientRect()
+      const fromRect = fromOutputPoint.getBoundingClientRect()
+      const toRect = toInputPoint.getBoundingClientRect()
       
-      // 确保连接线从连接点中心开始（连接点宽度12px，半径6px）
-      const adjustedFromX = fromX
-      const adjustedToX = toX
+      // 计算连接点在canvas内的相对位置（连接点中心）
+      const fromX = fromRect.left - canvasRect.left + fromRect.width / 2
+      const fromY = fromRect.top - canvasRect.top + fromRect.height / 2
+      const toX = toRect.left - canvasRect.left + toRect.width / 2
+      const toY = toRect.top - canvasRect.top + toRect.height / 2
       
       // 柔和的贝塞尔曲线连接
-      const deltaX = adjustedToX - adjustedFromX
+      const deltaX = toX - fromX
       const deltaY = toY - fromY
       const distance = Math.sqrt(deltaX * deltaX + deltaY * deltaY)
       
-      // 根据距离动态调整曲线弯曲度
-      const curvature = Math.min(distance * 0.4, 120)
+      // 根据距离动态调整曲线弯曲度，使曲线更自然
+      const curvature = Math.min(distance * 0.3, 100)
       
-      const cp1X = adjustedFromX + curvature
+      const cp1X = fromX + curvature
       const cp1Y = fromY
-      const cp2X = adjustedToX - curvature
+      const cp2X = toX - curvature
       const cp2Y = toY
       
-            return `M ${adjustedFromX} ${fromY} C ${cp1X} ${cp1Y}, ${cp2X} ${cp2Y}, ${adjustedToX} ${toY}`
+            return `M ${fromX} ${fromY} C ${cp1X} ${cp1Y}, ${cp2X} ${cp2Y}, ${toX} ${toY}`
     },
-    getConnectionStartPoint(connection) {
-      const fromNode = this.workflowNodes.find(n => n.id === connection.from)
-      if (!fromNode) return { x: 0, y: 0 }
-      
-      const nodeWidth = 200
-      const nodeHeight = 100
-      
-      return {
-        x: fromNode.x + nodeWidth + 6,
-        y: fromNode.y + nodeHeight / 2
-      }
-    },
-    getConnectionEndPoint(connection) {
-      const toNode = this.workflowNodes.find(n => n.id === connection.to)
-      if (!toNode) return { x: 0, y: 0 }
-      
-      const nodeHeight = 100
-      
-      return {
-        x: toNode.x - 6,
-        y: toNode.y + nodeHeight / 2
-      }
-    },
-            setConnectionHover(connection, isHover) {
+ 
+              setConnectionHover(connection, isHover) {
         // Connection hover effect
         if (isHover) {
           // Can add special hover styles
