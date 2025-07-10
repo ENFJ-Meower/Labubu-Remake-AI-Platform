@@ -4,8 +4,8 @@
     <section class="hero-section">
       <div class="container">
         <div class="hero-content">
-          <h1 class="hero-title">Community Hub</h1>
-          <p class="hero-subtitle">Connect, create, and collaborate with the Labubu AI community</p>
+          <h1 class="hero-title">{{ $t('community.title', 'Creative Community') }}</h1>
+          <p class="hero-subtitle">{{ $t('community.subtitle', 'Share your creativity with the world') }}</p>
           <div class="community-stats">
             <div class="stat-item">
               <span class="stat-number">15K+</span>

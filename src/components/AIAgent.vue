@@ -12,13 +12,13 @@
       </div>
       <div class="toolbar-right">
         <button class="btn btn-secondary" @click="saveAgent">
-          <i class="icon">💾</i> Save
+          <i class="icon">💾</i> {{ $t('aiAgent.actions.saveAgent', 'Save Agent') }}
         </button>
         <button class="btn btn-primary" @click="testAgent">
-          <i class="icon">🧪</i> Test
+          <i class="icon">🧪</i> {{ $t('aiAgent.actions.testAgent', 'Test Agent') }}
         </button>
         <button class="btn btn-success" @click="deployAgent">
-          <i class="icon">🚀</i> Deploy
+          <i class="icon">🚀</i> {{ $t('aiAgent.actions.deployAgent', 'Deploy Agent') }}
         </button>
       </div>
     </div>

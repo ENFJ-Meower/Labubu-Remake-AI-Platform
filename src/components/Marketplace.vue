@@ -3,9 +3,9 @@
     <!-- 页面标题 -->
     <section class="page-header">
       <div class="container">
-        <h1 class="page-title animate-fade-in-up">Creative Marketplace</h1>
+        <h1 class="page-title animate-fade-in-up">{{ $t('marketplace.title', 'Creative Marketplace') }}</h1>
         <p class="page-subtitle animate-fade-in-up">
-          Discover, buy, and sell unique Labubu creations and customizations
+          {{ $t('marketplace.subtitle', 'Discover and trade digital creations') }}
         </p>
       </div>
     </section>

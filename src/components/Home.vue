@@ -26,19 +26,17 @@
         <div class="container">
           <div class="hero-text animate-fade-in-up">
             <h1 class="hero-title typewriter">
-              Welcome to <span class="text-primary gradient-text">Labubu AI</span>
-              <br />Creative Platform
+              {{ $t('home.title', 'Welcome to Labubu AI Platform') }}
             </h1>
             <p class="hero-subtitle slide-in-text">
-              Unleash your creativity with AI-powered tools and join our vibrant community
-              of artists, creators, and Labubu enthusiasts.
+              {{ $t('home.subtitle', 'Create, Share, and Explore AI-Generated Content') }}
             </p>
             <div class="hero-buttons">
               <router-link to="/ai-agent" class="btn btn-primary btn-large ripple-effect">
-                Start Creating
+                {{ $t('home.startChat', 'Start Chat') }}
               </router-link>
               <router-link to="/community" class="btn btn-secondary btn-large ripple-effect">
-                Join Community
+                {{ $t('home.learnMore', 'Learn More') }}
               </router-link>
             </div>
           </div>
@@ -65,13 +63,24 @@
         </div>
         <div class="scroll-content-wrapper">
           <div class="scroll-text-content">
-            <h2 class="scroll-title">AI Agent Studio</h2>
+            <h2 class="scroll-title">{{ $t('home.features.aiAgent', 'AI Agent Studio') }}</h2>
             <p class="scroll-description">
-              Build and customize your own AI agents with our intuitive platform. 
-              Experience the power of AI-assisted creativity with advanced tools and templates 
-              tailored to your specific creative vision. Create personalized AI agents, 
-              access powerful creative tools, and learn from comprehensive tutorials.
+              {{ $t('home.descriptions.aiAgent', 'Build and customize intelligent AI agents with our intuitive drag-and-drop workflow editor. Create personalized chatbots, automate complex tasks, and integrate multiple AI services including LLM, image generation, speech synthesis, and more. Perfect for businesses, creators, and developers.') }}
             </p>
+            <div class="feature-highlights">
+              <div class="highlight-item">
+                <span class="highlight-icon">🎨</span>
+                <span class="highlight-text">{{ $t('aiAgent.features.workflow', 'Visual Workflow Editor') }}</span>
+              </div>
+              <div class="highlight-item">
+                <span class="highlight-icon">🤖</span>
+                <span class="highlight-text">{{ $t('aiAgent.features.multimodal', 'Multi-AI Integration') }}</span>
+              </div>
+              <div class="highlight-item">
+                <span class="highlight-icon">⚡</span>
+                <span class="highlight-text">{{ $t('aiAgent.features.automation', 'Task Automation') }}</span>
+              </div>
+            </div>
           </div>
         </div>
       </div>
@@ -85,13 +94,24 @@
         </div>
         <div class="scroll-content-wrapper">
           <div class="scroll-text-content">
-            <h2 class="scroll-title">Interactive Community</h2>
+            <h2 class="scroll-title">{{ $t('home.features.community', 'Creative Community') }}</h2>
             <p class="scroll-description">
-              Connect with fellow creators and share your amazing works in our vibrant community. 
-              Engage in real-time conversations, participate in creative contests, and showcase your 
-              creations in our beautiful gallery. Join over 10,000 active creators, explore 50,000+ 
-              artworks, and enjoy 1,000+ daily interactions.
+              {{ $t('home.descriptions.community', 'Join a vibrant community of creators, artists, and AI enthusiasts. Share your creations, discover amazing works, participate in challenges, collaborate on projects, and learn from fellow creators. Connect, inspire, and be inspired in our creative ecosystem.') }}
             </p>
+            <div class="feature-highlights">
+              <div class="highlight-item">
+                <span class="highlight-icon">👥</span>
+                <span class="highlight-text">{{ $t('community.features.connect', 'Creator Network') }}</span>
+              </div>
+              <div class="highlight-item">
+                <span class="highlight-icon">🎯</span>
+                <span class="highlight-text">{{ $t('community.features.challenges', 'Creative Challenges') }}</span>
+              </div>
+              <div class="highlight-item">
+                <span class="highlight-icon">🚀</span>
+                <span class="highlight-text">{{ $t('community.features.showcase', 'Portfolio Showcase') }}</span>
+              </div>
+            </div>
           </div>
         </div>
       </div>
@@ -105,13 +125,24 @@
         </div>
         <div class="scroll-content-wrapper">
           <div class="scroll-text-content">
-            <h2 class="scroll-title">Creative Marketplace</h2>
+            <h2 class="scroll-title">{{ $t('home.features.marketplace', 'Digital Marketplace') }}</h2>
             <p class="scroll-description">
-              Discover, buy, and sell unique Labubu creations and customizations. 
-              Browse through hundreds of unique items from talented artists and find your perfect match 
-              in our secure and verified marketplace. Buy and sell custom items, commission unique designs, 
-              and enjoy quality assured products.
+              {{ $t('home.descriptions.marketplace', 'Discover and trade unique digital creations, custom AI agents, templates, and creative assets. Buy professional tools, sell your innovations, commission custom work, and find everything you need to enhance your creative projects in our secure marketplace.') }}
             </p>
+            <div class="feature-highlights">
+              <div class="highlight-item">
+                <span class="highlight-icon">💎</span>
+                <span class="highlight-text">{{ $t('marketplace.features.assets', 'Digital Assets') }}</span>
+              </div>
+              <div class="highlight-item">
+                <span class="highlight-icon">🛡️</span>
+                <span class="highlight-text">{{ $t('marketplace.features.secure', 'Secure Trading') }}</span>
+              </div>
+              <div class="highlight-item">
+                <span class="highlight-icon">💰</span>
+                <span class="highlight-text">{{ $t('marketplace.features.monetize', 'Monetize Creations') }}</span>
+              </div>
+            </div>
           </div>
         </div>
       </div>
@@ -125,14 +156,24 @@
         </div>
         <div class="scroll-content-wrapper">
           <div class="scroll-text-content">
-            <h2 class="scroll-title">About Labubu AI Platform</h2>
+            <h2 class="scroll-title">{{ $t('about.title', 'About Labubu AI Platform') }}</h2>
             <p class="scroll-description">
-              Empowering creativity through AI technology and community collaboration. 
-              We believe in the power of AI to enhance human creativity, providing artists 
-              and creators with cutting-edge tools to bring their visions to life. 
-              Innovation in AI-powered creativity, community-driven development, 
-              user-focused design, and continuous improvement.
+              {{ $t('home.descriptions.about', 'Labubu AI Platform is the ultimate creative ecosystem that combines cutting-edge AI technology with community collaboration. We empower creators to build, share, and monetize their innovations while fostering a supportive environment for learning and growth.') }}
             </p>
+            <div class="feature-highlights">
+              <div class="highlight-item">
+                <span class="highlight-icon">🌟</span>
+                <span class="highlight-text">{{ $t('about.features.innovation', 'AI Innovation') }}</span>
+              </div>
+              <div class="highlight-item">
+                <span class="highlight-icon">🤝</span>
+                <span class="highlight-text">{{ $t('about.features.collaboration', 'Community Spirit') }}</span>
+              </div>
+              <div class="highlight-item">
+                <span class="highlight-icon">📈</span>
+                <span class="highlight-text">{{ $t('about.features.growth', 'Creator Growth') }}</span>
+              </div>
+            </div>
           </div>
         </div>
       </div>
@@ -142,16 +183,16 @@
     <section class="section contact">
       <div class="container">
         <div class="contact-content">
-          <h2 class="section-title animate-fade-in-up gradient-text">Get in Touch</h2>
+          <h2 class="section-title animate-fade-in-up gradient-text">{{ $t('home.contact.title', 'Get in Touch') }}</h2>
           <p class="section-subtitle animate-fade-in-up">
-            Ready to start your creative journey? We're here to help!
+            {{ $t('home.contact.subtitle', 'Ready to start your creative journey? We\'re here to help!') }}
           </p>
           <div class="contact-buttons animate-fade-in-up">
             <a href="#" class="btn btn-primary ripple-effect">
-              Contact Support
+              {{ $t('home.contact.support', 'Contact Support') }}
             </a>
             <a href="#" class="btn btn-secondary ripple-effect">
-              Join Discord
+              {{ $t('home.contact.discord', 'Join Discord') }}
             </a>
           </div>
         </div>
@@ -1517,35 +1558,72 @@ export default {
 /* 特色亮点 */
 .feature-highlights {
   display: flex;
-  flex-direction: column;
-  gap: 1.5rem;
+  flex-wrap: wrap;
+  gap: 1rem;
+  margin-top: 2rem;
+  justify-content: flex-start;
 }
 
 .highlight-item {
   display: flex;
   align-items: center;
-  gap: 1rem;
-  padding: 1rem;
-  background: #2d2d2d;
-  border-radius: 15px;
+  gap: 0.8rem;
+  background: rgba(255, 255, 255, 0.08);
+  backdrop-filter: blur(10px);
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  border-radius: 25px;
+  padding: 0.8rem 1.5rem;
   transition: all 0.3s ease;
+  min-width: 180px;
+  cursor: pointer;
+  position: relative;
+  overflow: hidden;
+}
+
+.highlight-item::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: -100%;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(90deg, transparent, rgba(255, 107, 107, 0.1), transparent);
+  transition: left 0.5s ease;
+}
+
+.highlight-item:hover::before {
+  left: 100%;
 }
 
 .highlight-item:hover {
-  transform: translateX(10px);
-  background: #3a3a3a;
+  background: rgba(255, 107, 107, 0.15);
+  border-color: rgba(255, 107, 107, 0.4);
+  transform: translateY(-3px);
+  box-shadow: 0 10px 30px rgba(255, 107, 107, 0.25);
 }
 
 .highlight-icon {
-  font-size: 2rem;
-  min-width: 60px;
-  text-align: center;
+  font-size: 1.5rem;
+  line-height: 1;
+  filter: drop-shadow(0 0 8px rgba(255, 255, 255, 0.3));
+  transition: all 0.3s ease;
+}
+
+.highlight-item:hover .highlight-icon {
+  transform: scale(1.1);
+  filter: drop-shadow(0 0 12px rgba(255, 107, 107, 0.5));
 }
 
 .highlight-text {
-  font-size: 1.2rem;
+  font-size: 0.95rem;
   font-weight: 600;
   color: #e0e0e0;
+  white-space: nowrap;
+  transition: color 0.3s ease;
+}
+
+.highlight-item:hover .highlight-text {
+  color: #ff6b6b;
 }
 
 /* 统计数据网格 */
@@ -2068,19 +2146,40 @@ export default {
     font-size: 2rem;
   }
   
-  .feature-highlights,
+  .feature-highlights {
+    flex-direction: column;
+    gap: 0.8rem;
+    margin-top: 1.5rem;
+  }
+  
+  .highlight-item {
+    min-width: auto;
+    width: 100%;
+    justify-content: center;
+    padding: 1rem 1.5rem;
+    border-radius: 20px;
+  }
+  
+  .highlight-item:hover {
+    transform: translateY(-2px);
+  }
+  
+  .highlight-text {
+    font-size: 1rem;
+    white-space: normal;
+    text-align: center;
+  }
+  
   .marketplace-features,
   .mission-points {
     gap: 1rem;
   }
   
-  .highlight-item,
   .feature-row,
   .point-item {
     padding: 1rem;
   }
   
-  .highlight-item:hover,
   .feature-row:hover,
   .point-item:hover {
     transform: translateX(0);
@@ -2112,6 +2211,17 @@ export default {
   
   .scroll-description {
     font-size: 1.2rem;
+  }
+  
+  .feature-highlights {
+    flex-direction: row;
+    flex-wrap: wrap;
+    gap: 1rem;
+  }
+  
+  .highlight-item {
+    min-width: 45%;
+    flex: 1;
   }
   
   .stats-grid {

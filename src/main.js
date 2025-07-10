@@ -6,8 +6,11 @@ import AIAgent from './components/AIAgent.vue'
 import Community from './components/Community.vue'
 import Marketplace from './components/Marketplace.vue'
 import About from './components/About.vue'
+import Login from './components/Login.vue'
+import Register from './components/Register.vue'
 import 'animate.css'
 import './assets/css/global.css'
+import i18nMixin from './utils/i18nMixin.js'
 
 // 路由配置
 const routes = [
@@ -15,7 +18,9 @@ const routes = [
   { path: '/ai-agent', name: 'AIAgent', component: AIAgent },
   { path: '/community', name: 'Community', component: Community },
   { path: '/marketplace', name: 'Marketplace', component: Marketplace },
-  { path: '/about', name: 'About', component: About }
+  { path: '/about', name: 'About', component: About },
+  { path: '/login', name: 'Login', component: Login },
+  { path: '/register', name: 'Register', component: Register }
 ]
 
 // 创建路由实例
@@ -33,6 +38,9 @@ const router = createRouter({
 
 // 创建Vue应用实例
 const app = createApp(App)
+
+// 使用i18n混入
+app.mixin(i18nMixin)
 
 // 使用路由
 app.use(router)
