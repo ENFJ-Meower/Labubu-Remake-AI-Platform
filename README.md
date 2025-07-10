@@ -446,6 +446,60 @@ MIT License - see LICENSE file for details.
 
 ### 📋 Change Log | 更新日志
 
+**2024-12-19 v4.0 - API Integration & Enhanced Workflow Editor**
+- **🔗 Backend API Integration**: Complete DAG management system API configuration
+  - Workflow submission, status monitoring, result retrieval
+  - SSE real-time status streaming
+  - S3 file upload support with pre-signed URLs
+  - Tenant management and authentication mechanism
+- **🧠 AI Service Node Expansion**: Support for all backend API required service types
+  - **LLM**: Large Language Model processing
+  - **STT**: Speech to Text conversion
+  - **TTS**: Text to Speech synthesis
+  - **pic2text**: Image to Text recognition
+  - **text2pic**: Text to Image generation
+- **📝 Node Prompt Configuration**: Added prompt parameter support for all nodes
+  - Smart prompt input fields with service-specific templates
+  - Real-time prompt preview and validation
+  - Context-aware prompt suggestions
+- **🎨 Workflow Editor Enhancement**:
+  - Categorized node palette (Control Nodes, AI Services, Tool Nodes)
+  - Complete node configuration panel with validation
+  - Visual node status indicators with pulse animations
+  - Input/output port management with type validation
+- **🌐 Complete Language System**: Seamless Chinese-English switching covering all page content
+- **👤 Login/Register System**: Complete user authentication interface with form validation and local storage
+- **🎨 UI Optimization**: Desktop-focused design with mobile responsiveness removed
+- **📱 Navigation Optimization**: Fixed layout wrapping issues in English mode
+- **🔧 Homepage Enhancement**: Detailed module feature descriptions and visual feature tags
+
+**2024-12-19 v4.0 - API接入与工作流编辑器增强**
+- **🔗 后端API完整接入**: 完整的DAG管理系统API配置
+  - 工作流提交、状态监控、结果获取
+  - SSE实时状态推送
+  - S3文件上传支持，预签名URL
+  - 租户管理和认证机制
+- **🧠 AI服务节点扩展**: 支持所有后端API要求的服务类型
+  - **LLM**: 大语言模型处理
+  - **STT**: 语音转文字
+  - **TTS**: 文字转语音
+  - **pic2text**: 图片转文字
+  - **text2pic**: 文字转图片
+- **📝 节点Prompt配置**: 为所有节点添加prompt参数支持
+  - 智能提示词输入框，针对不同服务类型的模板
+  - 实时提示词预览和验证
+  - 上下文感知的提示词建议
+- **🎨 工作流编辑器增强**:
+  - 分类节点调色板（控制节点、AI服务、工具节点）
+  - 完整的节点配置面板和验证
+  - 可视化节点状态指示器，带脉冲动画
+  - 输入输出端口管理，支持类型验证
+- **🌐 完整语言切换系统**: 支持中英文无缝切换，覆盖所有页面内容
+- **👤 登录注册功能**: 完整的用户认证界面，支持表单验证和本地存储
+- **🎨 界面优化**: 专注桌面端设计，删除移动端响应式代码
+- **📱 导航栏优化**: 解决英文状态下的布局换行问题
+- **🔧 首页内容增强**: 详细的模块功能介绍和视觉特性标签
+
 **2024-12-30 v3.0**
 - **Visual Workflow Editor**: Implemented modern drag-and-drop node-based workflow designer
 - **Node System**: Added multiple node types (Start, Browse, LLM, Process, Condition, End) with visual connections

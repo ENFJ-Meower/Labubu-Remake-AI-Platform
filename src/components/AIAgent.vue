@@ -187,31 +187,97 @@
             <!-- 左侧工具栏 -->
             <div class="workflow-sidebar">
               <div class="node-palette">
-                <h4>节点类型</h4>
-                <div class="palette-nodes">
-                  <div class="palette-node" draggable="true" @dragstart="onDragStart($event, 'start')">
-                    <div class="node-icon">🚀</div>
-                    <span>Start</span>
+                <h4>{{ $t('aiAgent.workflow.nodeTypes', '节点类型') }}</h4>
+                <div class="palette-categories">
+                  <!-- 控制节点 -->
+                  <div class="palette-category">
+                    <h5 class="category-title">{{ $t('aiAgent.workflow.controlNodes', '控制节点') }}</h5>
+                    <div class="palette-nodes">
+                      <div class="palette-node" draggable="true" @dragstart="onDragStart($event, 'start')">
+                        <div class="node-icon">🚀</div>
+                        <div class="node-info">
+                          <span class="node-name">Start</span>
+                          <span class="node-desc">{{ $t('aiAgent.workflow.startDesc', '工作流开始') }}</span>
+                        </div>
+                      </div>
+                      <div class="palette-node" draggable="true" @dragstart="onDragStart($event, 'end')">
+                        <div class="node-icon">✅</div>
+                        <div class="node-info">
+                          <span class="node-name">End</span>
+                          <span class="node-desc">{{ $t('aiAgent.workflow.endDesc', '工作流结束') }}</span>
+                        </div>
+                      </div>
+                      <div class="palette-node" draggable="true" @dragstart="onDragStart($event, 'condition')">
+                        <div class="node-icon">❓</div>
+                        <div class="node-info">
+                          <span class="node-name">Condition</span>
+                          <span class="node-desc">{{ $t('aiAgent.workflow.conditionDesc', '条件判断') }}</span>
+                        </div>
+                      </div>
+                    </div>
                   </div>
-                  <div class="palette-node" draggable="true" @dragstart="onDragStart($event, 'browse')">
-                    <div class="node-icon">🌐</div>
-                    <span>Browse</span>
+
+                  <!-- AI服务节点 -->
+                  <div class="palette-category">
+                    <h5 class="category-title">{{ $t('aiAgent.workflow.aiServices', 'AI服务') }}</h5>
+                    <div class="palette-nodes">
+                      <div class="palette-node" draggable="true" @dragstart="onDragStart($event, 'LLM')">
+                        <div class="node-icon">🧠</div>
+                        <div class="node-info">
+                          <span class="node-name">LLM</span>
+                          <span class="node-desc">{{ $t('aiAgent.workflow.llmDesc', '大语言模型') }}</span>
+                        </div>
+                      </div>
+                      <div class="palette-node" draggable="true" @dragstart="onDragStart($event, 'STT')">
+                        <div class="node-icon">🎤</div>
+                        <div class="node-info">
+                          <span class="node-name">STT</span>
+                          <span class="node-desc">{{ $t('aiAgent.workflow.sttDesc', '语音转文字') }}</span>
+                        </div>
+                      </div>
+                      <div class="palette-node" draggable="true" @dragstart="onDragStart($event, 'TTS')">
+                        <div class="node-icon">🔊</div>
+                        <div class="node-info">
+                          <span class="node-name">TTS</span>
+                          <span class="node-desc">{{ $t('aiAgent.workflow.ttsDesc', '文字转语音') }}</span>
+                        </div>
+                      </div>
+                      <div class="palette-node" draggable="true" @dragstart="onDragStart($event, 'pic2text')">
+                        <div class="node-icon">🖼️</div>
+                        <div class="node-info">
+                          <span class="node-name">Pic2Text</span>
+                          <span class="node-desc">{{ $t('aiAgent.workflow.pic2textDesc', '图片转文字') }}</span>
+                        </div>
+                      </div>
+                      <div class="palette-node" draggable="true" @dragstart="onDragStart($event, 'text2pic')">
+                        <div class="node-icon">🎨</div>
+                        <div class="node-info">
+                          <span class="node-name">Text2Pic</span>
+                          <span class="node-desc">{{ $t('aiAgent.workflow.text2picDesc', '文字转图片') }}</span>
+                        </div>
+                      </div>
+                    </div>
                   </div>
-                  <div class="palette-node" draggable="true" @dragstart="onDragStart($event, 'llm')">
-                    <div class="node-icon">🧠</div>
-                    <span>LLM</span>
-                  </div>
-                  <div class="palette-node" draggable="true" @dragstart="onDragStart($event, 'process')">
-                    <div class="node-icon">⚙️</div>
-                    <span>Process</span>
-                  </div>
-                  <div class="palette-node" draggable="true" @dragstart="onDragStart($event, 'condition')">
-                    <div class="node-icon">❓</div>
-                    <span>Condition</span>
-                  </div>
-                  <div class="palette-node" draggable="true" @dragstart="onDragStart($event, 'end')">
-                    <div class="node-icon">✅</div>
-                    <span>End</span>
+
+                  <!-- 工具节点 -->
+                  <div class="palette-category">
+                    <h5 class="category-title">{{ $t('aiAgent.workflow.toolNodes', '工具节点') }}</h5>
+                    <div class="palette-nodes">
+                      <div class="palette-node" draggable="true" @dragstart="onDragStart($event, 'process')">
+                        <div class="node-icon">⚙️</div>
+                        <div class="node-info">
+                          <span class="node-name">Process</span>
+                          <span class="node-desc">{{ $t('aiAgent.workflow.processDesc', '数据处理') }}</span>
+                        </div>
+                      </div>
+                      <div class="palette-node" draggable="true" @dragstart="onDragStart($event, 'transform')">
+                        <div class="node-icon">🔄</div>
+                        <div class="node-info">
+                          <span class="node-name">Transform</span>
+                          <span class="node-desc">{{ $t('aiAgent.workflow.transformDesc', '数据转换') }}</span>
+                        </div>
+                      </div>
+                    </div>
                   </div>
                 </div>
               </div>
@@ -221,13 +287,33 @@
             <div class="workflow-canvas-container">
               <div class="canvas-header">
                 <h3>{{ currentAgent.name || 'AI Agent' }} - Workflow Designer</h3>
-                <div class="canvas-actions">
-                  <button class="btn btn-sm btn-outline" @click="clearCanvas">
-                    <i class="icon">🗑️</i> Clear
-                  </button>
-                  <button class="btn btn-sm btn-secondary" @click="saveWorkflow">
-                    <i class="icon">💾</i> Save
-                  </button>
+                <div class="canvas-toolbar">
+                  <!-- 缩放控制 -->
+                  <div class="zoom-controls">
+                    <button class="btn btn-icon" @click="zoomOut" :disabled="canvasScale <= 0.25" title="缩小">
+                      <i class="icon">🔍-</i>
+                    </button>
+                    <span class="zoom-level">{{ Math.round(canvasScale * 100) }}%</span>
+                    <button class="btn btn-icon" @click="zoomIn" :disabled="canvasScale >= 3" title="放大">
+                      <i class="icon">🔍+</i>
+                    </button>
+                    <button class="btn btn-icon" @click="resetZoom" title="重置缩放">
+                      <i class="icon">⌂</i>
+                    </button>
+                    <button class="btn btn-icon" @click="fitToScreen" title="适合屏幕">
+                      <i class="icon">📐</i>
+                    </button>
+                  </div>
+                  
+                  <!-- 操作按钮 -->
+                  <div class="canvas-actions">
+                    <button class="btn btn-sm btn-outline" @click="clearCanvas">
+                      <i class="icon">🗑️</i> Clear
+                    </button>
+                    <button class="btn btn-sm btn-secondary" @click="saveWorkflow">
+                      <i class="icon">💾</i> Save
+                    </button>
+                  </div>
                 </div>
               </div>
               
@@ -235,56 +321,69 @@
                    @drop="onDrop" 
                    @dragover="onDragOver"
                    @click="deselectNode"
+                   @wheel="onCanvasWheel"
+                   @mousedown="onCanvasMouseDown"
+                   @mousemove="onCanvasMouseMove"
+                   @mouseup="onCanvasMouseUp"
+                   @mouseleave="onCanvasMouseUp"
                    ref="canvas">
                 
-                <!-- 连接线 -->
-                <svg class="connection-lines" :width="canvasWidth" :height="canvasHeight">
-                  <defs>
-                    <!-- 简洁箭头 -->
-                    <marker id="arrowhead" markerWidth="8" markerHeight="6" 
-                            refX="7" refY="3" orient="auto">
-                      <polygon points="0 0, 7 3, 0 6" fill="#3b82f6" />
-                    </marker>
-                    
-                    <!-- 悬停状态箭头 -->
-                    <marker id="arrowhead-hover" markerWidth="8" markerHeight="6" 
-                            refX="7" refY="3" orient="auto">
-                      <polygon points="0 0, 7 3, 0 6" fill="#1d4ed8" />
-                    </marker>
-                    
-                    <!-- 连接点标记 -->
-                    <marker id="connection-dot" markerWidth="6" markerHeight="6" 
-                            refX="3" refY="3" orient="auto">
-                      <circle cx="3" cy="3" r="2" fill="#3b82f6" />
-                    </marker>
-                  </defs>
+                <!-- 可缩放的画布内容容器 -->
+                <div class="canvas-viewport" 
+                     :style="{ 
+                       transform: `scale(${canvasScale}) translate(${canvasOffsetX}px, ${canvasOffsetY}px)`,
+                       transformOrigin: '0 0'
+                     }"
+                     ref="viewport">
                   
-                  <path v-for="connection in connections" 
-                        :key="connection.id"
-                        :data-connection-id="connection.id"
-                        :d="getConnectionPath(connection)"
-                        stroke="#3b82f6"
-                        stroke-width="2"
-                        fill="none"
-                        marker-end="url(#arrowhead)"
-                        class="connection-line"
-                        @mouseenter="setConnectionHover(connection, true)"
-                        @mouseleave="setConnectionHover(connection, false)"/>
-                </svg>
-                
-                <!-- 工作流节点 -->
-                                  <div v-for="node in workflowNodes" 
-                     :key="node.id" 
-                     :data-node-id="node.id"
-                     class="workflow-node"
-                     :class="[
-                       `node-${node.type}`, 
-                       { 'node-selected': selectedNode === node.id }
-                     ]"
-                     :style="{ left: node.x + 'px', top: node.y + 'px' }"
-                     @click="selectNode(node)"
-                     @mousedown="startDrag(node, $event)"
-                     draggable="false">
+                  <!-- 连接线 -->
+                  <svg class="connection-lines" :width="virtualCanvasWidth" :height="virtualCanvasHeight">
+                    <defs>
+                      <!-- 简洁箭头 -->
+                      <marker id="arrowhead" markerWidth="8" markerHeight="6" 
+                              refX="7" refY="3" orient="auto">
+                        <polygon points="0 0, 7 3, 0 6" fill="#3b82f6" />
+                      </marker>
+                      
+                      <!-- 悬停状态箭头 -->
+                      <marker id="arrowhead-hover" markerWidth="8" markerHeight="6" 
+                              refX="7" refY="3" orient="auto">
+                        <polygon points="0 0, 7 3, 0 6" fill="#1d4ed8" />
+                      </marker>
+                      
+                      <!-- 连接点标记 -->
+                      <marker id="connection-dot" markerWidth="6" markerHeight="6" 
+                              refX="3" refY="3" orient="auto">
+                        <circle cx="3" cy="3" r="2" fill="#3b82f6" />
+                      </marker>
+                    </defs>
+                    
+                    <path v-for="connection in connections" 
+                          :key="connection.id"
+                          :data-connection-id="connection.id"
+                          :d="getConnectionPath(connection)"
+                          stroke="#3b82f6"
+                          stroke-width="2"
+                          fill="none"
+                          marker-end="url(#arrowhead)"
+                          class="connection-line"
+                          @mouseenter="setConnectionHover(connection, true)"
+                          @mouseleave="setConnectionHover(connection, false)"/>
+                  </svg>
+                  
+                  <!-- 工作流节点 -->
+                  <div v-for="node in workflowNodes" 
+                       :key="node.id" 
+                       :data-node-id="node.id"
+                       class="workflow-node"
+                       :class="[
+                         `node-${node.type}`, 
+                         { 'node-selected': selectedNode === node.id }
+                       ]"
+                       :style="{ left: node.x + 'px', top: node.y + 'px' }"
+                       @click="selectNode(node)"
+                       @mousedown="startNodeDrag(node, $event)"
+                       draggable="false">
                   
                   <!-- 节点头部 -->
                   <div class="node-header">
@@ -299,6 +398,14 @@
                   <!-- 节点内容 -->
                   <div class="node-body">
                     <div class="node-description">{{ node.description }}</div>
+                    
+                    <!-- 服务类型标签 -->
+                    <div v-if="node.service" class="node-service">{{ node.service }}</div>
+                    
+                    <!-- 提示词预览 -->
+                    <div v-if="node.prompt" class="node-prompt" :title="node.prompt">
+                      {{ node.prompt.length > 50 ? node.prompt.substring(0, 50) + '...' : node.prompt }}
+                    </div>
                     
                     <!-- 输入参数 -->
                     <div v-if="node.inputs && node.inputs.length > 0" class="node-inputs">
@@ -333,21 +440,29 @@
                     </div>
                   </div>
                 </div>
+                
+                </div> <!-- 关闭 canvas-viewport -->
               </div>
               
               <!-- 底部工具栏 -->
               <div class="canvas-footer">
                 <div class="canvas-stats">
-                  <span>Nodes: {{ workflowNodes.length }}</span>
-                  <span>Connections: {{ connections.length }}</span>
-                  <span>Status: {{ workflowStatus }}</span>
+                  <span>{{ $t('aiAgent.workflow.nodes', '节点') }}: {{ workflowNodes.length }}</span>
+                  <span>{{ $t('aiAgent.workflow.connections', '连接') }}: {{ connections.length }}</span>
+                  <span>{{ $t('aiAgent.workflow.status', '状态') }}: {{ workflowStatus }}</span>
                 </div>
                 <div class="canvas-controls">
-                  <button class="btn btn-success" @click="testWorkflow">
-                    <i class="icon">🧪</i> Test Run
+                  <button class="btn btn-outline btn-sm" @click="clearCanvas">
+                    <i class="icon">🗑️</i> {{ $t('aiAgent.workflow.clearCanvas', '清空画布') }}
                   </button>
-                  <button class="btn btn-primary" @click="deployWorkflow">
-                    <i class="icon">🚀</i> Deploy
+                  <button class="btn btn-secondary btn-sm" @click="saveWorkflow">
+                    <i class="icon">💾</i> {{ $t('aiAgent.workflow.saveWorkflow', '保存工作流') }}
+                  </button>
+                  <button class="btn btn-success btn-sm" @click="testWorkflow">
+                    <i class="icon">🧪</i> {{ $t('aiAgent.workflow.testWorkflow', '测试运行') }}
+                  </button>
+                  <button class="btn btn-primary btn-sm" @click="deployWorkflow">
+                    <i class="icon">🚀</i> {{ $t('aiAgent.workflow.deployWorkflow', '部署') }}
                   </button>
                 </div>
               </div>
@@ -356,38 +471,170 @@
             <!-- 右侧配置面板 -->
             <div class="workflow-config-panel" v-if="selectedNode">
               <div class="config-header">
-                <h4>Node Configuration</h4>
+                <h4>{{ $t('aiAgent.workflow.nodeConfiguration', '节点配置') }}</h4>
                 <button class="btn-close" @click="deselectNode">×</button>
               </div>
               
               <div class="config-content">
+                <!-- 基础配置 -->
                 <div class="config-section">
-                  <label>Node Name</label>
-                  <input v-model="selectedNodeData.title" type="text" class="form-input">
+                  <label>{{ $t('aiAgent.workflow.nodeName', '节点名称') }}</label>
+                  <input v-model="selectedNodeData.title" type="text" class="form-input" :placeholder="$t('aiAgent.workflow.nodeNamePlaceholder', '输入节点名称')">
                 </div>
                 
                 <div class="config-section">
-                  <label>Description</label>
-                  <textarea v-model="selectedNodeData.description" class="form-textarea" rows="3"></textarea>
+                  <label>{{ $t('aiAgent.workflow.nodeDescription', '节点描述') }}</label>
+                  <textarea v-model="selectedNodeData.description" class="form-textarea" rows="3" :placeholder="$t('aiAgent.workflow.nodeDescPlaceholder', '描述节点功能')"></textarea>
                 </div>
-                
-                <!-- 根据节点类型显示不同的配置 -->
-                <div v-if="selectedNodeData.type === 'llm'" class="config-section">
-                  <label>Model Type</label>
-                  <select v-model="selectedNodeData.model" class="form-select">
-                    <option value="gpt-4">GPT-4</option>
-                    <option value="gpt-3.5">GPT-3.5</option>
-                    <option value="claude">Claude</option>
+
+                <!-- 服务类型配置（AI服务节点必须配置） -->
+                <div v-if="isAIServiceNode(selectedNodeData.type)" class="config-section">
+                  <label>{{ $t('aiAgent.workflow.serviceType', '服务类型') }}</label>
+                  <select v-model="selectedNodeData.service" class="form-select">
+                    <option value="">{{ $t('aiAgent.workflow.selectServiceType', '选择服务类型') }}</option>
+                    <option value="LLM">LLM - {{ $t('aiAgent.workflow.llmService', '大语言模型') }}</option>
+                    <option value="STT">STT - {{ $t('aiAgent.workflow.sttService', '语音转文字') }}</option>
+                    <option value="TTS">TTS - {{ $t('aiAgent.workflow.ttsService', '文字转语音') }}</option>
+                    <option value="pic2text">Pic2Text - {{ $t('aiAgent.workflow.pic2textService', '图片转文字') }}</option>
+                    <option value="text2pic">Text2Pic - {{ $t('aiAgent.workflow.text2picService', '文字转图片') }}</option>
                   </select>
                 </div>
-                
-                <div v-if="selectedNodeData.type === 'browse'" class="config-section">
-                  <label>Browser Configuration</label>
-                  <input v-model="selectedNodeData.url" type="url" placeholder="Target URL" class="form-input">
+
+                <!-- Prompt配置（所有AI服务节点必须配置） -->
+                <div v-if="isAIServiceNode(selectedNodeData.type)" class="config-section">
+                  <label>{{ $t('aiAgent.workflow.nodePrompt', '节点提示词') }}</label>
+                  <textarea 
+                    v-model="selectedNodeData.prompt" 
+                    class="form-textarea prompt-textarea" 
+                    rows="8" 
+                    :placeholder="getPromptPlaceholder(selectedNodeData.service)"
+                  ></textarea>
+                  <div class="prompt-tips">
+                    <small>{{ getPromptTips(selectedNodeData.service) }}</small>
+                  </div>
                 </div>
                 
+                <!-- LLM特有配置 -->
+                <div v-if="selectedNodeData.service === 'LLM'" class="config-section">
+                  <label>{{ $t('aiAgent.workflow.llmModel', 'LLM模型') }}</label>
+                  <select v-model="selectedNodeData.model" class="form-select">
+                    <option value="gpt-4">GPT-4</option>
+                    <option value="gpt-3.5-turbo">GPT-3.5 Turbo</option>
+                    <option value="claude-3">Claude-3</option>
+                    <option value="llama-2">Llama-2</option>
+                  </select>
+                </div>
+
+                <div v-if="selectedNodeData.service === 'LLM'" class="config-section">
+                  <label>{{ $t('aiAgent.workflow.temperature', '温度值') }}</label>
+                  <input 
+                    v-model.number="selectedNodeData.temperature" 
+                    type="range" 
+                    min="0" 
+                    max="2" 
+                    step="0.1" 
+                    class="form-range"
+                  >
+                  <div class="range-labels">
+                    <span>{{ $t('aiAgent.workflow.conservative', '保守') }} (0)</span>
+                    <span>{{ selectedNodeData.temperature }}</span>
+                    <span>{{ $t('aiAgent.workflow.creative', '创造') }} (2)</span>
+                  </div>
+                </div>
+
+                <!-- TTS特有配置 -->
+                <div v-if="selectedNodeData.service === 'TTS'" class="config-section">
+                  <label>{{ $t('aiAgent.workflow.voiceType', '语音类型') }}</label>
+                  <select v-model="selectedNodeData.voice" class="form-select">
+                    <option value="alloy">Alloy</option>
+                    <option value="echo">Echo</option>
+                    <option value="fable">Fable</option>
+                    <option value="onyx">Onyx</option>
+                    <option value="nova">Nova</option>
+                    <option value="shimmer">Shimmer</option>
+                  </select>
+                </div>
+
+                <!-- STT特有配置 -->
+                <div v-if="selectedNodeData.service === 'STT'" class="config-section">
+                  <label>{{ $t('aiAgent.workflow.language', '语言') }}</label>
+                  <select v-model="selectedNodeData.language" class="form-select">
+                    <option value="zh">中文</option>
+                    <option value="en">English</option>
+                    <option value="ja">日本語</option>
+                    <option value="ko">한국어</option>
+                  </select>
+                </div>
+
+                <!-- 图片生成特有配置 -->
+                <div v-if="selectedNodeData.service === 'text2pic'" class="config-section">
+                  <label>{{ $t('aiAgent.workflow.imageSize', '图片尺寸') }}</label>
+                  <select v-model="selectedNodeData.size" class="form-select">
+                    <option value="256x256">256x256</option>
+                    <option value="512x512">512x512</option>
+                    <option value="1024x1024">1024x1024</option>
+                    <option value="1792x1024">1792x1024 (横向)</option>
+                    <option value="1024x1792">1024x1792 (纵向)</option>
+                  </select>
+                </div>
+
+                <div v-if="selectedNodeData.service === 'text2pic'" class="config-section">
+                  <label>{{ $t('aiAgent.workflow.imageStyle', '图片风格') }}</label>
+                  <select v-model="selectedNodeData.style" class="form-select">
+                    <option value="natural">自然</option>
+                    <option value="vivid">生动</option>
+                    <option value="artistic">艺术</option>
+                  </select>
+                </div>
+
+                <!-- 条件节点配置 -->
+                <div v-if="selectedNodeData.type === 'condition'" class="config-section">
+                  <label>{{ $t('aiAgent.workflow.conditionExpression', '条件表达式') }}</label>
+                  <input v-model="selectedNodeData.condition" type="text" class="form-input" :placeholder="$t('aiAgent.workflow.conditionPlaceholder', '例如：result.length > 0')">
+                </div>
+
+                <!-- 输入输出配置 -->
                 <div class="config-section">
-                  <button class="btn btn-primary" @click="saveNodeConfig">Save Configuration</button>
+                  <h5>{{ $t('aiAgent.workflow.inputOutput', '输入输出') }}</h5>
+                  
+                  <div class="io-config">
+                    <div class="io-section">
+                      <label>{{ $t('aiAgent.workflow.inputPorts', '输入端口') }}</label>
+                      <div v-for="(input, index) in selectedNodeData.inputs" :key="index" class="io-item">
+                        <input v-model="input.name" type="text" placeholder="端口名称" class="form-input-sm">
+                        <select v-model="input.type" class="form-select-sm">
+                          <option value="text">文本</option>
+                          <option value="image">图片</option>
+                          <option value="audio">音频</option>
+                          <option value="file">文件</option>
+                          <option value="json">JSON</option>
+                        </select>
+                        <button @click="removeInput(index)" class="btn-remove">×</button>
+                      </div>
+                      <button @click="addInput" class="btn btn-sm btn-outline">+ {{ $t('aiAgent.workflow.addInput', '添加输入') }}</button>
+                    </div>
+
+                    <div class="io-section">
+                      <label>{{ $t('aiAgent.workflow.outputPorts', '输出端口') }}</label>
+                      <div v-for="(output, index) in selectedNodeData.outputs" :key="index" class="io-item">
+                        <input v-model="output.name" type="text" placeholder="端口名称" class="form-input-sm">
+                        <select v-model="output.type" class="form-select-sm">
+                          <option value="text">文本</option>
+                          <option value="image">图片</option>
+                          <option value="audio">音频</option>
+                          <option value="file">文件</option>
+                          <option value="json">JSON</option>
+                        </select>
+                        <button @click="removeOutput(index)" class="btn-remove">×</button>
+                      </div>
+                      <button @click="addOutput" class="btn btn-sm btn-outline">+ {{ $t('aiAgent.workflow.addOutput', '添加输出') }}</button>
+                    </div>
+                  </div>
+                </div>
+                
+                <div class="config-actions">
+                  <button class="btn btn-primary" @click="saveNodeConfig">{{ $t('aiAgent.workflow.saveConfig', '保存配置') }}</button>
+                  <button class="btn btn-outline" @click="validateNodeConfig">{{ $t('aiAgent.workflow.validateConfig', '验证配置') }}</button>
                 </div>
               </div>
             </div>
@@ -609,7 +856,15 @@ export default {
       canvasWidth: 1200,
       canvasHeight: 800,
       workflowStatus: 'Ready',
-      nodeIdCounter: 1
+      nodeIdCounter: 1,
+      // 画布缩放和拖拽相关
+      canvasScale: 1,
+      canvasOffsetX: 0,
+      canvasOffsetY: 0,
+      isDraggingCanvas: false,
+      lastMousePos: { x: 0, y: 0 },
+      virtualCanvasWidth: 3000,  // 虚拟画布更大，提供更多空间
+      virtualCanvasHeight: 2000
     }
   },
   methods: {
@@ -676,11 +931,15 @@ export default {
     getNodeIcon(nodeType) {
       const icons = {
         start: '🚀',
-        browse: '🌐',
-        llm: '🧠',
-        process: '⚙️',
+        end: '✅',
         condition: '❓',
-        end: '✅'
+        LLM: '🧠',
+        STT: '🎤',
+        TTS: '🔊',
+        pic2text: '🖼️',
+        text2pic: '🎨',
+        process: '⚙️',
+        transform: '🔄'
       }
       return icons[nodeType] || '📦'
     },
@@ -721,38 +980,88 @@ export default {
           title: 'Start',
           description: 'Workflow start',
           inputs: [],
-          outputs: [{ name: 'trigger', type: 'event' }]
-        },
-        browse: {
-          title: 'Browse',
-          description: 'Browse web content',
-          inputs: [{ name: 'url', type: 'string' }],
-          outputs: [{ name: 'content', type: 'text' }]
-        },
-        llm: {
-          title: 'LLM',
-          description: 'Large language model processing',
-          inputs: [{ name: 'prompt', type: 'text' }],
-          outputs: [{ name: 'response', type: 'text' }],
-          model: 'gpt-4'
-        },
-        process: {
-          title: 'Process',
-          description: 'Data processing',
-          inputs: [{ name: 'input', type: 'any' }],
-          outputs: [{ name: 'output', type: 'any' }]
-        },
-        condition: {
-          title: 'Condition',
-          description: 'Condition judgment',
-          inputs: [{ name: 'condition', type: 'boolean' }],
-          outputs: [{ name: 'true', type: 'any' }, { name: 'false', type: 'any' }]
+          outputs: [{ name: 'trigger', type: 'event' }],
+          prompt: '',
+          service: ''
         },
         end: {
           title: 'End',
           description: 'Workflow end',
-          inputs: [{ name: 'result', type: 'any' }],
-          outputs: []
+          inputs: [{ name: 'result', type: 'text' }],
+          outputs: [],
+          prompt: '',
+          service: ''
+        },
+        condition: {
+          title: 'Condition',
+          description: 'Condition judgment',
+          inputs: [{ name: 'input', type: 'text' }],
+          outputs: [{ name: 'true', type: 'text' }, { name: 'false', type: 'text' }],
+          condition: '',
+          prompt: '',
+          service: ''
+        },
+        LLM: {
+          title: 'LLM',
+          description: 'Large language model processing',
+          inputs: [{ name: 'prompt', type: 'text' }],
+          outputs: [{ name: 'response', type: 'text' }],
+          service: 'LLM',
+          prompt: '',
+          model: 'gpt-4',
+          temperature: 0.7
+        },
+        STT: {
+          title: 'STT',
+          description: 'Speech to text conversion',
+          inputs: [{ name: 'audio', type: 'audio' }],
+          outputs: [{ name: 'text', type: 'text' }],
+          service: 'STT',
+          prompt: '',
+          language: 'zh'
+        },
+        TTS: {
+          title: 'TTS',
+          description: 'Text to speech conversion',
+          inputs: [{ name: 'text', type: 'text' }],
+          outputs: [{ name: 'audio', type: 'audio' }],
+          service: 'TTS',
+          prompt: '',
+          voice: 'alloy'
+        },
+        pic2text: {
+          title: 'Pic2Text',
+          description: 'Image to text conversion',
+          inputs: [{ name: 'image', type: 'image' }],
+          outputs: [{ name: 'text', type: 'text' }],
+          service: 'pic2text',
+          prompt: ''
+        },
+        text2pic: {
+          title: 'Text2Pic',
+          description: 'Text to image generation',
+          inputs: [{ name: 'prompt', type: 'text' }],
+          outputs: [{ name: 'image', type: 'image' }],
+          service: 'text2pic',
+          prompt: '',
+          size: '1024x1024',
+          style: 'natural'
+        },
+        process: {
+          title: 'Process',
+          description: 'Data processing',
+          inputs: [{ name: 'input', type: 'text' }],
+          outputs: [{ name: 'output', type: 'text' }],
+          prompt: '',
+          service: ''
+        },
+        transform: {
+          title: 'Transform',
+          description: 'Data transformation',
+          inputs: [{ name: 'input', type: 'text' }],
+          outputs: [{ name: 'output', type: 'text' }],
+          prompt: '',
+          service: ''
         }
       }
       
@@ -790,17 +1099,29 @@ export default {
         this.deselectNode()
       }
     },
-    startDrag(node, event) {
+    // 节点拖拽方法重命名以区分画布拖拽
+    startNodeDrag(node, event) {
+      event.stopPropagation() // 防止触发画布拖拽
       this.draggedNode = node
+      
+      // 将鼠标坐标转换为画布坐标
+      const rect = this.$refs.canvas.getBoundingClientRect()
+      const canvasX = (event.clientX - rect.left) / this.canvasScale - this.canvasOffsetX
+      const canvasY = (event.clientY - rect.top) / this.canvasScale - this.canvasOffsetY
+      
       this.dragOffset = {
-        x: event.clientX - node.x,
-        y: event.clientY - node.y
+        x: canvasX - node.x,
+        y: canvasY - node.y
       }
       
       const handleMouseMove = (e) => {
         if (this.draggedNode) {
-          this.draggedNode.x = e.clientX - this.dragOffset.x
-          this.draggedNode.y = e.clientY - this.dragOffset.y
+          const rect = this.$refs.canvas.getBoundingClientRect()
+          const canvasX = (e.clientX - rect.left) / this.canvasScale - this.canvasOffsetX
+          const canvasY = (e.clientY - rect.top) / this.canvasScale - this.canvasOffsetY
+          
+          this.draggedNode.x = canvasX - this.dragOffset.x
+          this.draggedNode.y = canvasY - this.dragOffset.y
         }
       }
       
@@ -813,10 +1134,360 @@ export default {
       document.addEventListener('mousemove', handleMouseMove)
       document.addEventListener('mouseup', handleMouseUp)
     },
-    startConnection(node, portType) {
-      console.log('Start connection:', node.id, portType)
-              // Connection logic to be implemented
+    
+    // 画布缩放和拖拽方法
+    onCanvasWheel(event) {
+      event.preventDefault()
+      const delta = event.deltaY > 0 ? -0.1 : 0.1
+      const newScale = Math.max(0.25, Math.min(3, this.canvasScale + delta))
+      
+      if (newScale !== this.canvasScale) {
+        const rect = this.$refs.canvas.getBoundingClientRect()
+        const mouseX = event.clientX - rect.left
+        const mouseY = event.clientY - rect.top
+        
+        // 计算缩放中心点
+        const canvasMouseX = (mouseX / this.canvasScale) - this.canvasOffsetX
+        const canvasMouseY = (mouseY / this.canvasScale) - this.canvasOffsetY
+        
+        this.canvasScale = newScale
+        
+        // 调整偏移量，保持鼠标位置不变
+        this.canvasOffsetX = (mouseX / this.canvasScale) - canvasMouseX
+        this.canvasOffsetY = (mouseY / this.canvasScale) - canvasMouseY
+      }
     },
+    
+    onCanvasMouseDown(event) {
+      // 只有在空白区域点击时才开始画布拖拽
+      if (event.target === this.$refs.canvas || event.target === this.$refs.viewport) {
+        this.isDraggingCanvas = true
+        this.lastMousePos = { x: event.clientX, y: event.clientY }
+        event.preventDefault()
+      }
+    },
+    
+    onCanvasMouseMove(event) {
+      if (this.isDraggingCanvas) {
+        const deltaX = event.clientX - this.lastMousePos.x
+        const deltaY = event.clientY - this.lastMousePos.y
+        
+        this.canvasOffsetX += deltaX / this.canvasScale
+        this.canvasOffsetY += deltaY / this.canvasScale
+        
+        this.lastMousePos = { x: event.clientX, y: event.clientY }
+      }
+    },
+    
+    onCanvasMouseUp() {
+      this.isDraggingCanvas = false
+    },
+    
+    // 缩放控制方法
+    zoomIn() {
+      const newScale = Math.min(3, this.canvasScale + 0.25)
+      this.setCanvasScale(newScale)
+    },
+    
+    zoomOut() {
+      const newScale = Math.max(0.25, this.canvasScale - 0.25)
+      this.setCanvasScale(newScale)
+    },
+    
+    resetZoom() {
+      this.setCanvasScale(1)
+      this.canvasOffsetX = 0
+      this.canvasOffsetY = 0
+    },
+    
+    fitToScreen() {
+      if (this.workflowNodes.length === 0) return
+      
+      // 计算所有节点的边界
+      let minX = Infinity, minY = Infinity, maxX = -Infinity, maxY = -Infinity
+      
+      this.workflowNodes.forEach(node => {
+        minX = Math.min(minX, node.x)
+        minY = Math.min(minY, node.y)
+        maxX = Math.max(maxX, node.x + 280) // 节点宽度
+        maxY = Math.max(maxY, node.y + 150) // 节点高度
+      })
+      
+      const contentWidth = maxX - minX
+      const contentHeight = maxY - minY
+      const padding = 50
+      
+      const rect = this.$refs.canvas.getBoundingClientRect()
+      const canvasWidth = rect.width - padding * 2
+      const canvasHeight = rect.height - padding * 2
+      
+      const scaleX = canvasWidth / contentWidth
+      const scaleY = canvasHeight / contentHeight
+      const newScale = Math.min(scaleX, scaleY, 1) // 不超过100%
+      
+      this.canvasScale = newScale
+      this.canvasOffsetX = (canvasWidth / newScale - contentWidth) / 2 - minX + padding / newScale
+      this.canvasOffsetY = (canvasHeight / newScale - contentHeight) / 2 - minY + padding / newScale
+    },
+    
+    setCanvasScale(scale) {
+      const rect = this.$refs.canvas.getBoundingClientRect()
+      const centerX = rect.width / 2
+      const centerY = rect.height / 2
+      
+      const canvasCenterX = (centerX / this.canvasScale) - this.canvasOffsetX
+      const canvasCenterY = (centerY / this.canvasScale) - this.canvasOffsetY
+      
+      this.canvasScale = scale
+      
+      this.canvasOffsetX = (centerX / this.canvasScale) - canvasCenterX
+      this.canvasOffsetY = (centerY / this.canvasScale) - canvasCenterY
+    },
+  startConnection(node, portType) {
+    console.log('Start connection:', node.id, portType)
+          // Connection logic to be implemented
+  },
+  // 节点配置相关方法
+  isAIServiceNode(nodeType) {
+    return ['LLM', 'STT', 'TTS', 'pic2text', 'text2pic'].includes(nodeType)
+  },
+  getPromptPlaceholder(serviceType) {
+    const placeholders = {
+      'LLM': '请输入LLM处理提示词，例如：你是一个专业的助手，请根据输入内容提供有价值的回复...',
+      'STT': '请输入语音转文字的处理指令，例如：将以下音频转换为文字，并标注时间戳...',
+      'TTS': '请输入文字转语音的处理指令，例如：以自然流畅的语调朗读以下文字...',
+      'pic2text': '请输入图片转文字的处理指令，例如：分析图片内容并提取所有文字信息...',
+      'text2pic': '请输入文字转图片的处理指令，例如：根据描述生成高质量的图片，注意细节和色彩搭配...'
+    }
+    return placeholders[serviceType] || '请输入节点处理提示词...'
+  },
+  getPromptTips(serviceType) {
+    const tips = {
+      'LLM': '提示词将影响AI的回复质量，建议明确指定角色、任务和输出格式',
+      'STT': '可以指定转换精度、语言识别偏好等参数',
+      'TTS': '可以指定语音风格、语速、情感等参数',
+      'pic2text': '可以指定提取内容类型，如只提取文字、包含图表描述等',
+      'text2pic': '详细的描述有助于生成更准确的图片，建议包含风格、颜色、构图等要素'
+    }
+    return tips[serviceType] || '根据节点功能配置相应的提示词'
+  },
+  addInput() {
+    if (!this.selectedNodeData.inputs) {
+      this.selectedNodeData.inputs = []
+    }
+    this.selectedNodeData.inputs.push({ name: 'input', type: 'text' })
+  },
+  removeInput(index) {
+    this.selectedNodeData.inputs.splice(index, 1)
+  },
+  addOutput() {
+    if (!this.selectedNodeData.outputs) {
+      this.selectedNodeData.outputs = []
+    }
+    this.selectedNodeData.outputs.push({ name: 'output', type: 'text' })
+  },
+  removeOutput(index) {
+    this.selectedNodeData.outputs.splice(index, 1)
+  },
+  saveNodeConfig() {
+    // 找到原始节点并更新
+    const nodeIndex = this.workflowNodes.findIndex(n => n.id === this.selectedNode)
+    if (nodeIndex !== -1) {
+      // 验证配置
+      if (this.validateNodeConfig()) {
+        this.workflowNodes[nodeIndex] = { ...this.selectedNodeData }
+        this.$message?.success?.(this.$t('aiAgent.workflow.configSaved', '节点配置已保存'))
+      }
+    }
+  },
+  validateNodeConfig() {
+    const node = this.selectedNodeData
+    
+    // 基础验证
+    if (!node.title || !node.title.trim()) {
+      this.$message?.error?.(this.$t('aiAgent.workflow.nameRequired', '节点名称不能为空'))
+      return false
+    }
+    
+    // AI服务节点必须配置service和prompt
+    if (this.isAIServiceNode(node.type)) {
+      if (!node.service) {
+        this.$message?.error?.(this.$t('aiAgent.workflow.serviceRequired', '请选择服务类型'))
+        return false
+      }
+      
+      if (!node.prompt || !node.prompt.trim()) {
+        this.$message?.error?.(this.$t('aiAgent.workflow.promptRequired', '请配置节点提示词'))
+        return false
+      }
+    }
+    
+    // 条件节点必须配置条件表达式
+    if (node.type === 'condition' && (!node.condition || !node.condition.trim())) {
+      this.$message?.error?.(this.$t('aiAgent.workflow.conditionRequired', '请配置条件表达式'))
+      return false
+    }
+    
+    return true
+  },
+  // 工作流操作方法
+  async saveWorkflow() {
+    try {
+      // 验证工作流
+      if (!this.validateWorkflow()) {
+        return
+      }
+      
+      // 生成DAG数据
+      const dagData = this.generateDAGData()
+      
+      // 调用API保存
+      const workflowAPI = (await import('@/config/api.js')).default
+      await workflowAPI.submitDAG(dagData)
+      
+      this.$message?.success?.(this.$t('aiAgent.workflow.workflowSaved', '工作流已保存'))
+    } catch (error) {
+      console.error('保存工作流失败:', error)
+      this.$message?.error?.(this.$t('aiAgent.workflow.saveFailed', '保存工作流失败') + ': ' + error.message)
+    }
+  },
+  async testWorkflow() {
+    try {
+      // 验证工作流
+      if (!this.validateWorkflow()) {
+        return
+      }
+      
+      // 生成DAG数据并提交测试
+      const dagData = this.generateDAGData()
+      
+      const workflowAPI = (await import('@/config/api.js')).default
+      const result = await workflowAPI.submitDAG(dagData)
+      
+      // 通知就绪
+      await workflowAPI.notifyReady(dagData.dag_id)
+      
+      // 监听状态变化
+      await this.monitorWorkflowExecution(dagData.dag_id)
+      
+      this.$message?.success?.(this.$t('aiAgent.workflow.testStarted', '工作流测试已启动'))
+    } catch (error) {
+      console.error('测试工作流失败:', error)
+      this.$message?.error?.(this.$t('aiAgent.workflow.testFailed', '测试工作流失败') + ': ' + error.message)
+    }
+  },
+  async deployWorkflow() {
+    try {
+      // 验证工作流
+      if (!this.validateWorkflow()) {
+        return
+      }
+      
+      // 生成并部署DAG
+      const dagData = this.generateDAGData()
+      
+      const workflowAPI = (await import('@/config/api.js')).default
+      await workflowAPI.submitDAG(dagData)
+      await workflowAPI.notifyReady(dagData.dag_id)
+      
+      // 更新状态
+      this.workflowStatus = 'Deployed'
+      
+      this.$message?.success?.(this.$t('aiAgent.workflow.deploySuccess', '工作流部署成功'))
+    } catch (error) {
+      console.error('部署工作流失败:', error)
+      this.$message?.error?.(this.$t('aiAgent.workflow.deployFailed', '部署工作流失败') + ': ' + error.message)
+    }
+  },
+  validateWorkflow() {
+    // 检查是否有start和end节点
+    const hasStart = this.workflowNodes.some(node => node.type === 'start')
+    const hasEnd = this.workflowNodes.some(node => node.type === 'end')
+    
+    if (!hasStart) {
+      this.$message?.error?.(this.$t('aiAgent.workflow.startNodeRequired', '工作流必须包含开始节点'))
+      return false
+    }
+    
+    if (!hasEnd) {
+      this.$message?.error?.(this.$t('aiAgent.workflow.endNodeRequired', '工作流必须包含结束节点'))
+      return false
+    }
+    
+    // 检查所有AI服务节点是否正确配置
+    for (const node of this.workflowNodes) {
+      if (this.isAIServiceNode(node.type)) {
+        if (!node.service || !node.prompt) {
+          this.$message?.error?.(this.$t('aiAgent.workflow.nodeConfigIncomplete', `节点 ${node.title} 配置不完整`))
+          return false
+        }
+      }
+    }
+    
+    return true
+  },
+  async generateDAGData() {
+    const workflowAPI = (await import('@/config/api.js')).default
+    
+    const dagData = {
+      dag_id: workflowAPI.generateDAGId(this.currentAgent.name || 'agent'),
+      tenant_id: workflowAPI.config.getTenantId(),
+      nodes: {},
+      edges: []
+    }
+    
+    // 转换节点数据
+    this.workflowNodes.forEach(node => {
+      dagData.nodes[node.id] = {
+        prompt: node.prompt || '',
+        service: node.service || node.type
+      }
+    })
+    
+    // 转换连接数据
+    this.connections.forEach(connection => {
+      dagData.edges.push({
+        from: connection.from,
+        to: connection.to,
+        prompt: connection.prompt || ''
+      })
+    })
+    
+    return dagData
+  },
+  async monitorWorkflowExecution(dagId) {
+    const workflowAPI = (await import('@/config/api.js')).default
+    
+    const eventSource = workflowAPI.createStatusStream(
+      dagId,
+      (statusData) => {
+        console.log('工作流状态更新:', statusData)
+        this.workflowStatus = statusData.status || 'Running'
+        
+        // 更新节点状态
+        if (statusData.node_id && statusData.node_status) {
+          const node = this.workflowNodes.find(n => n.id === statusData.node_id)
+          if (node) {
+            node.status = statusData.node_status
+          }
+        }
+      },
+      (error) => {
+        console.error('监听工作流状态失败:', error)
+        this.$message?.error?.('监听工作流状态失败')
+      }
+    )
+    
+    // 保存EventSource引用用于清理
+    this.statusEventSource = eventSource
+  },
+  clearCanvas() {
+    this.workflowNodes = []
+    this.connections = []
+    this.selectedNode = null
+    this.selectedNodeData = {}
+    this.workflowStatus = 'Ready'
+  },
         getConnectionPath(connection) {
       const fromNode = this.workflowNodes.find(n => n.id === connection.from)
       const toNode = this.workflowNodes.find(n => n.id === connection.to)
@@ -1073,6 +1744,11 @@ export default {
 
 .editor-content {
   padding: 2rem;
+}
+
+/* 工作流容器不需要padding */
+.editor-content.workflow-container {
+  padding: 0;
 }
 
 .section-header {
@@ -1680,13 +2356,14 @@ export default {
   height: calc(100vh - 80px);
   display: flex;
   flex-direction: column;
+  margin: 0;
+  padding: 0;
 }
 
 .workflow-main {
   flex: 1;
   display: flex;
   background: #1a1a1a;
-  border-radius: 8px;
   overflow: hidden;
 }
 
@@ -1697,13 +2374,39 @@ export default {
   border-right: 1px solid #404040;
   padding: 1rem;
   box-shadow: 2px 0 8px rgba(0, 0, 0, 0.3);
+  flex-shrink: 0;
 }
 
 .node-palette h4 {
   margin: 0 0 1rem 0;
-  color: #e0e0e0;
+  color: #4ecdc4;
   font-size: 1.1rem;
   font-weight: 600;
+  text-align: center;
+  border-bottom: 2px solid #4ecdc4;
+  padding-bottom: 0.5rem;
+}
+
+.palette-categories {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+.palette-category {
+  background: #323232;
+  border-radius: 8px;
+  padding: 0.75rem;
+  border-left: 3px solid #ff6b6b;
+}
+
+.category-title {
+  margin: 0 0 0.75rem 0;
+  color: #ff6b6b;
+  font-size: 0.85rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
 }
 
 .palette-nodes {
@@ -1737,11 +2440,26 @@ export default {
 
 .palette-node .node-icon {
   font-size: 1.2rem;
+  min-width: 30px;
 }
 
-.palette-node span {
+.node-info {
+  display: flex;
+  flex-direction: column;
+  gap: 0.2rem;
+  flex: 1;
+}
+
+.node-name {
+  font-size: 0.9rem;
+  font-weight: 600;
   color: #e0e0e0;
-  font-weight: 500;
+}
+
+.node-desc {
+  font-size: 0.75rem;
+  color: #b0b0b0;
+  line-height: 1.2;
 }
 
 /* 画布容器 */
@@ -1750,6 +2468,8 @@ export default {
   display: flex;
   flex-direction: column;
   background: #1a1a1a;
+  margin: 0;
+  padding: 0;
 }
 
 .canvas-header {
@@ -1768,6 +2488,59 @@ export default {
   font-weight: 600;
 }
 
+.canvas-toolbar {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  flex: 1;
+  justify-content: space-between;
+}
+
+.zoom-controls {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  background: rgba(255, 255, 255, 0.1);
+  backdrop-filter: blur(10px);
+  border-radius: 8px;
+  padding: 0.25rem;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.btn-icon {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 32px;
+  height: 32px;
+  border: none;
+  border-radius: 6px;
+  background: rgba(255, 255, 255, 0.1);
+  color: #e2e8f0;
+  font-size: 14px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.btn-icon:hover:not(:disabled) {
+  background: rgba(255, 255, 255, 0.2);
+  color: #ffffff;
+  transform: translateY(-1px);
+}
+
+.btn-icon:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.zoom-level {
+  font-size: 12px;
+  font-weight: 600;
+  color: #e2e8f0;
+  min-width: 40px;
+  text-align: center;
+}
+
 .canvas-actions {
   display: flex;
   gap: 0.5rem;
@@ -1782,6 +2555,20 @@ export default {
     radial-gradient(circle at 1px 1px, #404040 1px, transparent 1px);
   background-size: 20px 20px;
   overflow: hidden;
+  cursor: grab;
+}
+
+.workflow-canvas:active {
+  cursor: grabbing;
+}
+
+.canvas-viewport {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  transform-origin: 0 0;
 }
 
 .connection-lines {
@@ -1856,12 +2643,57 @@ export default {
   color: white;
 }
 
-.node-llm {
+.node-LLM {
   border-color: #6f42c1;
 }
 
-.node-llm .node-header {
+.node-LLM .node-header {
   background: linear-gradient(135deg, #6f42c1, #563d7c);
+  color: white;
+}
+
+.node-STT {
+  border-color: #20c997;
+}
+
+.node-STT .node-header {
+  background: linear-gradient(135deg, #20c997, #17a2b8);
+  color: white;
+}
+
+.node-TTS {
+  border-color: #fd7e14;
+}
+
+.node-TTS .node-header {
+  background: linear-gradient(135deg, #fd7e14, #e8590c);
+  color: white;
+}
+
+.node-pic2text {
+  border-color: #6610f2;
+}
+
+.node-pic2text .node-header {
+  background: linear-gradient(135deg, #6610f2, #520dc2);
+  color: white;
+}
+
+.node-text2pic {
+  border-color: #e83e8c;
+}
+
+.node-text2pic .node-header {
+  background: linear-gradient(135deg, #e83e8c, #d91a72);
+  color: white;
+}
+
+.node-transform {
+  border-color: #17a2b8;
+}
+
+.node-transform .node-header {
+  background: linear-gradient(135deg, #17a2b8, #138496);
   color: white;
 }
 
@@ -2303,5 +3135,228 @@ export default {
     width: 95%;
     height: 90%;
   }
+}
+
+/* 节点配置面板样式 */
+.prompt-textarea {
+  font-family: 'Consolas', 'Monaco', monospace !important;
+  font-size: 0.85rem !important;
+  line-height: 1.5 !important;
+  background: #2a2a2a !important;
+  border: 1px solid #555555 !important;
+  color: #e0e0e0 !important;
+}
+
+.prompt-tips {
+  margin-top: 0.5rem;
+}
+
+.prompt-tips small {
+  color: #4ecdc4;
+  font-style: italic;
+}
+
+.form-range {
+  width: 100%;
+  height: 6px;
+  background: #404040;
+  border-radius: 3px;
+  outline: none;
+  -webkit-appearance: none;
+}
+
+.form-range::-webkit-slider-thumb {
+  appearance: none;
+  width: 20px;
+  height: 20px;
+  background: #3b82f6;
+  border-radius: 50%;
+  cursor: pointer;
+  border: 2px solid #ffffff;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
+}
+
+.form-range::-moz-range-thumb {
+  width: 20px;
+  height: 20px;
+  background: #3b82f6;
+  border-radius: 50%;
+  cursor: pointer;
+  border: 2px solid #ffffff;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
+}
+
+.range-labels {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-top: 0.5rem;
+  font-size: 0.8rem;
+  color: #b0b0b0;
+}
+
+.range-labels span:nth-child(2) {
+  color: #4ecdc4;
+  font-weight: 600;
+}
+
+.io-config {
+  background: #323232;
+  border-radius: 8px;
+  padding: 1rem;
+  margin-top: 0.5rem;
+}
+
+.io-section {
+  margin-bottom: 1rem;
+}
+
+.io-section:last-child {
+  margin-bottom: 0;
+}
+
+.io-section label {
+  display: block;
+  margin-bottom: 0.5rem;
+  color: #4ecdc4;
+  font-weight: 600;
+  font-size: 0.9rem;
+}
+
+.io-item {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  margin-bottom: 0.5rem;
+}
+
+.form-input-sm {
+  flex: 1;
+  padding: 0.5rem;
+  border: 1px solid #555555;
+  border-radius: 4px;
+  background: #404040;
+  color: #e0e0e0;
+  font-size: 0.85rem;
+}
+
+.form-select-sm {
+  padding: 0.5rem;
+  border: 1px solid #555555;
+  border-radius: 4px;
+  background: #404040;
+  color: #e0e0e0;
+  font-size: 0.85rem;
+  min-width: 80px;
+}
+
+.btn-remove {
+  background: #dc3545;
+  color: white;
+  border: none;
+  border-radius: 4px;
+  width: 24px;
+  height: 24px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  font-size: 0.8rem;
+  transition: all 0.2s ease;
+}
+
+.btn-remove:hover {
+  background: #c82333;
+  transform: scale(1.1);
+}
+
+.config-actions {
+  display: flex;
+  gap: 0.5rem;
+  margin-top: 1.5rem;
+  padding-top: 1rem;
+  border-top: 1px solid #404040;
+}
+
+.config-actions .btn {
+  flex: 1;
+}
+
+/* 节点状态指示器 */
+.workflow-node.node-status-running {
+  border-color: #ffc107;
+  animation: pulse 2s infinite;
+}
+
+.workflow-node.node-status-completed {
+  border-color: #28a745;
+}
+
+.workflow-node.node-status-failed {
+  border-color: #dc3545;
+}
+
+@keyframes pulse {
+  0% {
+    box-shadow: 0 0 0 0 rgba(255, 193, 7, 0.7);
+  }
+  70% {
+    box-shadow: 0 0 0 10px rgba(255, 193, 7, 0);
+  }
+  100% {
+    box-shadow: 0 0 0 0 rgba(255, 193, 7, 0);
+  }
+}
+
+/* 工作流状态指示器 */
+.canvas-footer {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 1rem 1.5rem;
+  background: #2d2d2d;
+  border-top: 1px solid #404040;
+}
+
+.canvas-stats {
+  display: flex;
+  gap: 1rem;
+  font-size: 0.85rem;
+  color: #b0b0b0;
+}
+
+.canvas-stats span {
+  display: flex;
+  align-items: center;
+  gap: 0.25rem;
+}
+
+.canvas-controls {
+  display: flex;
+  gap: 0.5rem;
+}
+
+/* 节点在画布中的提示词显示 */
+.node-body .node-prompt {
+  margin-top: 0.5rem;
+  padding: 0.5rem;
+  background: #3a3a3a;
+  border-radius: 4px;
+  font-size: 0.75rem;
+  color: #b0b0b0;
+  max-height: 60px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.node-body .node-service {
+  margin-top: 0.25rem;
+  padding: 0.25rem 0.5rem;
+  background: #4ecdc4;
+  color: #1a1a1a;
+  border-radius: 12px;
+  font-size: 0.7rem;
+  font-weight: 600;
+  display: inline-block;
 }
 </style> 
