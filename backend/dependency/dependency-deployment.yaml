@@ -1,0 +1,35 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: dependency-controller
+  namespace: dag-system
+spec:
+  replicas: 3
+  selector:
+    matchLabels:
+      app: dependency-controller
+  template:
+    metadata:
+      labels:
+        app: dependency-controller
+      annotations:
+        prometheus.io/scrape: "true"
+        prometheus.io/port: "8080"
+    spec:
+      containers:
+        - name: controller
+          image: weimengze/cloud-computing-dependency:v2.0
+          env:
+            - name: REDIS_ADDR
+              value: "redis-cluster.dag-system.svc.cluster.local:6379"
+            - name: CONCURRENT_HANDLERS
+              value: "100"
+          ports:
+            - containerPort: 8080
+          resources:
+            limits:
+              cpu: "2"
+              memory: "1Gi"
+            requests:
+              cpu: "500m"
+              memory: "512Mi"
