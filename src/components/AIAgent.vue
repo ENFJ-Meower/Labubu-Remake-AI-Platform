@@ -2880,30 +2880,6 @@ export default {
       this.connections = []
       this.deselectNode()
     },
-    saveWorkflow() {
-      const workflow = {
-        nodes: this.workflowNodes,
-        connections: this.connections
-      }
-              console.log('Save workflow:', workflow)
-              // Backend save logic can be added here
-    },
-    testWorkflow() {
-      this.workflowStatus = 'Testing...'
-      // Simulate test process
-      setTimeout(() => {
-        this.workflowStatus = 'Test Complete'
-        alert('Workflow test completed!')
-      }, 2000)
-    },
-    deployWorkflow() {
-      this.workflowStatus = 'Deploying...'
-      // Simulate deployment process
-      setTimeout(() => {
-        this.workflowStatus = 'Deployed'
-        alert('Workflow deployed successfully!')
-      }, 3000)
-    },
     saveNodeConfig() {
       const nodeIndex = this.workflowNodes.findIndex(n => n.id === this.selectedNode)
       if (nodeIndex !== -1) {
