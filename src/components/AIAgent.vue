@@ -1183,6 +1183,144 @@
 
 
 
+        <!-- Workflow Management -->
+        <div v-else-if="activeTab === 'workflows'" class="editor-content workflows-management">
+          <div class="section-header">
+            <h3>📋 工作流管理</h3>
+            <p>查看和管理您的所有DAG工作流</p>
+          </div>
+
+          <!-- 工作流统计面板 -->
+          <div class="workflow-stats">
+            <div class="stat-card">
+              <div class="stat-icon">📊</div>
+              <div class="stat-info">
+                <div class="stat-number">{{ workflowStats.total }}</div>
+                <div class="stat-label">总工作流</div>
+              </div>
+            </div>
+            <div class="stat-card">
+              <div class="stat-icon">▶️</div>
+              <div class="stat-info">
+                <div class="stat-number">{{ workflowStats.running }}</div>
+                <div class="stat-label">运行中</div>
+              </div>
+            </div>
+            <div class="stat-card">
+              <div class="stat-icon">✅</div>
+              <div class="stat-info">
+                <div class="stat-number">{{ workflowStats.completed }}</div>
+                <div class="stat-label">已完成</div>
+              </div>
+            </div>
+            <div class="stat-card">
+              <div class="stat-icon">❌</div>
+              <div class="stat-info">
+                <div class="stat-number">{{ workflowStats.failed }}</div>
+                <div class="stat-label">失败</div>
+              </div>
+            </div>
+          </div>
+
+          <!-- 搜索和筛选 -->
+          <div class="workflow-filters">
+            <div class="search-box">
+              <input 
+                v-model="workflowSearch" 
+                type="text" 
+                placeholder="搜索工作流..." 
+                class="search-input"
+              />
+              <button class="search-btn">🔍</button>
+            </div>
+            <div class="filter-buttons">
+              <button 
+                v-for="status in workflowStatusOptions" 
+                :key="status.value"
+                :class="['filter-btn', { active: selectedWorkflowStatus === status.value }]"
+                @click="selectedWorkflowStatus = status.value"
+              >
+                {{ status.label }}
+              </button>
+            </div>
+            <button class="btn btn-primary" @click="refreshWorkflowList">
+              <i class="icon">🔄</i> 刷新
+            </button>
+          </div>
+
+          <!-- 工作流列表 -->
+          <div class="workflow-list" v-if="!loadingWorkflows">
+            <div v-if="filteredWorkflows.length === 0" class="empty-state">
+              <div class="empty-icon">📝</div>
+              <h4>暂无工作流</h4>
+              <p>您还没有创建任何工作流，现在就开始设计您的第一个工作流吧！</p>
+              <button class="btn btn-primary" @click="setActiveTab('workflow')">
+                创建工作流
+              </button>
+            </div>
+            <div v-else class="workflow-grid">
+              <div 
+                v-for="workflow in filteredWorkflows" 
+                :key="workflow.dag_id"
+                class="workflow-card"
+                @click="viewWorkflow(workflow)"
+              >
+                <div class="workflow-header">
+                  <div class="workflow-title">{{ workflow.name || workflow.dag_id }}</div>
+                  <div class="workflow-status" :class="workflow.status">
+                    {{ getStatusLabel(workflow.status) }}
+                  </div>
+                </div>
+                <div class="workflow-meta">
+                  <div class="meta-item">
+                    <span class="meta-label">节点数:</span>
+                    <span class="meta-value">{{ workflow.node_count || 0 }}</span>
+                  </div>
+                  <div class="meta-item">
+                    <span class="meta-label">创建时间:</span>
+                    <span class="meta-value">{{ formatDate(workflow.created_at) }}</span>
+                  </div>
+                </div>
+                <div class="workflow-actions" @click.stop>
+                  <button class="action-btn" @click="viewWorkflowStatus(workflow)" title="查看状态">
+                    📊
+                  </button>
+                  <button class="action-btn" @click="viewWorkflowResults(workflow)" title="查看结果">
+                    📋
+                  </button>
+                  <button class="action-btn" @click="cloneWorkflow(workflow)" title="复制">
+                    📄
+                  </button>
+                  <button class="action-btn danger" @click="deleteWorkflow(workflow)" title="删除">
+                    🗑️
+                  </button>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- 加载状态 -->
+          <div v-if="loadingWorkflows" class="loading-state">
+            <div class="loading-spinner"></div>
+            <p>正在加载工作流列表...</p>
+          </div>
+
+          <!-- 错误状态 -->
+          <div v-if="workflowListError" class="error-state">
+            <div class="error-icon">⚠️</div>
+            <h4>加载失败</h4>
+            <p>{{ workflowListError }}</p>
+            <div class="error-actions">
+              <button class="btn btn-primary" @click="retryLoadWorkflows">
+                🔄 重试
+              </button>
+              <button class="btn btn-secondary" @click="clearWorkflowError">
+                关闭
+              </button>
+            </div>
+          </div>
+        </div>
+
         <!-- Testing and deployment -->
         <div v-else-if="activeTab === 'deploy'" class="editor-content">
           <div class="section-header">
@@ -1318,6 +1456,190 @@
         </div>
       </div>
     </div>
+
+    <!-- 状态监控弹窗 -->
+    <div v-if="showStatusMonitor" class="modal-overlay" @click="closeStatusMonitor">
+      <div class="status-monitor-modal" @click.stop>
+        <div class="modal-header">
+          <h3>📊 工作流状态监控</h3>
+          <div class="connection-status">
+            <div class="connection-indicator" :class="sseConnectionStatus">
+              <div class="indicator-dot"></div>
+              <span class="indicator-text">{{ getConnectionStatusText(sseConnectionStatus) }}</span>
+            </div>
+          </div>
+          <button class="close-btn" @click="closeStatusMonitor">×</button>
+        </div>
+        
+        <div class="modal-body">
+          <!-- 工作流基本信息 -->
+          <div class="workflow-info-section">
+            <h4>工作流信息</h4>
+            <div class="info-grid">
+              <div class="info-item">
+                <span class="info-label">工作流ID:</span>
+                <span class="info-value">{{ monitoringWorkflowId }}</span>
+              </div>
+              <div class="info-item">
+                <span class="info-label">状态:</span>
+                <span class="info-value status-badge" :class="currentWorkflowStatus?.status">
+                  {{ getStatusLabel(currentWorkflowStatus?.status) }}
+                </span>
+              </div>
+              <div class="info-item">
+                <span class="info-label">开始时间:</span>
+                <span class="info-value">{{ formatDate(currentWorkflowStatus?.start_time) }}</span>
+              </div>
+              <div class="info-item">
+                <span class="info-label">持续时间:</span>
+                <span class="info-value">{{ formatDuration(currentWorkflowStatus?.duration) }}</span>
+              </div>
+            </div>
+          </div>
+
+          <!-- 节点状态列表 -->
+          <div class="nodes-status-section">
+            <h4>节点状态</h4>
+            <div class="nodes-list">
+              <div v-if="!currentWorkflowStatus?.nodes || currentWorkflowStatus.nodes.length === 0" 
+                   class="empty-nodes">
+                <div class="empty-icon">📄</div>
+                <p>暂无节点状态信息</p>
+              </div>
+              <div v-else 
+                   v-for="node in currentWorkflowStatus.nodes" 
+                   :key="node.node_id"
+                   class="node-status-item">
+                <div class="node-status-header">
+                  <div class="node-info">
+                    <div class="node-icon">{{ getNodeIcon(node.node_type) }}</div>
+                    <div class="node-details">
+                      <div class="node-name">{{ node.node_name || node.node_id }}</div>
+                      <div class="node-type">{{ node.node_type }}</div>
+                    </div>
+                  </div>
+                  <div class="node-status-badge" :class="node.status">
+                    {{ getStatusLabel(node.status) }}
+                  </div>
+                </div>
+                <div class="node-progress">
+                  <div class="progress-bar">
+                    <div class="progress-fill" :style="{ width: node.progress + '%' }"></div>
+                  </div>
+                  <span class="progress-text">{{ node.progress || 0 }}%</span>
+                </div>
+                <div v-if="node.error" class="node-error">
+                  <div class="error-icon">⚠️</div>
+                  <div class="error-message">{{ node.error }}</div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- 执行日志 -->
+          <div class="execution-logs-section">
+            <h4>执行日志</h4>
+            <div class="logs-container">
+              <div v-if="!currentWorkflowStatus?.logs || currentWorkflowStatus.logs.length === 0" 
+                   class="empty-logs">
+                <div class="empty-icon">📝</div>
+                <p>暂无执行日志</p>
+              </div>
+              <div v-else class="logs-list">
+                <div v-for="log in currentWorkflowStatus.logs" 
+                     :key="log.timestamp"
+                     class="log-item" 
+                     :class="log.level">
+                  <div class="log-time">{{ formatTime(log.timestamp) }}</div>
+                  <div class="log-level">{{ log.level }}</div>
+                  <div class="log-message">{{ log.message }}</div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="modal-footer">
+          <button class="btn btn-secondary" @click="closeStatusMonitor">关闭</button>
+          <button class="btn btn-primary" @click="refreshWorkflowStatus">刷新状态</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- 执行结果查看器 -->
+    <div v-if="showResultsViewer" class="modal-overlay" @click="closeResultsViewer">
+      <div class="results-viewer-modal" @click.stop>
+        <div class="modal-header">
+          <h3>📋 执行结果查看器</h3>
+          <button class="close-btn" @click="closeResultsViewer">×</button>
+        </div>
+        
+        <div class="modal-body">
+          <!-- 结果概览 -->
+          <div class="results-overview">
+            <h4>结果概览</h4>
+            <div class="overview-stats">
+              <div class="overview-item">
+                <div class="overview-label">总计消息</div>
+                <div class="overview-value">{{ workflowResults?.total_messages || 0 }}</div>
+              </div>
+              <div class="overview-item">
+                <div class="overview-label">成功处理</div>
+                <div class="overview-value">{{ workflowResults?.successful_messages || 0 }}</div>
+              </div>
+              <div class="overview-item">
+                <div class="overview-label">处理失败</div>
+                <div class="overview-value">{{ workflowResults?.failed_messages || 0 }}</div>
+              </div>
+            </div>
+          </div>
+
+          <!-- 消息列表 -->
+          <div class="messages-section">
+            <h4>消息列表</h4>
+            <div class="messages-filters">
+              <select v-model="selectedMessageType" class="filter-select">
+                <option value="all">所有消息</option>
+                <option value="input">输入消息</option>
+                <option value="output">输出消息</option>
+                <option value="error">错误消息</option>
+              </select>
+              <button class="btn btn-sm" @click="exportResults">导出结果</button>
+            </div>
+            <div class="messages-list">
+              <div v-if="!filteredMessages || filteredMessages.length === 0" 
+                   class="empty-messages">
+                <div class="empty-icon">💬</div>
+                <p>暂无消息记录</p>
+              </div>
+              <div v-else class="messages-grid">
+                <div v-for="message in filteredMessages" 
+                     :key="message.id"
+                     class="message-item"
+                     :class="message.type">
+                  <div class="message-header">
+                    <div class="message-type">{{ message.type }}</div>
+                    <div class="message-time">{{ formatTime(message.timestamp) }}</div>
+                  </div>
+                  <div class="message-content">
+                    <pre v-if="message.content">{{ formatMessageContent(message.content) }}</pre>
+                    <div v-if="message.error" class="message-error">
+                      <div class="error-icon">❌</div>
+                      <div class="error-text">{{ message.error }}</div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="modal-footer">
+          <button class="btn btn-secondary" @click="closeResultsViewer">关闭</button>
+          <button class="btn btn-primary" @click="refreshWorkflowResults">刷新结果</button>
+        </div>
+      </div>
+    </div>
   </div>
 </template>
 
@@ -1378,6 +1700,13 @@ export default {
           icon: '🔄',
           title: 'Conversation Flow',
           description: 'Main workflow design - Core feature',
+          hasContent: true
+        },
+        {
+          id: 'workflows',
+          icon: '📋',
+          title: 'Workflow Management',
+          description: 'View and manage all workflows',
           hasContent: true
         },
         {
@@ -1448,7 +1777,48 @@ export default {
       
       // UI状态
       showShortcutsHelp: false,
-      copiedNode: null
+      copiedNode: null,
+
+      // 工作流管理相关
+      workflowList: [],
+      workflowStats: {
+        total: 0,
+        running: 0,
+        completed: 0,
+        failed: 0
+      },
+      workflowSearch: '',
+      selectedWorkflowStatus: 'all',
+      loadingWorkflows: false,
+      workflowListError: null,
+      workflowStatusOptions: [
+        { value: 'all', label: '全部' },
+        { value: 'running', label: '运行中' },
+        { value: 'completed', label: '已完成' },
+        { value: 'failed', label: '失败' },
+        { value: 'pending', label: '待运行' }
+      ],
+
+      // 状态监控相关
+      currentWorkflowStatus: null,
+      workflowResults: null,
+      monitoringWorkflowId: null,
+      showStatusMonitor: false,
+      showResultsViewer: false,
+      selectedMessageType: 'all',
+      
+      // SSE连接状态
+      sseConnectionStatus: 'disconnected', // disconnected, connecting, connected, error
+      sseReconnectAttempts: 0,
+      sseMaxReconnectAttempts: 5,
+      sseReconnectDelay: 1000,
+      sseHeartbeatInterval: null,
+      sseLastHeartbeat: null,
+      
+      // UI响应优化
+      statusUpdateQueue: [],
+      statusUpdateTimer: null,
+      batchUpdateInterval: 100
     }
   },
   
@@ -1456,6 +1826,38 @@ export default {
     selectedNodeData() {
       if (!this.selectedNode) return {}
       return this.workflowNodes.find(node => node.id === this.selectedNode) || {}
+    },
+
+    filteredWorkflows() {
+      let filtered = this.workflowList
+
+      // 状态筛选
+      if (this.selectedWorkflowStatus !== 'all') {
+        filtered = filtered.filter(workflow => workflow.status === this.selectedWorkflowStatus)
+      }
+
+      // 搜索筛选
+      if (this.workflowSearch.trim()) {
+        const searchTerm = this.workflowSearch.toLowerCase()
+        filtered = filtered.filter(workflow => 
+          (workflow.name || workflow.dag_id).toLowerCase().includes(searchTerm) ||
+          workflow.dag_id.toLowerCase().includes(searchTerm)
+        )
+      }
+
+      return filtered
+    },
+
+    filteredMessages() {
+      if (!this.workflowResults?.messages) return []
+      
+      if (this.selectedMessageType === 'all') {
+        return this.workflowResults.messages
+      }
+      
+      return this.workflowResults.messages.filter(message => 
+        message.type === this.selectedMessageType
+      )
     }
   },
   
@@ -1463,10 +1865,12 @@ export default {
     this.initializeCanvas()
     this.setupKeyboardShortcuts()
     this.saveToHistory()
+    this.loadWorkflowList()
   },
   
   beforeUnmount() {
     this.cleanup()
+    this.stopStatusMonitoring()
   },
   
   methods: {
@@ -2903,6 +3307,605 @@ export default {
       this.selectedConnection = connection
     },
 
+    // ==================== 工作流管理方法 ====================
+    
+    // 加载工作流列表
+    async loadWorkflowList() {
+      try {
+        this.loadingWorkflows = true
+        this.workflowListError = null
+        
+        const workflowAPI = (await import('@/config/api.js')).default
+        
+        const response = await workflowAPI.getAllDAGs()
+        this.workflowList = response.dags || []
+        
+        // 更新统计信息
+        this.updateWorkflowStats()
+        
+      } catch (error) {
+        console.error('加载工作流列表失败:', error)
+        this.workflowListError = error.message || '加载工作流列表失败'
+        this.$message?.error?.('加载工作流列表失败: ' + error.message)
+      } finally {
+        this.loadingWorkflows = false
+      }
+    },
+
+    // 刷新工作流列表
+    async refreshWorkflowList() {
+      await this.loadWorkflowList()
+      if (!this.workflowListError) {
+        this.$message?.success?.('工作流列表已刷新')
+      }
+    },
+
+    // 重试加载工作流列表
+    async retryLoadWorkflows() {
+      await this.loadWorkflowList()
+    },
+
+    // 清除工作流错误
+    clearWorkflowError() {
+      this.workflowListError = null
+    },
+
+    // 更新工作流统计
+    updateWorkflowStats() {
+      const stats = {
+        total: this.workflowList.length,
+        running: 0,
+        completed: 0,
+        failed: 0,
+        pending: 0
+      }
+
+      this.workflowList.forEach(workflow => {
+        if (stats.hasOwnProperty(workflow.status)) {
+          stats[workflow.status]++
+        }
+      })
+
+      this.workflowStats = stats
+    },
+
+    // 查看工作流详情
+    viewWorkflow(workflow) {
+      // 切换到工作流设计页面并加载该工作流
+      this.setActiveTab('workflow')
+      this.loadWorkflowData(workflow.dag_id)
+    },
+
+    // 查看工作流状态
+    async viewWorkflowStatus(workflow) {
+      try {
+        const workflowAPI = (await import('@/config/api.js')).default
+        const status = await workflowAPI.getDAGStatus(workflow.dag_id)
+        
+        this.currentWorkflowStatus = status
+        this.monitoringWorkflowId = workflow.dag_id
+        
+        // 显示状态监控弹窗
+        this.showStatusMonitor = true
+        
+        // 开始实时监控
+        this.startStatusMonitoring(workflow.dag_id)
+        
+      } catch (error) {
+        console.error('获取工作流状态失败:', error)
+        this.$message?.error?.('获取工作流状态失败: ' + error.message)
+      }
+    },
+
+    // 查看工作流结果
+    async viewWorkflowResults(workflow) {
+      try {
+        const workflowAPI = (await import('@/config/api.js')).default
+        const results = await workflowAPI.getResult(workflow.dag_id)
+        
+        this.workflowResults = results
+        this.showResultsViewer = true
+        
+      } catch (error) {
+        console.error('获取工作流结果失败:', error)
+        this.$message?.error?.('获取工作流结果失败: ' + error.message)
+      }
+    },
+
+    // 复制工作流
+    async cloneWorkflow(workflow) {
+      try {
+        // 加载原工作流数据
+        await this.loadWorkflowData(workflow.dag_id)
+        
+        // 生成新的DAG数据
+        const workflowAPI = (await import('@/config/api.js')).default
+        const newDagData = await this.generateDAGData()
+        newDagData.dag_id = workflowAPI.generateDAGId('cloned')
+        
+        // 提交新工作流
+        await workflowAPI.submitDAG(newDagData)
+        
+        // 刷新列表
+        await this.refreshWorkflowList()
+        
+        this.$message?.success?.(`工作流已复制为: ${newDagData.dag_id}`)
+        
+      } catch (error) {
+        console.error('复制工作流失败:', error)
+        this.$message?.error?.('复制工作流失败: ' + error.message)
+      }
+    },
+
+    // 删除工作流
+    async deleteWorkflow(workflow) {
+      if (!confirm(`确定要删除工作流 "${workflow.name || workflow.dag_id}" 吗？此操作不可撤销。`)) {
+        return
+      }
+
+      try {
+        // 注意：API文档中没有删除接口，这里只从本地列表移除
+        // 在实际项目中需要调用删除API
+        const index = this.workflowList.findIndex(w => w.dag_id === workflow.dag_id)
+        if (index !== -1) {
+          this.workflowList.splice(index, 1)
+          this.updateWorkflowStats()
+        }
+        
+        this.$message?.success?.('工作流已删除')
+        
+      } catch (error) {
+        console.error('删除工作流失败:', error)
+        this.$message?.error?.('删除工作流失败: ' + error.message)
+      }
+    },
+
+    // 加载工作流数据
+    async loadWorkflowData(dagId) {
+      try {
+        // 这里需要根据实际API实现加载工作流的节点和连接数据
+        // 目前API文档中没有获取工作流详情的接口，这里暂时用空实现
+        console.log('加载工作流数据:', dagId)
+        
+      } catch (error) {
+        console.error('加载工作流数据失败:', error)
+        this.$message?.error?.('加载工作流数据失败: ' + error.message)
+      }
+    },
+
+    // 开始状态监控（优化版）
+    startStatusMonitoring(dagId) {
+      this.stopStatusMonitoring()
+      this.sseReconnectAttempts = 0
+      this.connectSSE(dagId)
+    },
+
+    // SSE连接处理
+    async connectSSE(dagId) {
+      try {
+        this.sseConnectionStatus = 'connecting'
+        
+        const workflowAPI = (await import('@/config/api.js')).default
+        
+        // 创建SSE连接
+        this.statusEventSource = workflowAPI.createStatusStream(
+          dagId,
+          (statusData) => {
+            this.onSSEMessage(statusData)
+          },
+          (error) => {
+            this.onSSEError(error)
+          }
+        )
+
+        // 设置连接超时
+        const connectionTimeout = setTimeout(() => {
+          if (this.sseConnectionStatus === 'connecting') {
+            this.onSSEError(new Error('连接超时'))
+          }
+        }, 10000)
+
+        // 模拟连接成功（实际应该通过第一个消息或连接事件确认）
+        setTimeout(() => {
+          if (this.sseConnectionStatus === 'connecting') {
+            this.sseConnectionStatus = 'connected'
+            this.sseReconnectAttempts = 0
+            this.sseLastHeartbeat = Date.now()
+            this.startHeartbeatMonitoring()
+            clearTimeout(connectionTimeout)
+          }
+        }, 2000)
+
+      } catch (error) {
+        console.error('创建SSE连接失败:', error)
+        this.onSSEError(error)
+      }
+    },
+
+    // SSE消息处理
+    onSSEMessage(statusData) {
+      this.sseConnectionStatus = 'connected'
+      this.sseLastHeartbeat = Date.now()
+      
+      // 将状态更新加入队列以批量处理
+      this.statusUpdateQueue.push(statusData)
+      
+      // 启动批量更新定时器
+      if (!this.statusUpdateTimer) {
+        this.statusUpdateTimer = setTimeout(() => {
+          this.processBatchStatusUpdates()
+        }, this.batchUpdateInterval)
+      }
+    },
+
+    // SSE错误处理
+    onSSEError(error) {
+      console.error('SSE连接错误:', error)
+      this.sseConnectionStatus = 'error'
+      
+      // 自动重连机制
+      if (this.sseReconnectAttempts < this.sseMaxReconnectAttempts) {
+        this.sseReconnectAttempts++
+        const delay = this.sseReconnectDelay * Math.pow(2, this.sseReconnectAttempts - 1)
+        
+        console.log(`尝试重连... (${this.sseReconnectAttempts}/${this.sseMaxReconnectAttempts})`)
+        
+        setTimeout(() => {
+          if (this.monitoringWorkflowId) {
+            this.connectSSE(this.monitoringWorkflowId)
+          }
+        }, delay)
+      } else {
+        this.$message?.error?.('连接失败，已达到最大重连次数')
+      }
+    },
+
+    // 批量处理状态更新
+    processBatchStatusUpdates() {
+      if (this.statusUpdateQueue.length === 0) return
+      
+      // 处理所有队列中的状态更新
+      const updates = [...this.statusUpdateQueue]
+      this.statusUpdateQueue = []
+      
+      // 合并更新，只保留最新的状态
+      const latestUpdate = updates[updates.length - 1]
+      this.currentWorkflowStatus = latestUpdate
+      
+      // 更新UI显示
+      this.updateStatusDisplay(latestUpdate)
+      
+      // 清理定时器
+      if (this.statusUpdateTimer) {
+        clearTimeout(this.statusUpdateTimer)
+        this.statusUpdateTimer = null
+      }
+    },
+
+    // 停止状态监控
+    stopStatusMonitoring() {
+      if (this.statusEventSource) {
+        this.statusEventSource.close()
+        this.statusEventSource = null
+      }
+      
+      if (this.sseHeartbeatInterval) {
+        clearInterval(this.sseHeartbeatInterval)
+        this.sseHeartbeatInterval = null
+      }
+      
+      if (this.statusUpdateTimer) {
+        clearTimeout(this.statusUpdateTimer)
+        this.statusUpdateTimer = null
+      }
+      
+      this.sseConnectionStatus = 'disconnected'
+      this.statusUpdateQueue = []
+    },
+
+    // 心跳监控
+    startHeartbeatMonitoring() {
+      if (this.sseHeartbeatInterval) {
+        clearInterval(this.sseHeartbeatInterval)
+      }
+      
+      this.sseHeartbeatInterval = setInterval(() => {
+        const now = Date.now()
+        const timeSinceLastHeartbeat = now - (this.sseLastHeartbeat || 0)
+        
+        // 如果超过30秒没有收到消息，认为连接异常
+        if (timeSinceLastHeartbeat > 30000) {
+          console.warn('心跳超时，尝试重连...')
+          this.onSSEError(new Error('心跳超时'))
+        }
+      }, 5000)
+    },
+
+    // 获取连接状态文本
+    getConnectionStatusText(status) {
+      const statusMap = {
+        'disconnected': '未连接',
+        'connecting': '连接中...',
+        'connected': '已连接',
+        'error': '连接错误'
+      }
+      return statusMap[status] || '未知状态'
+    },
+
+    // 更新状态显示
+    updateStatusDisplay(statusData) {
+      // 更新工作流列表中的状态
+      const workflow = this.workflowList.find(w => w.dag_id === statusData.dag_id)
+      if (workflow) {
+        workflow.status = statusData.status
+        this.updateWorkflowStats()
+      }
+
+      // 如果正在监控当前工作流，更新节点状态
+      if (statusData.node_id && statusData.node_status) {
+        const node = this.workflowNodes.find(n => n.id === statusData.node_id)
+        if (node) {
+          node.status = statusData.node_status
+        }
+      }
+    },
+
+    // 工具方法
+    getStatusLabel(status) {
+      const labels = {
+        running: '运行中',
+        completed: '已完成', 
+        failed: '失败',
+        pending: '待运行'
+      }
+      return labels[status] || status
+    },
+
+    formatDate(dateString) {
+      if (!dateString) return '-'
+      const date = new Date(dateString)
+      return date.toLocaleString('zh-CN', { 
+        year: 'numeric', 
+        month: '2-digit', 
+        day: '2-digit',
+        hour: '2-digit',
+        minute: '2-digit'
+      })
+    },
+
+    deselectConnection() {
+      this.selectedConnection = null
+    },
+
+    // ==================== 状态监控弹窗方法 ====================
+    
+    // 关闭状态监控弹窗
+    closeStatusMonitor() {
+      this.showStatusMonitor = false
+      this.stopStatusMonitoring()
+      this.monitoringWorkflowId = null
+      this.currentWorkflowStatus = null
+    },
+
+    // 刷新工作流状态
+    async refreshWorkflowStatus() {
+      if (!this.monitoringWorkflowId) return
+      
+      try {
+        const workflowAPI = (await import('@/config/api.js')).default
+        const status = await workflowAPI.getDAGStatus(this.monitoringWorkflowId)
+        this.currentWorkflowStatus = status
+        
+        this.$message?.success?.('状态已刷新')
+      } catch (error) {
+        console.error('刷新工作流状态失败:', error)
+        this.$message?.error?.('刷新状态失败: ' + error.message)
+      }
+    },
+
+    // 关闭结果查看器
+    closeResultsViewer() {
+      this.showResultsViewer = false
+      this.workflowResults = null
+      this.selectedMessageType = 'all'
+    },
+
+    // 刷新工作流结果
+    async refreshWorkflowResults() {
+      if (!this.monitoringWorkflowId) return
+      
+      try {
+        const workflowAPI = (await import('@/config/api.js')).default
+        const results = await workflowAPI.getResult(this.monitoringWorkflowId)
+        this.workflowResults = results
+        
+        this.$message?.success?.('结果已刷新')
+      } catch (error) {
+        console.error('刷新工作流结果失败:', error)
+        this.$message?.error?.('刷新结果失败: ' + error.message)
+      }
+    },
+
+    // 导出结果
+    async exportResults() {
+      if (!this.workflowResults) return
+      
+      try {
+        const data = {
+          workflow_id: this.monitoringWorkflowId,
+          export_time: new Date().toISOString(),
+          summary: {
+            total_messages: this.workflowResults.total_messages,
+            successful_messages: this.workflowResults.successful_messages,
+            failed_messages: this.workflowResults.failed_messages
+          },
+          messages: this.filteredMessages
+        }
+        
+        const blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' })
+        const url = URL.createObjectURL(blob)
+        const a = document.createElement('a')
+        a.href = url
+        a.download = `workflow_results_${this.monitoringWorkflowId}_${Date.now()}.json`
+        document.body.appendChild(a)
+        a.click()
+        document.body.removeChild(a)
+        URL.revokeObjectURL(url)
+        
+        this.$message?.success?.('结果已导出')
+      } catch (error) {
+        console.error('导出结果失败:', error)
+        this.$message?.error?.('导出失败: ' + error.message)
+      }
+    },
+
+    // 工具方法
+    formatTime(timestamp) {
+      if (!timestamp) return '-'
+      const date = new Date(timestamp)
+      return date.toLocaleTimeString('zh-CN', {
+        hour: '2-digit',
+        minute: '2-digit',
+        second: '2-digit'
+      })
+    },
+
+    formatDuration(duration) {
+      if (!duration) return '-'
+      
+      const seconds = Math.floor(duration % 60)
+      const minutes = Math.floor((duration / 60) % 60)
+      const hours = Math.floor(duration / 3600)
+      
+      if (hours > 0) {
+        return `${hours}小时${minutes}分${seconds}秒`
+      } else if (minutes > 0) {
+        return `${minutes}分${seconds}秒`
+      } else {
+        return `${seconds}秒`
+      }
+    },
+
+    formatMessageContent(content) {
+      if (typeof content === 'string') {
+        return content
+      }
+      return JSON.stringify(content, null, 2)
+    },
+
+    // 重试加载工作流列表
+    async retryLoadWorkflows() {
+      await this.loadWorkflowList()
+    },
+
+    // 清除工作流错误
+    clearWorkflowError() {
+      this.workflowListError = null
+    },
+
+    // 显示错误消息
+    showErrorToast(message, duration = 5000) {
+      // 创建错误消息元素
+      const toast = document.createElement('div')
+      toast.className = 'error-message-toast'
+      toast.innerHTML = `
+        <div class="toast-header">
+          <span>⚠️</span>
+          <span>错误提示</span>
+        </div>
+        <div class="toast-body">${message}</div>
+        <button class="toast-close" onclick="this.parentElement.remove()">×</button>
+      `
+      
+      // 添加到页面
+      document.body.appendChild(toast)
+      
+      // 自动移除
+      setTimeout(() => {
+        if (toast.parentElement) {
+          toast.parentElement.removeChild(toast)
+        }
+      }, duration)
+    },
+
+    // 处理网络错误
+    handleNetworkError(error) {
+      console.error('网络错误:', error)
+      
+      // 显示网络错误横幅
+      this.showNetworkErrorBanner()
+      
+      // 记录错误
+      this.logError('network', error)
+    },
+
+    // 显示网络错误横幅
+    showNetworkErrorBanner() {
+      // 检查是否已经有横幅
+      if (document.querySelector('.network-error-banner')) {
+        return
+      }
+      
+      const banner = document.createElement('div')
+      banner.className = 'network-error-banner'
+      banner.innerHTML = `
+        <div class="banner-content">
+          <span>⚠️ 网络连接异常</span>
+          <button class="retry-btn" onclick="location.reload()">重试</button>
+        </div>
+      `
+      
+      document.body.appendChild(banner)
+      
+      // 5秒后自动隐藏
+      setTimeout(() => {
+        if (banner.parentElement) {
+          banner.parentElement.removeChild(banner)
+        }
+      }, 5000)
+    },
+
+    // 记录错误
+    logError(type, error) {
+      const errorLog = {
+        type,
+        message: error.message || error,
+        timestamp: new Date().toISOString(),
+        stack: error.stack,
+        userAgent: navigator.userAgent,
+        url: window.location.href
+      }
+      
+      // 存储到本地存储
+      try {
+        const logs = JSON.parse(localStorage.getItem('ai-agent-error-logs') || '[]')
+        logs.push(errorLog)
+        
+        // 只保留最近的100条错误日志
+        if (logs.length > 100) {
+          logs.splice(0, logs.length - 100)
+        }
+        
+        localStorage.setItem('ai-agent-error-logs', JSON.stringify(logs))
+      } catch (e) {
+        console.error('无法保存错误日志:', e)
+      }
+    },
+
+    // 获取错误日志
+    getErrorLogs() {
+      try {
+        return JSON.parse(localStorage.getItem('ai-agent-error-logs') || '[]')
+      } catch (e) {
+        console.error('无法读取错误日志:', e)
+        return []
+      }
+    },
+
+    // 清除错误日志
+    clearErrorLogs() {
+      localStorage.removeItem('ai-agent-error-logs')
+    }
   }
 }
 </script>
@@ -5325,6 +6328,1191 @@ export default {
   }
   50% {
     box-shadow: 0 0 30px rgba(255, 107, 107, 0.8);
+  }
+}
+
+/* ==================== 工作流管理页面样式 ==================== */
+.workflows-management {
+  padding: 20px;
+  max-width: 1200px;
+  margin: 0 auto;
+}
+
+.section-header {
+  margin-bottom: 30px;
+  text-align: center;
+}
+
+.section-header h3 {
+  font-size: 24px;
+  color: #e0e0e0;
+  margin-bottom: 10px;
+}
+
+.section-header p {
+  color: #b0b0b0;
+  font-size: 16px;
+}
+
+/* 工作流统计卡片 */
+.workflow-stats {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: 20px;
+  margin-bottom: 30px;
+}
+
+.stat-card {
+  background: #323232;
+  border-radius: 12px;
+  padding: 20px;
+  display: flex;
+  align-items: center;
+  gap: 15px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
+  transition: transform 0.2s ease;
+  border: 1px solid #404040;
+}
+
+.stat-card:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.4);
+}
+
+.stat-icon {
+  font-size: 32px;
+  width: 50px;
+  height: 50px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  border-radius: 50%;
+  color: white;
+}
+
+.stat-info {
+  flex: 1;
+}
+
+.stat-number {
+  font-size: 24px;
+  font-weight: bold;
+  color: #e0e0e0;
+  margin-bottom: 5px;
+}
+
+.stat-label {
+  color: #b0b0b0;
+  font-size: 14px;
+}
+
+/* 搜索和筛选区域 */
+.workflow-filters {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 15px;
+  align-items: center;
+  margin-bottom: 30px;
+  padding: 20px;
+  background: #323232;
+  border-radius: 12px;
+  border: 1px solid #404040;
+}
+
+.search-box {
+  display: flex;
+  flex: 1;
+  min-width: 200px;
+}
+
+.search-input {
+  flex: 1;
+  padding: 10px 15px;
+  border: 1px solid #555555;
+  border-radius: 8px 0 0 8px;
+  font-size: 14px;
+  outline: none;
+  transition: border-color 0.2s ease;
+  background: #404040;
+  color: #e0e0e0;
+}
+
+.search-input:focus {
+  border-color: #667eea;
+  box-shadow: 0 0 0 2px rgba(102, 126, 234, 0.2);
+}
+
+.search-btn {
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  color: white;
+  border: none;
+  padding: 10px 15px;
+  border-radius: 0 8px 8px 0;
+  cursor: pointer;
+  font-size: 16px;
+  transition: all 0.2s ease;
+}
+
+.search-btn:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 4px 12px rgba(102, 126, 234, 0.4);
+}
+
+.filter-buttons {
+  display: flex;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+
+.filter-btn {
+  padding: 8px 16px;
+  border: 1px solid #555555;
+  background: #404040;
+  border-radius: 20px;
+  cursor: pointer;
+  font-size: 14px;
+  transition: all 0.2s ease;
+  color: #e0e0e0;
+}
+
+.filter-btn:hover {
+  background: #555555;
+  border-color: #667eea;
+}
+
+.filter-btn.active {
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  color: white;
+  border-color: #667eea;
+}
+
+/* 工作流列表 */
+.workflow-list {
+  min-height: 400px;
+}
+
+.empty-state {
+  text-align: center;
+  padding: 60px 20px;
+  color: #b0b0b0;
+}
+
+.empty-icon {
+  font-size: 64px;
+  margin-bottom: 20px;
+}
+
+.empty-state h4 {
+  font-size: 20px;
+  margin-bottom: 10px;
+  color: #e0e0e0;
+}
+
+.empty-state p {
+  font-size: 16px;
+  margin-bottom: 20px;
+}
+
+.workflow-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(350px, 1fr));
+  gap: 20px;
+}
+
+.workflow-card {
+  background: #323232;
+  border-radius: 12px;
+  padding: 20px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  border: 1px solid #404040;
+  position: relative;
+  overflow: hidden;
+}
+
+.workflow-card:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+  border-color: #667eea;
+}
+
+.workflow-card::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 3px;
+  background: linear-gradient(90deg, #667eea, #764ba2);
+  opacity: 0;
+  transition: opacity 0.2s ease;
+}
+
+.workflow-card:hover::before {
+  opacity: 1;
+}
+
+.workflow-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 15px;
+}
+
+.workflow-title {
+  font-size: 18px;
+  font-weight: bold;
+  color: #e0e0e0;
+  max-width: 200px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.workflow-status {
+  padding: 4px 12px;
+  border-radius: 12px;
+  font-size: 12px;
+  font-weight: 500;
+  text-transform: uppercase;
+}
+
+.workflow-status.running {
+  background: linear-gradient(135deg, #2196f3 0%, #21cbf3 100%);
+  color: white;
+}
+
+.workflow-status.completed {
+  background: linear-gradient(135deg, #4caf50 0%, #8bc34a 100%);
+  color: white;
+}
+
+.workflow-status.failed {
+  background: linear-gradient(135deg, #f44336 0%, #e91e63 100%);
+  color: white;
+}
+
+.workflow-status.pending {
+  background: linear-gradient(135deg, #ff9800 0%, #ffc107 100%);
+  color: white;
+}
+
+.workflow-meta {
+  margin-bottom: 15px;
+}
+
+.meta-item {
+  display: flex;
+  justify-content: space-between;
+  margin-bottom: 8px;
+  font-size: 14px;
+}
+
+.meta-label {
+  color: #b0b0b0;
+}
+
+.meta-value {
+  color: #e0e0e0;
+  font-weight: 500;
+}
+
+.workflow-actions {
+  display: flex;
+  gap: 10px;
+  justify-content: flex-end;
+}
+
+.action-btn {
+  width: 32px;
+  height: 32px;
+  border: none;
+  border-radius: 6px;
+  background: #404040;
+  cursor: pointer;
+  font-size: 14px;
+  transition: all 0.2s ease;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #e0e0e0;
+}
+
+.action-btn:hover {
+  background: #555555;
+  transform: scale(1.1);
+}
+
+.action-btn.danger:hover {
+  background: #f44336;
+  color: white;
+}
+
+/* 加载状态 */
+.loading-state {
+  text-align: center;
+  padding: 60px 20px;
+  color: #b0b0b0;
+}
+
+.loading-spinner {
+  width: 40px;
+  height: 40px;
+  border: 3px solid #404040;
+  border-top: 3px solid #667eea;
+  border-radius: 50%;
+  animation: spin 1s linear infinite;
+  margin: 0 auto 20px;
+}
+
+@keyframes spin {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}
+
+/* 工作流管理页面响应式适配 */
+@media (max-width: 768px) {
+  .workflows-management {
+    padding: 10px;
+  }
+
+  .workflow-stats {
+    grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+    gap: 15px;
+  }
+
+  .stat-card {
+    padding: 15px;
+  }
+
+  .stat-icon {
+    width: 40px;
+    height: 40px;
+    font-size: 24px;
+  }
+
+  .stat-number {
+    font-size: 20px;
+  }
+
+  .workflow-filters {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .search-box {
+    min-width: auto;
+  }
+
+  .workflow-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+/* ==================== 状态监控弹窗样式 ==================== */
+.modal-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(0, 0, 0, 0.7);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1000;
+  backdrop-filter: blur(5px);
+}
+
+.status-monitor-modal,
+.results-viewer-modal {
+  background: #2a2a2a;
+  border-radius: 16px;
+  width: 90%;
+  max-width: 900px;
+  max-height: 80vh;
+  overflow: hidden;
+  box-shadow: 0 20px 40px rgba(0, 0, 0, 0.5);
+  border: 1px solid #404040;
+}
+
+.modal-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 20px 24px;
+  border-bottom: 1px solid #404040;
+  background: linear-gradient(135deg, #333333 0%, #2a2a2a 100%);
+}
+
+.modal-header h3 {
+  color: #e0e0e0;
+  font-size: 20px;
+  font-weight: 600;
+  margin: 0;
+}
+
+/* 连接状态指示器 */
+.connection-status {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.connection-indicator {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 4px 8px;
+  border-radius: 12px;
+  font-size: 12px;
+  font-weight: 500;
+  transition: all 0.2s ease;
+}
+
+.connection-indicator.connected {
+  background: rgba(76, 175, 80, 0.2);
+  border: 1px solid #4caf50;
+}
+
+.connection-indicator.connecting {
+  background: rgba(255, 152, 0, 0.2);
+  border: 1px solid #ff9800;
+}
+
+.connection-indicator.disconnected {
+  background: rgba(158, 158, 158, 0.2);
+  border: 1px solid #9e9e9e;
+}
+
+.connection-indicator.error {
+  background: rgba(244, 67, 54, 0.2);
+  border: 1px solid #f44336;
+}
+
+.indicator-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  transition: all 0.2s ease;
+}
+
+.connected .indicator-dot {
+  background: #4caf50;
+  box-shadow: 0 0 6px rgba(76, 175, 80, 0.6);
+}
+
+.connecting .indicator-dot {
+  background: #ff9800;
+  animation: pulse-orange 2s infinite;
+}
+
+.disconnected .indicator-dot {
+  background: #9e9e9e;
+}
+
+.error .indicator-dot {
+  background: #f44336;
+  animation: pulse-red 2s infinite;
+}
+
+.indicator-text {
+  color: #e0e0e0;
+  font-size: 11px;
+}
+
+@keyframes pulse-orange {
+  0%, 100% {
+    opacity: 1;
+    transform: scale(1);
+  }
+  50% {
+    opacity: 0.7;
+    transform: scale(1.2);
+  }
+}
+
+@keyframes pulse-red {
+  0%, 100% {
+    opacity: 1;
+    transform: scale(1);
+  }
+  50% {
+    opacity: 0.7;
+    transform: scale(1.2);
+  }
+}
+
+.close-btn {
+  background: none;
+  border: none;
+  font-size: 24px;
+  color: #b0b0b0;
+  cursor: pointer;
+  padding: 0;
+  width: 32px;
+  height: 32px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 50%;
+  transition: all 0.2s ease;
+}
+
+.close-btn:hover {
+  background: #404040;
+  color: #e0e0e0;
+}
+
+.modal-body {
+  padding: 24px;
+  overflow-y: auto;
+  max-height: 60vh;
+}
+
+.modal-footer {
+  display: flex;
+  gap: 12px;
+  justify-content: flex-end;
+  padding: 20px 24px;
+  border-top: 1px solid #404040;
+  background: #333333;
+}
+
+/* 工作流信息区域 */
+.workflow-info-section {
+  margin-bottom: 24px;
+}
+
+.workflow-info-section h4 {
+  color: #e0e0e0;
+  font-size: 16px;
+  margin-bottom: 16px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.info-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+  gap: 16px;
+}
+
+.info-item {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 12px 16px;
+  background: #323232;
+  border-radius: 8px;
+  border: 1px solid #404040;
+}
+
+.info-label {
+  color: #b0b0b0;
+  font-size: 14px;
+}
+
+.info-value {
+  color: #e0e0e0;
+  font-weight: 500;
+}
+
+.status-badge {
+  padding: 4px 12px;
+  border-radius: 12px;
+  font-size: 12px;
+  font-weight: 500;
+  text-transform: uppercase;
+}
+
+/* 节点状态区域 */
+.nodes-status-section {
+  margin-bottom: 24px;
+}
+
+.nodes-status-section h4 {
+  color: #e0e0e0;
+  font-size: 16px;
+  margin-bottom: 16px;
+}
+
+.nodes-list {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.empty-nodes,
+.empty-logs,
+.empty-messages {
+  text-align: center;
+  padding: 40px 20px;
+  color: #b0b0b0;
+}
+
+.empty-icon {
+  font-size: 48px;
+  margin-bottom: 12px;
+}
+
+.node-status-item {
+  background: #323232;
+  border-radius: 12px;
+  padding: 16px;
+  border: 1px solid #404040;
+  transition: all 0.2s ease;
+}
+
+.node-status-item:hover {
+  border-color: #667eea;
+}
+
+.node-status-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 12px;
+}
+
+.node-info {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.node-icon {
+  font-size: 24px;
+  width: 40px;
+  height: 40px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: #404040;
+  border-radius: 8px;
+}
+
+.node-details {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.node-name {
+  color: #e0e0e0;
+  font-weight: 500;
+}
+
+.node-type {
+  color: #b0b0b0;
+  font-size: 12px;
+}
+
+.node-status-badge {
+  padding: 4px 12px;
+  border-radius: 12px;
+  font-size: 12px;
+  font-weight: 500;
+  text-transform: uppercase;
+}
+
+.node-progress {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 8px;
+}
+
+.progress-bar {
+  flex: 1;
+  height: 6px;
+  background: #404040;
+  border-radius: 3px;
+  overflow: hidden;
+}
+
+.progress-fill {
+  height: 100%;
+  background: linear-gradient(90deg, #667eea, #764ba2);
+  transition: width 0.3s ease;
+}
+
+.progress-text {
+  color: #e0e0e0;
+  font-size: 12px;
+  font-weight: 500;
+  min-width: 40px;
+}
+
+.node-error {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 12px;
+  background: #4a2c2c;
+  border-radius: 6px;
+  border: 1px solid #8b4444;
+}
+
+.error-icon {
+  font-size: 16px;
+}
+
+.error-message {
+  color: #ff9999;
+  font-size: 14px;
+}
+
+/* 执行日志区域 */
+.execution-logs-section {
+  margin-bottom: 24px;
+}
+
+.execution-logs-section h4 {
+  color: #e0e0e0;
+  font-size: 16px;
+  margin-bottom: 16px;
+}
+
+.logs-container {
+  background: #1a1a1a;
+  border-radius: 8px;
+  border: 1px solid #404040;
+  max-height: 300px;
+  overflow-y: auto;
+}
+
+.logs-list {
+  display: flex;
+  flex-direction: column;
+}
+
+.log-item {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 8px 16px;
+  border-bottom: 1px solid #2a2a2a;
+  font-family: 'Consolas', 'Monaco', monospace;
+  font-size: 13px;
+}
+
+.log-item:last-child {
+  border-bottom: none;
+}
+
+.log-item.info {
+  background: rgba(33, 150, 243, 0.1);
+}
+
+.log-item.warning {
+  background: rgba(255, 152, 0, 0.1);
+}
+
+.log-item.error {
+  background: rgba(244, 67, 54, 0.1);
+}
+
+.log-time {
+  color: #b0b0b0;
+  min-width: 80px;
+}
+
+.log-level {
+  color: #667eea;
+  font-weight: 500;
+  min-width: 60px;
+  text-transform: uppercase;
+}
+
+.log-message {
+  color: #e0e0e0;
+  flex: 1;
+}
+
+/* 结果查看器样式 */
+.results-overview {
+  margin-bottom: 24px;
+}
+
+.results-overview h4 {
+  color: #e0e0e0;
+  font-size: 16px;
+  margin-bottom: 16px;
+}
+
+.overview-stats {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+  gap: 16px;
+}
+
+.overview-item {
+  text-align: center;
+  padding: 16px;
+  background: #323232;
+  border-radius: 8px;
+  border: 1px solid #404040;
+}
+
+.overview-label {
+  color: #b0b0b0;
+  font-size: 14px;
+  margin-bottom: 8px;
+}
+
+.overview-value {
+  color: #e0e0e0;
+  font-size: 24px;
+  font-weight: bold;
+}
+
+.messages-section h4 {
+  color: #e0e0e0;
+  font-size: 16px;
+  margin-bottom: 16px;
+}
+
+.messages-filters {
+  display: flex;
+  gap: 12px;
+  align-items: center;
+  margin-bottom: 16px;
+}
+
+.filter-select {
+  padding: 8px 12px;
+  background: #404040;
+  border: 1px solid #555555;
+  border-radius: 6px;
+  color: #e0e0e0;
+  font-size: 14px;
+}
+
+.messages-list {
+  max-height: 400px;
+  overflow-y: auto;
+}
+
+.messages-grid {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.message-item {
+  background: #323232;
+  border-radius: 8px;
+  padding: 16px;
+  border: 1px solid #404040;
+}
+
+.message-item.input {
+  border-left: 4px solid #2196f3;
+}
+
+.message-item.output {
+  border-left: 4px solid #4caf50;
+}
+
+.message-item.error {
+  border-left: 4px solid #f44336;
+}
+
+.message-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 12px;
+}
+
+.message-type {
+  color: #667eea;
+  font-weight: 500;
+  font-size: 14px;
+  text-transform: uppercase;
+}
+
+.message-time {
+  color: #b0b0b0;
+  font-size: 12px;
+}
+
+.message-content {
+  color: #e0e0e0;
+}
+
+.message-content pre {
+  background: #1a1a1a;
+  padding: 12px;
+  border-radius: 6px;
+  border: 1px solid #404040;
+  overflow-x: auto;
+  font-family: 'Consolas', 'Monaco', monospace;
+  font-size: 13px;
+  line-height: 1.4;
+  margin: 0;
+}
+
+.message-error {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 12px;
+  background: #4a2c2c;
+  border-radius: 6px;
+  border: 1px solid #8b4444;
+}
+
+.error-text {
+  color: #ff9999;
+  font-size: 14px;
+}
+
+/* 响应式适配 */
+@media (max-width: 768px) {
+  .modal-overlay {
+    padding: 20px;
+  }
+
+  .status-monitor-modal,
+  .results-viewer-modal {
+    width: 100%;
+    max-height: 90vh;
+  }
+
+  .modal-body {
+    padding: 16px;
+  }
+
+  .info-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .node-status-header {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 8px;
+  }
+
+  .overview-stats {
+    grid-template-columns: 1fr;
+  }
+
+  .messages-filters {
+    flex-direction: column;
+    align-items: stretch;
+  }
+}
+
+/* 错误状态 */
+.error-state {
+  text-align: center;
+  padding: 60px 20px;
+  color: #ff9999;
+  background: #4a2c2c;
+  border-radius: 12px;
+  border: 1px solid #8b4444;
+  margin: 20px 0;
+}
+
+.error-state .error-icon {
+  font-size: 64px;
+  margin-bottom: 20px;
+}
+
+.error-state h4 {
+  font-size: 20px;
+  margin-bottom: 10px;
+  color: #ff9999;
+}
+
+.error-state p {
+  font-size: 16px;
+  margin-bottom: 20px;
+  color: #ffcccc;
+}
+
+.error-actions {
+  display: flex;
+  gap: 12px;
+  justify-content: center;
+  flex-wrap: wrap;
+}
+
+.error-actions .btn {
+  min-width: 100px;
+}
+
+/* 节点错误指示器 */
+.workflow-node.has-error {
+  border: 2px solid #f44336;
+  background: linear-gradient(145deg, #4a2c2c 0%, #3d2525 100%);
+}
+
+.workflow-node.has-error::before {
+  content: '⚠️';
+  position: absolute;
+  top: -8px;
+  right: -8px;
+  width: 20px;
+  height: 20px;
+  background: #f44336;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 12px;
+  color: white;
+  z-index: 10;
+}
+
+.node-error-tooltip {
+  position: absolute;
+  top: 100%;
+  left: 50%;
+  transform: translateX(-50%);
+  background: #1a1a1a;
+  color: #ff9999;
+  padding: 8px 12px;
+  border-radius: 6px;
+  border: 1px solid #8b4444;
+  font-size: 12px;
+  white-space: nowrap;
+  z-index: 1000;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+}
+
+.node-error-tooltip::before {
+  content: '';
+  position: absolute;
+  top: -5px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 0;
+  height: 0;
+  border-left: 5px solid transparent;
+  border-right: 5px solid transparent;
+  border-bottom: 5px solid #8b4444;
+}
+
+/* 全局错误消息样式 */
+.error-message-toast {
+  position: fixed;
+  top: 20px;
+  right: 20px;
+  background: #4a2c2c;
+  color: #ff9999;
+  padding: 16px 20px;
+  border-radius: 8px;
+  border: 1px solid #8b4444;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+  z-index: 9999;
+  animation: slideInRight 0.3s ease;
+  max-width: 400px;
+}
+
+.error-message-toast .toast-header {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-weight: 600;
+  margin-bottom: 8px;
+}
+
+.error-message-toast .toast-body {
+  font-size: 14px;
+  line-height: 1.4;
+}
+
+.error-message-toast .toast-close {
+  position: absolute;
+  top: 8px;
+  right: 8px;
+  background: none;
+  border: none;
+  color: #ff9999;
+  font-size: 16px;
+  cursor: pointer;
+  padding: 0;
+  width: 20px;
+  height: 20px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 50%;
+  transition: background 0.2s ease;
+}
+
+.error-message-toast .toast-close:hover {
+  background: rgba(255, 255, 255, 0.1);
+}
+
+@keyframes slideInRight {
+  from {
+    transform: translateX(100%);
+    opacity: 0;
+  }
+  to {
+    transform: translateX(0);
+    opacity: 1;
+  }
+}
+
+/* 网络错误指示器 */
+.network-error-banner {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  background: linear-gradient(135deg, #f44336 0%, #d32f2f 100%);
+  color: white;
+  padding: 12px;
+  text-align: center;
+  z-index: 10000;
+  font-size: 14px;
+  font-weight: 500;
+}
+
+.network-error-banner .banner-content {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+}
+
+.network-error-banner .retry-btn {
+  background: rgba(255, 255, 255, 0.2);
+  border: 1px solid rgba(255, 255, 255, 0.3);
+  color: white;
+  padding: 4px 12px;
+  border-radius: 12px;
+  font-size: 12px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.network-error-banner .retry-btn:hover {
+  background: rgba(255, 255, 255, 0.3);
+}
+
+@media (max-width: 768px) {
+  .error-state {
+    padding: 40px 10px;
+  }
+  
+  .error-actions {
+    flex-direction: column;
+    align-items: center;
+  }
+  
+  .error-message-toast {
+    top: 10px;
+    right: 10px;
+    left: 10px;
+    max-width: none;
   }
 }
 </style> 
