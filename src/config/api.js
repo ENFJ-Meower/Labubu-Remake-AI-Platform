@@ -14,7 +14,16 @@ const API_CONFIG = {
   getTenantId() {
     // 从localStorage或认证token中获取tenant_id
     const userInfo = JSON.parse(localStorage.getItem('userInfo') || '{}')
-    return userInfo.tenant_id || 'default_tenant'
+    
+    // 如果没有配置tenant_id，生成一个默认的
+    if (!userInfo.tenant_id) {
+      const defaultTenant = `tenant_${Date.now()}`
+      userInfo.tenant_id = defaultTenant
+      localStorage.setItem('userInfo', JSON.stringify(userInfo))
+      console.log('生成默认租户ID:', defaultTenant)
+    }
+    
+    return userInfo.tenant_id
   },
   
   // API端点定义

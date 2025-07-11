@@ -256,6 +256,13 @@
                           <span class="node-desc">{{ $t('aiAgent.workflow.text2picDesc', '文字转图片') }}</span>
                         </div>
                       </div>
+                      <div class="palette-node" draggable="true" @dragstart="onDragStart($event, 'browse')">
+                        <div class="node-icon">🌐</div>
+                        <div class="node-info">
+                          <span class="node-name">Browse</span>
+                          <span class="node-desc">网页浏览与内容提取</span>
+                        </div>
+                      </div>
                     </div>
                   </div>
 
@@ -313,6 +320,9 @@
                     <button class="btn btn-sm btn-secondary" @click="saveWorkflow">
                       <i class="icon">💾</i> Save
                     </button>
+                    <button class="btn btn-sm btn-info" @click="showKeyboardShortcuts">
+                      <i class="icon">⌨️</i> 快捷键
+                    </button>
                   </div>
                 </div>
               </div>
@@ -328,6 +338,14 @@
                    @mouseleave="onCanvasMouseUp"
                    ref="canvas">
                 
+                <!-- 网格背景 -->
+                <div class="canvas-grid" 
+                     :style="{ 
+                       transform: `scale(${canvasScale}) translate(${canvasOffsetX}px, ${canvasOffsetY}px)`,
+                       transformOrigin: '0 0'
+                     }">
+                </div>
+                
                 <!-- 可缩放的画布内容容器 -->
                 <div class="canvas-viewport" 
                      :style="{ 
@@ -337,39 +355,51 @@
                      ref="viewport">
                   
                   <!-- 连接线 -->
-                  <svg class="connection-lines" :width="virtualCanvasWidth" :height="virtualCanvasHeight">
+                  <svg class="connection-layer" 
+                       v-if="connections.length > 0 || tempConnection">
                     <defs>
-                      <!-- 简洁箭头 -->
-                      <marker id="arrowhead" markerWidth="8" markerHeight="6" 
-                              refX="7" refY="3" orient="auto">
-                        <polygon points="0 0, 7 3, 0 6" fill="#3b82f6" />
+                      <marker id="arrowhead" markerWidth="8" markerHeight="6" refX="7" refY="3" orient="auto">
+                        <polygon points="0 0, 8 3, 0 6" fill="#6366f1" />
                       </marker>
-                      
-                      <!-- 悬停状态箭头 -->
-                      <marker id="arrowhead-hover" markerWidth="8" markerHeight="6" 
-                              refX="7" refY="3" orient="auto">
-                        <polygon points="0 0, 7 3, 0 6" fill="#1d4ed8" />
+                      <marker id="arrowhead-hover" markerWidth="8" markerHeight="6" refX="7" refY="3" orient="auto">
+                        <polygon points="0 0, 8 3, 0 6" fill="#8b5cf6" />
                       </marker>
-                      
-                      <!-- 连接点标记 -->
-                      <marker id="connection-dot" markerWidth="6" markerHeight="6" 
-                              refX="3" refY="3" orient="auto">
-                        <circle cx="3" cy="3" r="2" fill="#3b82f6" />
+                      <marker id="arrowhead-temp" markerWidth="8" markerHeight="6" refX="7" refY="3" orient="auto">
+                        <polygon points="0 0, 8 3, 0 6" fill="#ffd93d" />
                       </marker>
                     </defs>
                     
-                    <path v-for="connection in connections" 
-                          :key="connection.id"
-                          :data-connection-id="connection.id"
-                          :d="getConnectionPath(connection)"
-                          stroke="#3b82f6"
-                          stroke-width="2"
-                          fill="none"
-                          marker-end="url(#arrowhead)"
-                          class="connection-line"
-                          @mouseenter="setConnectionHover(connection, true)"
-                          @mouseleave="setConnectionHover(connection, false)"/>
+                    <!-- 正常连接线 -->
+                    <path
+                      v-for="connection in connections"
+                      :key="connection.id"
+                      :data-connection-id="connection.id"
+                      :d="getConnectionPath(connection)"
+                      stroke="#6366f1"
+                      stroke-width="2"
+                      fill="none"
+                      marker-end="url(#arrowhead)"
+                      class="connection-line"
+                      @mouseover="setConnectionHover(connection, true)"
+                      @mouseleave="setConnectionHover(connection, false)"
+                      @click="selectConnection(connection)"
+                      :class="{ 'selected': selectedConnection && selectedConnection.id === connection.id }"
+                    />
+                    
+                    <!-- 临时连接线 -->
+                    <path
+                      v-if="tempConnection"
+                      :d="getTempConnectionPath()"
+                      stroke="#ffd93d"
+                      stroke-width="3"
+                      fill="none"
+                      stroke-dasharray="8,4"
+                      marker-end="url(#arrowhead-temp)"
+                      class="temp-connection-line"
+                    />
                   </svg>
+                  
+                  
                   
                   <!-- 工作流节点 -->
                   <div v-for="node in workflowNodes" 
@@ -407,22 +437,28 @@
                       {{ node.prompt.length > 50 ? node.prompt.substring(0, 50) + '...' : node.prompt }}
                     </div>
                     
-                    <!-- 输入参数 -->
+                    <!-- 输入端口 -->
                     <div v-if="node.inputs && node.inputs.length > 0" class="node-inputs">
-                      <div class="input-label">Input:</div>
-                      <div v-for="input in node.inputs" :key="input.name" class="input-item">
-                        <span class="input-name">{{ input.name }}</span>
-                        <span class="input-type">{{ input.type }}</span>
+                      <div class="port-label">🔽 输入:</div>
+                      <div v-for="input in node.inputs" :key="input.name" class="input-port">
+                        <span class="port-name">{{ input.name }}</span>
+                        <span class="port-type">{{ input.type }}</span>
                       </div>
                     </div>
                     
-                    <!-- 输出参数 -->
+                    <!-- 输出端口 -->
                     <div v-if="node.outputs && node.outputs.length > 0" class="node-outputs">
-                      <div class="output-label">Output:</div>
-                      <div v-for="output in node.outputs" :key="output.name" class="output-item">
-                        <span class="output-name">{{ output.name }}</span>
-                        <span class="output-type">{{ output.type }}</span>
+                      <div class="port-label">🔼 输出:</div>
+                      <div v-for="output in node.outputs" :key="output.name" class="output-port">
+                        <span class="port-name">{{ output.name }}</span>
+                        <span class="port-type">{{ output.type }}</span>
                       </div>
+                    </div>
+                    
+                    <!-- 节点状态 -->
+                    <div v-if="node.status" class="node-status">
+                      <span class="status-indicator" :class="node.status.toLowerCase()"></span>
+                      <span class="status-text">{{ node.status }}</span>
                     </div>
                   </div>
                   
@@ -430,13 +466,21 @@
                   <div class="connection-points">
                     <div v-if="node.type !== 'start'" 
                          class="connection-point input-point"
-                         @click.stop="startConnection(node, 'input')"
-                         title="Input connection point">
+                         @mousedown.stop="startConnectionDrag(node, 'input', $event)"
+                         @mouseup.stop="endConnectionDrag(node, 'input', $event)"
+                         @mouseover="highlightConnectionPoint(node, 'input')"
+                         @mouseleave="clearConnectionPointHighlight(node, 'input')"
+                         title="按住拖拽创建连接">
+                      <span class="connection-point-label">IN</span>
                     </div>
                     <div v-if="node.type !== 'end'" 
                          class="connection-point output-point"
-                         @click.stop="startConnection(node, 'output')"
-                         title="Output connection point - click to connect">
+                         @mousedown.stop="startConnectionDrag(node, 'output', $event)"
+                         @mouseup.stop="endConnectionDrag(node, 'output', $event)"
+                         @mouseover="highlightConnectionPoint(node, 'output')"
+                         @mouseleave="clearConnectionPointHighlight(node, 'output')"
+                         title="按住拖拽创建连接">
+                      <span class="connection-point-label">OUT</span>
                     </div>
                   </div>
                 </div>
@@ -444,6 +488,8 @@
                 </div> <!-- 关闭 canvas-viewport -->
               </div>
               
+
+
               <!-- 底部工具栏 -->
               <div class="canvas-footer">
                 <div class="canvas-stats">
@@ -469,6 +515,7 @@
             </div>
             
             <!-- 右侧配置面板 -->
+            <!-- 节点配置面板 -->
             <div class="workflow-config-panel" v-if="selectedNode">
               <div class="config-header">
                 <h4>{{ $t('aiAgent.workflow.nodeConfiguration', '节点配置') }}</h4>
@@ -542,6 +589,113 @@
                   </div>
                 </div>
 
+                <div v-if="selectedNodeData.service === 'LLM'" class="config-section">
+                  <label>最大Token数</label>
+                  <input 
+                    v-model.number="selectedNodeData.max_tokens" 
+                    type="number" 
+                    min="1" 
+                    max="4000" 
+                    class="form-input"
+                    placeholder="2000"
+                  >
+                </div>
+
+                <div v-if="selectedNodeData.service === 'LLM'" class="config-section">
+                  <label>Top P</label>
+                  <input 
+                    v-model.number="selectedNodeData.top_p" 
+                    type="range" 
+                    min="0" 
+                    max="1" 
+                    step="0.1" 
+                    class="form-range"
+                  >
+                  <div class="range-labels">
+                    <span>确定 (0)</span>
+                    <span>{{ selectedNodeData.top_p }}</span>
+                    <span>随机 (1)</span>
+                  </div>
+                </div>
+
+                <div v-if="selectedNodeData.service === 'LLM'" class="config-section">
+                  <label>频率惩罚</label>
+                  <input 
+                    v-model.number="selectedNodeData.frequency_penalty" 
+                    type="range" 
+                    min="0" 
+                    max="2" 
+                    step="0.1" 
+                    class="form-range"
+                  >
+                  <div class="range-labels">
+                    <span>无 (0)</span>
+                    <span>{{ selectedNodeData.frequency_penalty }}</span>
+                    <span>强 (2)</span>
+                  </div>
+                </div>
+
+                <div v-if="selectedNodeData.service === 'LLM'" class="config-section">
+                  <label>存在惩罚</label>
+                  <input 
+                    v-model.number="selectedNodeData.presence_penalty" 
+                    type="range" 
+                    min="0" 
+                    max="2" 
+                    step="0.1" 
+                    class="form-range"
+                  >
+                  <div class="range-labels">
+                    <span>无 (0)</span>
+                    <span>{{ selectedNodeData.presence_penalty }}</span>
+                    <span>强 (2)</span>
+                  </div>
+                </div>
+
+                <div v-if="selectedNodeData.service === 'LLM'" class="config-section">
+                  <label>停止序列</label>
+                  <textarea 
+                    v-model="selectedNodeData.stop" 
+                    class="form-textarea" 
+                    rows="2" 
+                    placeholder="输入停止序列，用换行分隔，例如：&#10;###&#10;---"
+                  ></textarea>
+                  <small class="config-help">LLM遇到这些序列时将停止生成，每行一个序列</small>
+                </div>
+
+                <div v-if="selectedNodeData.service === 'LLM'" class="config-section">
+                  <label>用户标识</label>
+                  <input 
+                    v-model="selectedNodeData.user" 
+                    type="text" 
+                    class="form-input"
+                    placeholder="用于识别用户的唯一标识"
+                  >
+                  <small class="config-help">用于监控和防滥用，建议使用UUID</small>
+                </div>
+
+                <div v-if="selectedNodeData.service === 'LLM'" class="config-section">
+                  <label>流式输出</label>
+                  <input 
+                    v-model="selectedNodeData.stream" 
+                    type="checkbox" 
+                    class="form-checkbox"
+                  >
+                  <span class="checkbox-label">启用流式输出</span>
+                  <small class="config-help">启用后将实时返回生成的内容</small>
+                </div>
+
+                <div v-if="selectedNodeData.service === 'LLM'" class="config-section">
+                  <label>令牌偏差</label>
+                  <textarea 
+                    v-model="selectedNodeData.logit_bias" 
+                    class="form-textarea" 
+                    rows="3" 
+                    placeholder="JSON格式，例如：{&quot;1234&quot;: 10, &quot;5678&quot;: -10}"
+                  ></textarea>
+                  <small class="config-help">调整特定令牌的出现概率，格式为JSON对象</small>
+                </div>
+
                 <!-- TTS特有配置 -->
                 <div v-if="selectedNodeData.service === 'TTS'" class="config-section">
                   <label>{{ $t('aiAgent.workflow.voiceType', '语音类型') }}</label>
@@ -555,6 +709,44 @@
                   </select>
                 </div>
 
+                <div v-if="selectedNodeData.service === 'TTS'" class="config-section">
+                  <label>TTS模型</label>
+                  <select v-model="selectedNodeData.model" class="form-select">
+                    <option value="tts-1">TTS-1</option>
+                    <option value="tts-1-hd">TTS-1-HD</option>
+                  </select>
+                </div>
+
+                <div v-if="selectedNodeData.service === 'TTS'" class="config-section">
+                  <label>音频格式</label>
+                  <select v-model="selectedNodeData.response_format" class="form-select">
+                    <option value="mp3">MP3</option>
+                    <option value="opus">Opus</option>
+                    <option value="aac">AAC</option>
+                    <option value="flac">FLAC</option>
+                    <option value="wav">WAV</option>
+                    <option value="pcm">PCM</option>
+                  </select>
+                  <small class="config-help">选择音频输出格式，影响文件大小和质量</small>
+                </div>
+
+                <div v-if="selectedNodeData.service === 'TTS'" class="config-section">
+                  <label>语速</label>
+                  <input 
+                    v-model.number="selectedNodeData.speed" 
+                    type="range" 
+                    min="0.25" 
+                    max="4.0" 
+                    step="0.25" 
+                    class="form-range"
+                  >
+                  <div class="range-labels">
+                    <span>慢 (0.25)</span>
+                    <span>{{ selectedNodeData.speed }}</span>
+                    <span>快 (4.0)</span>
+                  </div>
+                </div>
+
                 <!-- STT特有配置 -->
                 <div v-if="selectedNodeData.service === 'STT'" class="config-section">
                   <label>{{ $t('aiAgent.workflow.language', '语言') }}</label>
@@ -566,7 +758,122 @@
                   </select>
                 </div>
 
+                <div v-if="selectedNodeData.service === 'STT'" class="config-section">
+                  <label>STT模型</label>
+                  <select v-model="selectedNodeData.model" class="form-select">
+                    <option value="whisper-1">Whisper-1</option>
+                  </select>
+                </div>
+
+                <div v-if="selectedNodeData.service === 'STT'" class="config-section">
+                  <label>响应格式</label>
+                  <select v-model="selectedNodeData.response_format" class="form-select">
+                    <option value="json">JSON</option>
+                    <option value="text">Text</option>
+                    <option value="srt">SRT</option>
+                    <option value="verbose_json">详细JSON</option>
+                    <option value="vtt">VTT</option>
+                  </select>
+                </div>
+
+                <div v-if="selectedNodeData.service === 'STT'" class="config-section">
+                  <label>温度值</label>
+                  <input 
+                    v-model.number="selectedNodeData.temperature" 
+                    type="range" 
+                    min="0" 
+                    max="1" 
+                    step="0.1" 
+                    class="form-range"
+                  >
+                  <div class="range-labels">
+                    <span>确定 (0)</span>
+                    <span>{{ selectedNodeData.temperature }}</span>
+                    <span>随机 (1)</span>
+                  </div>
+                </div>
+
+                <div v-if="selectedNodeData.service === 'STT'" class="config-section">
+                  <label>转录提示词</label>
+                  <textarea 
+                    v-model="selectedNodeData.stt_prompt" 
+                    class="form-textarea" 
+                    rows="3" 
+                    placeholder="用于引导转录的提示词，例如：请转录这段医疗对话..."
+                  ></textarea>
+                  <small class="config-help">可选的提示词用于引导转录风格和专业术语</small>
+                </div>
+
+                <div v-if="selectedNodeData.service === 'STT'" class="config-section">
+                  <label>时间戳粒度</label>
+                  <select v-model="selectedNodeData.timestamp_granularities" class="form-select">
+                    <option value="segment">段落级</option>
+                    <option value="word">词级</option>
+                  </select>
+                  <small class="config-help">选择时间戳的精细程度</small>
+                </div>
+
+                <!-- pic2text特有配置 -->
+                <div v-if="selectedNodeData.service === 'pic2text'" class="config-section">
+                  <label>识别语言</label>
+                  <select v-model="selectedNodeData.language" class="form-select">
+                    <option value="zh">中文</option>
+                    <option value="en">English</option>
+                    <option value="ja">日本語</option>
+                    <option value="ko">한국어</option>
+                  </select>
+                </div>
+
+                <div v-if="selectedNodeData.service === 'pic2text'" class="config-section">
+                  <label>输出格式</label>
+                  <select v-model="selectedNodeData.format" class="form-select">
+                    <option value="plain">纯文本</option>
+                    <option value="markdown">Markdown</option>
+                    <option value="json">JSON</option>
+                  </select>
+                </div>
+
+                <div v-if="selectedNodeData.service === 'pic2text'" class="config-section">
+                  <label>最大Token数</label>
+                  <input 
+                    v-model.number="selectedNodeData.max_tokens" 
+                    type="number" 
+                    min="1" 
+                    max="2000" 
+                    class="form-input"
+                    placeholder="1000"
+                  >
+                  <small class="config-help">限制输出文本的最大长度</small>
+                </div>
+
+                <div v-if="selectedNodeData.service === 'pic2text'" class="config-section">
+                  <label>详细程度</label>
+                  <select v-model="selectedNodeData.detail" class="form-select">
+                    <option value="low">低 - 快速处理</option>
+                    <option value="high">高 - 详细分析</option>
+                    <option value="auto">自动 - 智能选择</option>
+                  </select>
+                  <small class="config-help">选择图片分析的详细程度</small>
+                </div>
+
+                <div v-if="selectedNodeData.service === 'pic2text'" class="config-section">
+                  <label>图片质量</label>
+                  <select v-model="selectedNodeData.quality" class="form-select">
+                    <option value="standard">标准质量</option>
+                    <option value="hd">高清质量</option>
+                  </select>
+                  <small class="config-help">选择图片处理质量</small>
+                </div>
+
                 <!-- 图片生成特有配置 -->
+                <div v-if="selectedNodeData.service === 'text2pic'" class="config-section">
+                  <label>图片模型</label>
+                  <select v-model="selectedNodeData.model" class="form-select">
+                    <option value="dall-e-3">DALL-E 3</option>
+                    <option value="dall-e-2">DALL-E 2</option>
+                  </select>
+                </div>
+
                 <div v-if="selectedNodeData.service === 'text2pic'" class="config-section">
                   <label>{{ $t('aiAgent.workflow.imageSize', '图片尺寸') }}</label>
                   <select v-model="selectedNodeData.size" class="form-select">
@@ -587,10 +894,187 @@
                   </select>
                 </div>
 
+                <div v-if="selectedNodeData.service === 'text2pic'" class="config-section">
+                  <label>图片质量</label>
+                  <select v-model="selectedNodeData.quality" class="form-select">
+                    <option value="standard">标准</option>
+                    <option value="hd">高清</option>
+                  </select>
+                </div>
+
+                <div v-if="selectedNodeData.service === 'text2pic'" class="config-section">
+                  <label>生成数量</label>
+                  <input 
+                    v-model.number="selectedNodeData.n" 
+                    type="number" 
+                    min="1" 
+                    max="4" 
+                    class="form-input"
+                    placeholder="1"
+                  >
+                  <small class="config-help">一次生成的图片数量，DALL-E 3最多支持1张</small>
+                </div>
+
+                <div v-if="selectedNodeData.service === 'text2pic'" class="config-section">
+                  <label>用户标识</label>
+                  <input 
+                    v-model="selectedNodeData.user" 
+                    type="text" 
+                    class="form-input"
+                    placeholder="用于识别用户的唯一标识"
+                  >
+                  <small class="config-help">用于监控和防滥用，建议使用UUID</small>
+                </div>
+
+                <div v-if="selectedNodeData.service === 'text2pic'" class="config-section">
+                  <label>响应格式</label>
+                  <select v-model="selectedNodeData.response_format" class="form-select">
+                    <option value="url">URL链接</option>
+                    <option value="b64_json">Base64编码</option>
+                  </select>
+                  <small class="config-help">选择图片返回格式</small>
+                </div>
+
+                <!-- Browse特有配置 -->
+                <div v-if="selectedNodeData.service === 'browse'" class="config-section">
+                  <label>强制爬取</label>
+                  <input 
+                    v-model="selectedNodeData.enforce_crawl" 
+                    type="checkbox" 
+                    class="form-checkbox"
+                  >
+                </div>
+
+                <div v-if="selectedNodeData.service === 'browse'" class="config-section">
+                  <label>插件名称</label>
+                  <input 
+                    v-model="selectedNodeData.plugin_name" 
+                    type="text" 
+                    class="form-input"
+                    placeholder="plugin_observation"
+                  >
+                </div>
+
+                <div v-if="selectedNodeData.service === 'browse'" class="config-section">
+                  <label>超时时间(ms)</label>
+                  <input 
+                    v-model.number="selectedNodeData.timeout" 
+                    type="number" 
+                    min="1000" 
+                    max="60000" 
+                    class="form-input"
+                    placeholder="30000"
+                  >
+                  <small class="config-help">网页加载的最大等待时间</small>
+                </div>
+
+                <div v-if="selectedNodeData.service === 'browse'" class="config-section">
+                  <label>用户代理</label>
+                  <select v-model="selectedNodeData.user_agent" class="form-select">
+                    <option value="default">默认浏览器</option>
+                    <option value="chrome">Chrome浏览器</option>
+                    <option value="firefox">Firefox浏览器</option>
+                    <option value="safari">Safari浏览器</option>
+                    <option value="mobile">移动设备</option>
+                  </select>
+                  <small class="config-help">模拟不同浏览器访问网页</small>
+                </div>
+
+                <div v-if="selectedNodeData.service === 'browse'" class="config-section">
+                  <label>等待加载</label>
+                  <input 
+                    v-model.number="selectedNodeData.wait_for_load" 
+                    type="number" 
+                    min="0" 
+                    max="10000" 
+                    class="form-input"
+                    placeholder="2000"
+                  >
+                  <small class="config-help">等待页面完全加载的时间(ms)</small>
+                </div>
+
+                <div v-if="selectedNodeData.service === 'browse'" class="config-section">
+                  <label>提取模式</label>
+                  <select v-model="selectedNodeData.extract_mode" class="form-select">
+                    <option value="text">纯文本</option>
+                    <option value="html">HTML源码</option>
+                    <option value="markdown">Markdown格式</option>
+                    <option value="structured">结构化数据</option>
+                  </select>
+                  <small class="config-help">选择内容提取的格式</small>
+                </div>
+
                 <!-- 条件节点配置 -->
                 <div v-if="selectedNodeData.type === 'condition'" class="config-section">
                   <label>{{ $t('aiAgent.workflow.conditionExpression', '条件表达式') }}</label>
                   <input v-model="selectedNodeData.condition" type="text" class="form-input" :placeholder="$t('aiAgent.workflow.conditionPlaceholder', '例如：result.length > 0')">
+                  <small class="config-help">支持JavaScript表达式，可使用变量名引用输入数据</small>
+                </div>
+
+                <!-- 通用节点配置 -->
+                <div v-if="selectedNodeData.type !== 'start' && selectedNodeData.type !== 'end'" class="config-section">
+                  <h5>通用配置</h5>
+                  
+                  <div class="config-subsection">
+                    <label>重试次数</label>
+                    <input 
+                      v-model.number="selectedNodeData.retry_count" 
+                      type="number" 
+                      min="0" 
+                      max="5" 
+                      class="form-input"
+                      placeholder="3"
+                    >
+                    <small class="config-help">节点执行失败时的重试次数</small>
+                  </div>
+
+                  <div class="config-subsection">
+                    <label>重试间隔(ms)</label>
+                    <input 
+                      v-model.number="selectedNodeData.retry_delay" 
+                      type="number" 
+                      min="100" 
+                      max="10000" 
+                      class="form-input"
+                      placeholder="1000"
+                    >
+                    <small class="config-help">每次重试之间的等待时间</small>
+                  </div>
+
+                  <div class="config-subsection">
+                    <label>超时时间(s)</label>
+                    <input 
+                      v-model.number="selectedNodeData.execution_timeout" 
+                      type="number" 
+                      min="1" 
+                      max="300" 
+                      class="form-input"
+                      placeholder="30"
+                    >
+                    <small class="config-help">节点执行的最大等待时间</small>
+                  </div>
+
+                  <div class="config-subsection">
+                    <label>错误处理</label>
+                    <select v-model="selectedNodeData.error_handling" class="form-select">
+                      <option value="stop">停止工作流</option>
+                      <option value="continue">继续执行</option>
+                      <option value="retry">重试执行</option>
+                      <option value="fallback">使用备用值</option>
+                    </select>
+                    <small class="config-help">选择错误发生时的处理方式</small>
+                  </div>
+
+                  <div v-if="selectedNodeData.error_handling === 'fallback'" class="config-subsection">
+                    <label>备用值</label>
+                    <textarea 
+                      v-model="selectedNodeData.fallback_value" 
+                      class="form-textarea" 
+                      rows="2" 
+                      placeholder="错误时使用的默认值"
+                    ></textarea>
+                    <small class="config-help">当节点执行失败时使用的备用值</small>
+                  </div>
                 </div>
 
                 <!-- 输入输出配置 -->
@@ -638,6 +1122,62 @@
                 </div>
               </div>
             </div>
+            
+            <!-- 连接配置面板 -->
+            <div class="workflow-config-panel" v-else-if="selectedConnection">
+              <div class="config-header">
+                <h4>{{ $t('aiAgent.workflow.connectionConfiguration', '连接配置') }}</h4>
+                <button class="btn-close" @click="deselectConnection">×</button>
+              </div>
+              
+              <div class="config-content">
+                <div class="connection-info">
+                  <div class="connection-nodes">
+                    <div class="connection-node">
+                      <strong>{{ $t('aiAgent.workflow.fromNode', '源节点') }}:</strong>
+                      <span>{{ getNodeById(selectedConnection.from)?.title || 'Unknown' }}</span>
+                    </div>
+                    <div class="connection-arrow">→</div>
+                    <div class="connection-node">
+                      <strong>{{ $t('aiAgent.workflow.toNode', '目标节点') }}:</strong>
+                      <span>{{ getNodeById(selectedConnection.to)?.title || 'Unknown' }}</span>
+                    </div>
+                  </div>
+                </div>
+                
+                <div class="config-section">
+                  <label>{{ $t('aiAgent.workflow.connectionPrompt', '连接提示词') }}</label>
+                  <textarea 
+                    v-model="selectedConnection.prompt" 
+                    class="form-textarea prompt-textarea" 
+                    rows="8" 
+                    :placeholder="$t('aiAgent.workflow.connectionPromptPlaceholder', '输入连接提示词，用于在数据传递时进行转换或处理...')"
+                  ></textarea>
+                  <div class="prompt-tips">
+                    <small>{{ $t('aiAgent.workflow.connectionPromptTips', '连接提示词用于定义数据在节点间传递时的转换逻辑，可以包含变量如 {input_data}') }}</small>
+                  </div>
+                </div>
+                
+                <div class="config-section">
+                  <label>{{ $t('aiAgent.workflow.connectionDescription', '连接描述') }}</label>
+                  <textarea 
+                    v-model="selectedConnection.description" 
+                    class="form-textarea" 
+                    rows="3" 
+                    :placeholder="$t('aiAgent.workflow.connectionDescPlaceholder', '描述此连接的作用...')"
+                  ></textarea>
+                </div>
+                
+                <div class="config-actions">
+                  <button class="btn btn-primary" @click="saveConnectionConfig">
+                    <i class="icon">💾</i> {{ $t('aiAgent.workflow.saveConnection', '保存连接') }}
+                  </button>
+                  <button class="btn btn-danger" @click="deleteConnection">
+                    <i class="icon">🗑️</i> {{ $t('aiAgent.workflow.deleteConnection', '删除连接') }}
+                  </button>
+                </div>
+              </div>
+            </div>
           </div>
         </div>
 
@@ -681,6 +1221,73 @@
                 </div>
                 <button class="btn btn-success">Publish Agent</button>
               </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+
+
+    <!-- 快捷键帮助弹窗 -->
+    <div v-if="showShortcutsHelp" class="shortcuts-overlay" @click.self="closeShortcutsHelp">
+      <div class="shortcuts-dialog">
+        <div class="shortcuts-header">
+          <h3>⌨️ 快捷键指南</h3>
+          <button @click="closeShortcutsHelp" class="btn-close">×</button>
+        </div>
+        <div class="shortcuts-content">
+          <div class="shortcuts-section">
+            <h4>编辑操作</h4>
+            <div class="shortcut-item">
+              <kbd>Ctrl</kbd> + <kbd>Z</kbd>
+              <span>撤销</span>
+            </div>
+            <div class="shortcut-item">
+              <kbd>Ctrl</kbd> + <kbd>Y</kbd>
+              <span>重做</span>
+            </div>
+            <div class="shortcut-item">
+              <kbd>Ctrl</kbd> + <kbd>C</kbd>
+              <span>复制选中节点</span>
+            </div>
+            <div class="shortcut-item">
+              <kbd>Ctrl</kbd> + <kbd>V</kbd>
+              <span>粘贴节点</span>
+            </div>
+            <div class="shortcut-item">
+              <kbd>Delete</kbd>
+              <span>删除选中节点</span>
+            </div>
+          </div>
+          <div class="shortcuts-section">
+            <h4>工作流操作</h4>
+            <div class="shortcut-item">
+              <kbd>Ctrl</kbd> + <kbd>S</kbd>
+              <span>保存工作流</span>
+            </div>
+            <div class="shortcut-item">
+              <kbd>Ctrl</kbd> + <kbd>A</kbd>
+              <span>选择所有节点</span>
+            </div>
+          </div>
+          <div class="shortcuts-section">
+            <h4>画布操作</h4>
+            <div class="shortcut-item">
+              <span class="mouse-action">鼠标滚轮</span>
+              <span>缩放画布</span>
+            </div>
+            <div class="shortcut-item">
+              <span class="mouse-action">拖拽空白区域</span>
+              <span>移动画布</span>
+            </div>
+            <div class="shortcut-item">
+              <span class="mouse-action">点击节点</span>
+              <span>选择节点</span>
+            </div>
+            <div class="shortcut-item">
+              <span class="mouse-action">拖拽节点</span>
+              <span>移动节点</span>
             </div>
           </div>
         </div>
@@ -773,7 +1380,6 @@ export default {
           description: 'Main workflow design - Core feature',
           hasContent: true
         },
-
         {
           id: 'deploy',
           icon: '🚀',
@@ -793,80 +1399,76 @@ export default {
           y: 100,
           inputs: [],
           outputs: [{ name: 'trigger', type: 'event' }]
-        },
-        {
-          id: 'browse-1',
-          type: 'browse',
-          title: 'Browse',
-          description: 'Browse web content',
-          x: 350,
-          y: 100,
-          inputs: [{ name: 'url', type: 'string' }],
-          outputs: [{ name: 'content', type: 'text' }]
-        },
-        {
-          id: 'llm-1',
-          type: 'llm',
-          title: 'LLM',
-          description: 'Large language model processing',
-          x: 600,
-          y: 100,
-          inputs: [{ name: 'prompt', type: 'text' }],
-          outputs: [{ name: 'response', type: 'text' }],
-          model: 'gpt-4'
-        },
-        {
-          id: 'end-1',
-          type: 'end',
-          title: 'End',
-          description: 'Workflow end',
-          x: 850,
-          y: 100,
-          inputs: [{ name: 'result', type: 'any' }],
-          outputs: []
         }
       ],
-      connections: [
-        {
-          id: 'conn-1',
-          from: 'start-1',
-          to: 'browse-1',
-          fromPort: 'trigger',
-          toPort: 'url'
-        },
-        {
-          id: 'conn-2',
-          from: 'browse-1',
-          to: 'llm-1',
-          fromPort: 'content',
-          toPort: 'prompt'
-        },
-        {
-          id: 'conn-3',
-          from: 'llm-1',
-          to: 'end-1',
-          fromPort: 'response',
-          toPort: 'result'
-        }
-      ],
+      connections: [],
       selectedNode: null,
       selectedNodeData: {},
-      draggedNode: null,
-      dragOffset: { x: 0, y: 0 },
-      canvasWidth: 1200,
-      canvasHeight: 800,
-      workflowStatus: 'Ready',
-      nodeIdCounter: 1,
-      // 画布缩放和拖拽相关
+      
+      // 选中连接
+      selectedConnection: null,
+      
+      // 画布相关
       canvasScale: 1,
       canvasOffsetX: 0,
       canvasOffsetY: 0,
-      isDraggingCanvas: false,
-      lastMousePos: { x: 0, y: 0 },
-      virtualCanvasWidth: 3000,  // 虚拟画布更大，提供更多空间
-      virtualCanvasHeight: 2000
+      virtualCanvasWidth: 2000,
+      virtualCanvasHeight: 1500,
+      
+      // 连接相关
+      isConnecting: false,
+      connectionStart: null,
+      tempConnection: null,
+      
+      // 交互相关
+      draggedNode: null,
+      dragOffset: { x: 0, y: 0 },
+      isPanning: false,
+      panStart: { x: 0, y: 0 },
+      
+      // 编辑历史
+      history: [],
+      historyIndex: -1,
+      
+      // 其他状态
+      nodeIdCounter: 0,
+      workflowStatus: 'Ready',
+      statusEventSource: null,
+      
+      // 快捷键映射
+      keyboardShortcuts: {
+        'ctrl+z': 'undo',
+        'ctrl+y': 'redo',
+        'ctrl+c': 'copy',
+        'ctrl+v': 'paste',
+        'delete': 'delete',
+        'ctrl+s': 'save',
+        'ctrl+a': 'selectAll'
+      },
+      
+      // UI状态
+      showShortcutsHelp: false,
+      copiedNode: null
     }
   },
+  
+  computed: {
+    selectedNodeData() {
+      if (!this.selectedNode) return {}
+      return this.workflowNodes.find(node => node.id === this.selectedNode) || {}
+    }
+  },
+  
+  mounted() {
+    this.initializeCanvas()
+    this.setupKeyboardShortcuts()
+    this.saveToHistory()
+  },
+  
+  beforeUnmount() {
+    this.cleanup()
+  },
+  
   methods: {
     setActiveTab(tabId) {
       this.activeTab = tabId
@@ -1009,7 +1611,19 @@ export default {
           service: 'LLM',
           prompt: '',
           model: 'gpt-4',
-          temperature: 0.7
+          temperature: 0.7,
+          max_tokens: 2000,
+          top_p: 1.0,
+          frequency_penalty: 0.0,
+          presence_penalty: 0.0,
+          stop: '',
+          user: '',
+          stream: false,
+          logit_bias: '',
+          retry_count: 3,
+          retry_delay: 1000,
+          execution_timeout: 30,
+          error_handling: 'retry'
         },
         STT: {
           title: 'STT',
@@ -1018,7 +1632,16 @@ export default {
           outputs: [{ name: 'text', type: 'text' }],
           service: 'STT',
           prompt: '',
-          language: 'zh'
+          language: 'zh',
+          model: 'whisper-1',
+          response_format: 'json',
+          temperature: 0.0,
+          stt_prompt: '',
+          timestamp_granularities: 'segment',
+          retry_count: 3,
+          retry_delay: 1000,
+          execution_timeout: 60,
+          error_handling: 'retry'
         },
         TTS: {
           title: 'TTS',
@@ -1027,7 +1650,14 @@ export default {
           outputs: [{ name: 'audio', type: 'audio' }],
           service: 'TTS',
           prompt: '',
-          voice: 'alloy'
+          voice: 'alloy',
+          model: 'tts-1',
+          response_format: 'mp3',
+          speed: 1.0,
+          retry_count: 3,
+          retry_delay: 1000,
+          execution_timeout: 30,
+          error_handling: 'retry'
         },
         pic2text: {
           title: 'Pic2Text',
@@ -1035,7 +1665,16 @@ export default {
           inputs: [{ name: 'image', type: 'image' }],
           outputs: [{ name: 'text', type: 'text' }],
           service: 'pic2text',
-          prompt: ''
+          prompt: '',
+          language: 'zh',
+          format: 'markdown',
+          max_tokens: 1000,
+          detail: 'auto',
+          quality: 'standard',
+          retry_count: 3,
+          retry_delay: 1000,
+          execution_timeout: 30,
+          error_handling: 'retry'
         },
         text2pic: {
           title: 'Text2Pic',
@@ -1044,8 +1683,43 @@ export default {
           outputs: [{ name: 'image', type: 'image' }],
           service: 'text2pic',
           prompt: '',
+          model: 'dall-e-3',
           size: '1024x1024',
-          style: 'natural'
+          style: 'natural',
+          quality: 'standard',
+          n: 1,
+          user: '',
+          response_format: 'url',
+          retry_count: 3,
+          retry_delay: 1000,
+          execution_timeout: 60,
+          error_handling: 'retry'
+        },
+        browse: {
+          title: 'Browse',
+          description: 'Web browsing and content extraction',
+          inputs: [
+            { name: 'url', type: 'string' },
+            { name: 'enforce_crawl', type: 'boolean' },
+            { name: 'plugin_name', type: 'string' }
+          ],
+          outputs: [
+            { name: 'code', type: 'string' },
+            { name: 'message', type: 'string' },
+            { name: 'plugin_name', type: 'string' }
+          ],
+          service: 'browse',
+          prompt: '',
+          enforce_crawl: false,
+          plugin_name: 'plugin_observation',
+          timeout: 30000,
+          user_agent: 'default',
+          wait_for_load: 2000,
+          extract_mode: 'markdown',
+          retry_count: 3,
+          retry_delay: 1000,
+          execution_timeout: 60,
+          error_handling: 'retry'
         },
         process: {
           title: 'Process',
@@ -1053,7 +1727,11 @@ export default {
           inputs: [{ name: 'input', type: 'text' }],
           outputs: [{ name: 'output', type: 'text' }],
           prompt: '',
-          service: ''
+          service: '',
+          retry_count: 3,
+          retry_delay: 1000,
+          execution_timeout: 30,
+          error_handling: 'retry'
         },
         transform: {
           title: 'Transform',
@@ -1061,7 +1739,11 @@ export default {
           inputs: [{ name: 'input', type: 'text' }],
           outputs: [{ name: 'output', type: 'text' }],
           prompt: '',
-          service: ''
+          service: '',
+          retry_count: 3,
+          retry_delay: 1000,
+          execution_timeout: 30,
+          error_handling: 'retry'
         }
       }
       
@@ -1070,11 +1752,12 @@ export default {
         id: nodeId,
         type: nodeType,
         ...template,
-        x: x - 75, // 调整节点位置，使其居中
+        x: x - 75,
         y: y - 50
       }
       
       this.workflowNodes.push(newNode)
+      this.saveToHistory()
     },
     selectNode(node) {
       this.selectedNode = node.id
@@ -1083,6 +1766,39 @@ export default {
     deselectNode() {
       this.selectedNode = null
       this.selectedNodeData = {}
+      this.selectedConnection = null
+    },
+    
+    // 连接配置相关方法
+    selectConnection(connection) {
+      this.selectedConnection = connection
+      this.selectedNode = null
+      this.selectedNodeData = {}
+    },
+    
+    deselectConnection() {
+      this.selectedConnection = null
+    },
+    
+    getNodeById(nodeId) {
+      return this.workflowNodes.find(node => node.id === nodeId)
+    },
+    
+    saveConnectionConfig() {
+      // 连接配置已经通过v-model双向绑定自动保存
+      this.$message?.success?.(this.$t('aiAgent.workflow.connectionSaved', '连接配置已保存'))
+    },
+    
+    deleteConnection() {
+      if (!this.selectedConnection) return
+      
+      const connectionIndex = this.connections.findIndex(conn => conn.id === this.selectedConnection.id)
+      if (connectionIndex !== -1) {
+        this.connections.splice(connectionIndex, 1)
+        this.selectedConnection = null
+        this.saveToHistory()
+        this.$message?.success?.(this.$t('aiAgent.workflow.connectionDeleted', '连接已删除'))
+      }
     },
     editNode(node) {
       this.selectNode(node)
@@ -1243,291 +1959,892 @@ export default {
       this.canvasOffsetX = (centerX / this.canvasScale) - canvasCenterX
       this.canvasOffsetY = (centerY / this.canvasScale) - canvasCenterY
     },
-  startConnection(node, portType) {
-    console.log('Start connection:', node.id, portType)
-          // Connection logic to be implemented
-  },
-  // 节点配置相关方法
-  isAIServiceNode(nodeType) {
-    return ['LLM', 'STT', 'TTS', 'pic2text', 'text2pic'].includes(nodeType)
-  },
-  getPromptPlaceholder(serviceType) {
-    const placeholders = {
-      'LLM': '请输入LLM处理提示词，例如：你是一个专业的助手，请根据输入内容提供有价值的回复...',
-      'STT': '请输入语音转文字的处理指令，例如：将以下音频转换为文字，并标注时间戳...',
-      'TTS': '请输入文字转语音的处理指令，例如：以自然流畅的语调朗读以下文字...',
-      'pic2text': '请输入图片转文字的处理指令，例如：分析图片内容并提取所有文字信息...',
-      'text2pic': '请输入文字转图片的处理指令，例如：根据描述生成高质量的图片，注意细节和色彩搭配...'
-    }
-    return placeholders[serviceType] || '请输入节点处理提示词...'
-  },
-  getPromptTips(serviceType) {
-    const tips = {
-      'LLM': '提示词将影响AI的回复质量，建议明确指定角色、任务和输出格式',
-      'STT': '可以指定转换精度、语言识别偏好等参数',
-      'TTS': '可以指定语音风格、语速、情感等参数',
-      'pic2text': '可以指定提取内容类型，如只提取文字、包含图表描述等',
-      'text2pic': '详细的描述有助于生成更准确的图片，建议包含风格、颜色、构图等要素'
-    }
-    return tips[serviceType] || '根据节点功能配置相应的提示词'
-  },
-  addInput() {
-    if (!this.selectedNodeData.inputs) {
-      this.selectedNodeData.inputs = []
-    }
-    this.selectedNodeData.inputs.push({ name: 'input', type: 'text' })
-  },
-  removeInput(index) {
-    this.selectedNodeData.inputs.splice(index, 1)
-  },
-  addOutput() {
-    if (!this.selectedNodeData.outputs) {
-      this.selectedNodeData.outputs = []
-    }
-    this.selectedNodeData.outputs.push({ name: 'output', type: 'text' })
-  },
-  removeOutput(index) {
-    this.selectedNodeData.outputs.splice(index, 1)
-  },
-  saveNodeConfig() {
-    // 找到原始节点并更新
-    const nodeIndex = this.workflowNodes.findIndex(n => n.id === this.selectedNode)
-    if (nodeIndex !== -1) {
-      // 验证配置
-      if (this.validateNodeConfig()) {
-        this.workflowNodes[nodeIndex] = { ...this.selectedNodeData }
-        this.$message?.success?.(this.$t('aiAgent.workflow.configSaved', '节点配置已保存'))
+    
+    // 初始化画布
+    initializeCanvas() {
+      // 添加键盘事件监听
+      document.addEventListener('keydown', this.handleKeyDown)
+      document.addEventListener('keyup', this.handleKeyUp)
+      
+      // 添加画布事件监听
+      if (this.$refs.canvas) {
+        this.$refs.canvas.addEventListener('contextmenu', this.handleContextMenu)
       }
-    }
-  },
-  validateNodeConfig() {
-    const node = this.selectedNodeData
+    },
     
-    // 基础验证
-    if (!node.title || !node.title.trim()) {
-      this.$message?.error?.(this.$t('aiAgent.workflow.nameRequired', '节点名称不能为空'))
-      return false
-    }
+    // 设置键盘快捷键
+    setupKeyboardShortcuts() {
+      document.addEventListener('keydown', (e) => {
+        const key = this.getKeyCombo(e)
+        const action = this.keyboardShortcuts[key]
+        
+        if (action) {
+          e.preventDefault()
+          this.executeShortcut(action)
+        }
+      })
+    },
     
-    // AI服务节点必须配置service和prompt
-    if (this.isAIServiceNode(node.type)) {
-      if (!node.service) {
-        this.$message?.error?.(this.$t('aiAgent.workflow.serviceRequired', '请选择服务类型'))
+    // 获取按键组合
+    getKeyCombo(e) {
+      const keys = []
+      if (e.ctrlKey) keys.push('ctrl')
+      if (e.shiftKey) keys.push('shift')
+      if (e.altKey) keys.push('alt')
+      keys.push(e.key.toLowerCase())
+      return keys.join('+')
+    },
+    
+    // 执行快捷键操作
+    executeShortcut(action) {
+      switch (action) {
+        case 'undo':
+          this.undo()
+          break
+        case 'redo':
+          this.redo()
+          break
+        case 'copy':
+          this.copySelectedNode()
+          break
+        case 'paste':
+          this.pasteNode()
+          break
+        case 'delete':
+          this.deleteSelectedNode()
+          break
+        case 'save':
+          this.saveWorkflow()
+          break
+        case 'selectAll':
+          this.selectAllNodes()
+          break
+      }
+    },
+    
+
+    
+    highlightConnectionPoint(node, portType) {
+      if (this.isConnecting && this.connectionStart) {
+        const sourcePortType = this.connectionStart.portType
+        // 只高亮可以连接的端口
+        if ((sourcePortType === 'output' && portType === 'input') || 
+            (sourcePortType === 'input' && portType === 'output')) {
+          const element = document.querySelector(`[data-node-id="${node.id}"] .${portType}-point`)
+          if (element) {
+            element.classList.add('connectable-highlight')
+          }
+        }
+      }
+    },
+    
+    clearConnectionPointHighlight(node, portType) {
+      const element = document.querySelector(`[data-node-id="${node.id}"] .${portType}-point`)
+      if (element) {
+        element.classList.remove('connectable-highlight')
+      }
+    },
+    
+
+    
+          showMessage(message) {
+        // 静默处理，不显示任何通知
+      },
+      
+
+      
+      // 拖拽连接功能
+      startConnectionDrag(node, portType, event) {
+
+        
+        // 防止节点被拖拽
+        event.stopPropagation()
+        
+        this.isConnecting = true
+        this.connectionStart = {
+          nodeId: node.id,
+          portType: portType,
+          node: node
+        }
+        
+        // 为当前连接点添加拖拽样式
+        const currentElement = document.querySelector(`[data-node-id="${node.id}"] .${portType}-point`)
+        if (currentElement) {
+          currentElement.classList.add('dragging')
+        }
+        
+        // 获取连接点的真实DOM位置
+        const canvas = this.$refs.canvas
+        
+        if (currentElement && canvas) {
+          const scale = this.canvasScale || 1
+          const offsetX = this.canvasOffsetX || 0
+          const offsetY = this.canvasOffsetY || 0
+          
+          const canvasRect = canvas.getBoundingClientRect()
+          const elementRect = currentElement.getBoundingClientRect()
+          
+          // 计算连接点中心在画布内的屏幕坐标
+          const screenX = (elementRect.left + elementRect.width / 2) - canvasRect.left
+          const screenY = (elementRect.top + elementRect.height / 2) - canvasRect.top
+          
+          // 将屏幕坐标转换为SVG坐标（考虑缩放和偏移）
+          const startX = screenX / scale - offsetX
+          const startY = screenY / scale - offsetY
+          
+          // 创建临时连接线
+          this.tempConnection = {
+            id: 'temp',
+            startX: startX,
+            startY: startY,
+            endX: startX,
+            endY: startY,
+            sourcePortType: portType,
+            sourceNode: node
+          }
+        } else {
+          // 备用计算
+          const nodeWidth = 200
+          const nodeHeight = 120
+          
+          let startX, startY
+          if (portType === 'output') {
+            // 输出点在节点右侧中心
+            startX = node.x + nodeWidth
+            startY = node.y + nodeHeight / 2
+          } else {
+            // 输入点在节点左侧中心
+            startX = node.x
+            startY = node.y + nodeHeight / 2
+          }
+          
+          // 创建临时连接线
+          this.tempConnection = {
+            id: 'temp',
+            startX: startX,
+            startY: startY,
+            endX: startX,
+            endY: startY,
+            sourcePortType: portType,
+            sourceNode: node
+          }
+        }
+        
+
+        
+        // 添加全局鼠标移动和释放监听
+        document.addEventListener('mousemove', this.updateTempConnection)
+        document.addEventListener('mouseup', this.cancelConnection)
+        
+        // 高亮可连接的节点
+        this.highlightConnectableNodes(node, portType)
+      },
+      
+      endConnectionDrag(targetNode, targetPortType, event) {
+
+        
+        if (!this.isConnecting || !this.connectionStart) return
+        
+        event.stopPropagation()
+        
+        const sourceNode = this.connectionStart.node
+        const sourcePortType = this.connectionStart.portType
+        
+        // 验证连接的有效性
+        if (this.isValidConnection(sourceNode, sourcePortType, targetNode, targetPortType)) {
+          // 创建连接
+          const connection = {
+            id: `conn-${Date.now()}`,
+            from: sourcePortType === 'output' ? sourceNode.id : targetNode.id,
+            to: sourcePortType === 'output' ? targetNode.id : sourceNode.id,
+            prompt: '请将上游节点的输出数据传递给下游节点。可以在此处添加数据转换或处理指令。',
+            description: ''
+          }
+          
+          this.connections.push(connection)
+          this.saveToHistory()
+          
+        }
+        
+        this.cancelConnection()
+      },
+      
+      updateTempConnection(event) {
+        if (!this.tempConnection) return
+        
+        const canvas = this.$refs.canvas
+        if (!canvas) return
+        
+        const scale = this.canvasScale || 1
+        const offsetX = this.canvasOffsetX || 0
+        const offsetY = this.canvasOffsetY || 0
+        
+        const rect = canvas.getBoundingClientRect()
+        
+        // 计算鼠标在画布内的屏幕坐标
+        const screenX = event.clientX - rect.left
+        const screenY = event.clientY - rect.top
+        
+        // 将屏幕坐标转换为SVG坐标（考虑缩放和偏移）
+        const x = screenX / scale - offsetX
+        const y = screenY / scale - offsetY
+        
+
+        
+        // 更新临时连接线的终点
+        this.tempConnection.endX = x
+        this.tempConnection.endY = y
+      },
+      
+      getTempConnectionPath() {
+        if (!this.tempConnection) return ''
+        
+        const startX = this.tempConnection.startX
+        const startY = this.tempConnection.startY
+        const endX = this.tempConnection.endX
+        const endY = this.tempConnection.endY
+        
+        // 创建贝塞尔曲线路径
+        const deltaX = endX - startX
+        const distance = Math.sqrt(deltaX * deltaX + (endY - startY) * (endY - startY))
+        const curvature = Math.min(distance * 0.3, 100)
+        
+        const cp1X = startX + curvature
+        const cp1Y = startY
+        const cp2X = endX - curvature
+        const cp2Y = endY
+        
+        return `M ${startX} ${startY} C ${cp1X} ${cp1Y}, ${cp2X} ${cp2Y}, ${endX} ${endY}`
+      },
+
+
+    
+    cancelConnection() {
+      
+      // 清除拖拽状态的样式
+      if (this.connectionStart) {
+        const sourceElement = document.querySelector(`[data-node-id="${this.connectionStart.nodeId}"] .${this.connectionStart.portType}-point`)
+        if (sourceElement) {
+          sourceElement.classList.remove('dragging')
+        }
+      }
+      
+      this.isConnecting = false
+      this.connectionStart = null
+      this.tempConnection = null
+      
+      // 移除全局事件监听
+      document.removeEventListener('mousemove', this.updateTempConnection)
+      document.removeEventListener('mouseup', this.cancelConnection)
+      
+      // 清除所有高亮
+      this.clearHighlight()
+      this.clearAllConnectionPointHighlights()
+      
+      // 连接已取消，不显示弹窗通知
+    },
+    
+    clearAllConnectionPointHighlights() {
+      // 清除所有连接点的高亮样式
+      document.querySelectorAll('.connection-point').forEach(element => {
+        element.classList.remove('connectable-highlight', 'dragging')
+      })
+    },
+    
+
+    
+    // 验证连接的有效性
+    isValidConnection(sourceNode, sourcePortType, targetNode, targetPortType) {
+      // 不能连接到自身
+      if (sourceNode.id === targetNode.id) {
+        this.showError('不能连接到自身')
         return false
       }
       
-      if (!node.prompt || !node.prompt.trim()) {
-        this.$message?.error?.(this.$t('aiAgent.workflow.promptRequired', '请配置节点提示词'))
+      // 必须是输出连接到输入
+      if (sourcePortType === targetPortType) {
+        this.showError('必须连接输出端口到输入端口')
         return false
       }
-    }
-    
-    // 条件节点必须配置条件表达式
-    if (node.type === 'condition' && (!node.condition || !node.condition.trim())) {
-      this.$message?.error?.(this.$t('aiAgent.workflow.conditionRequired', '请配置条件表达式'))
-      return false
-    }
-    
-    return true
-  },
-  // 工作流操作方法
-  async saveWorkflow() {
-    try {
-      // 验证工作流
-      if (!this.validateWorkflow()) {
-        return
+      
+      // 检查端口类型是否正确
+      if (sourcePortType === 'output' && targetPortType !== 'input') {
+        this.showError('输出端口只能连接到输入端口')
+        return false
       }
       
-      // 生成DAG数据
-      const dagData = this.generateDAGData()
-      
-      // 调用API保存
-      const workflowAPI = (await import('@/config/api.js')).default
-      await workflowAPI.submitDAG(dagData)
-      
-      this.$message?.success?.(this.$t('aiAgent.workflow.workflowSaved', '工作流已保存'))
-    } catch (error) {
-      console.error('保存工作流失败:', error)
-      this.$message?.error?.(this.$t('aiAgent.workflow.saveFailed', '保存工作流失败') + ': ' + error.message)
-    }
-  },
-  async testWorkflow() {
-    try {
-      // 验证工作流
-      if (!this.validateWorkflow()) {
-        return
+      if (sourcePortType === 'input' && targetPortType !== 'output') {
+        this.showError('输入端口只能接受输出端口的连接')
+        return false
       }
       
-      // 生成DAG数据并提交测试
-      const dagData = this.generateDAGData()
+      // 检查是否已经存在连接
+      const fromNodeId = sourcePortType === 'output' ? sourceNode.id : targetNode.id
+      const toNodeId = sourcePortType === 'output' ? targetNode.id : sourceNode.id
       
-      const workflowAPI = (await import('@/config/api.js')).default
-      const result = await workflowAPI.submitDAG(dagData)
+      const existingConnection = this.connections.find(conn => 
+        conn.from === fromNodeId && conn.to === toNodeId
+      )
       
-      // 通知就绪
-      await workflowAPI.notifyReady(dagData.dag_id)
-      
-      // 监听状态变化
-      await this.monitorWorkflowExecution(dagData.dag_id)
-      
-      this.$message?.success?.(this.$t('aiAgent.workflow.testStarted', '工作流测试已启动'))
-    } catch (error) {
-      console.error('测试工作流失败:', error)
-      this.$message?.error?.(this.$t('aiAgent.workflow.testFailed', '测试工作流失败') + ': ' + error.message)
-    }
-  },
-  async deployWorkflow() {
-    try {
-      // 验证工作流
-      if (!this.validateWorkflow()) {
-        return
+      if (existingConnection) {
+        this.showError('节点之间已经存在连接')
+        return false
       }
       
-      // 生成并部署DAG
-      const dagData = this.generateDAGData()
+      // 检查是否会形成循环
+      if (this.wouldCreateCycle(fromNodeId, toNodeId)) {
+        this.showError('不能创建循环连接')
+        return false
+      }
       
-      const workflowAPI = (await import('@/config/api.js')).default
-      await workflowAPI.submitDAG(dagData)
-      await workflowAPI.notifyReady(dagData.dag_id)
-      
-      // 更新状态
-      this.workflowStatus = 'Deployed'
-      
-      this.$message?.success?.(this.$t('aiAgent.workflow.deploySuccess', '工作流部署成功'))
-    } catch (error) {
-      console.error('部署工作流失败:', error)
-      this.$message?.error?.(this.$t('aiAgent.workflow.deployFailed', '部署工作流失败') + ': ' + error.message)
-    }
-  },
-  validateWorkflow() {
-    // 检查是否有start和end节点
-    const hasStart = this.workflowNodes.some(node => node.type === 'start')
-    const hasEnd = this.workflowNodes.some(node => node.type === 'end')
+      return true
+    },
     
-    if (!hasStart) {
-      this.$message?.error?.(this.$t('aiAgent.workflow.startNodeRequired', '工作流必须包含开始节点'))
+    showError(message) {
+      // 静默处理连接错误，不显示弹窗
+    },
+    
+    // 检查是否会形成循环
+    wouldCreateCycle(fromNodeId, toNodeId) {
+      const visited = new Set()
+      const stack = [fromNodeId]
+      
+      while (stack.length > 0) {
+        const currentId = stack.pop()
+        if (currentId === toNodeId) return true
+        
+        if (visited.has(currentId)) continue
+        visited.add(currentId)
+        
+        // 找到所有从当前节点出发的连接
+        const outgoingConnections = this.connections.filter(conn => conn.from === currentId)
+        outgoingConnections.forEach(conn => {
+          if (!visited.has(conn.to)) {
+            stack.push(conn.to)
+          }
+        })
+      }
+      
       return false
-    }
+    },
     
-    if (!hasEnd) {
-      this.$message?.error?.(this.$t('aiAgent.workflow.endNodeRequired', '工作流必须包含结束节点'))
-      return false
-    }
+    // 高亮可连接的节点
+    highlightConnectableNodes(sourceNode, sourcePortType) {
+      this.workflowNodes.forEach(node => {
+        if (node.id === sourceNode.id) return
+        
+        // 高亮可连接的连接点
+        if (sourcePortType === 'output' && node.type !== 'start') {
+          // 输出端口可以连接到其他节点的输入端口
+          const inputPoint = document.querySelector(`[data-node-id="${node.id}"] .input-point`)
+          if (inputPoint) {
+            inputPoint.classList.add('connectable-highlight')
+          }
+        } else if (sourcePortType === 'input' && node.type !== 'end') {
+          // 输入端口可以接收其他节点的输出端口
+          const outputPoint = document.querySelector(`[data-node-id="${node.id}"] .output-point`)
+          if (outputPoint) {
+            outputPoint.classList.add('connectable-highlight')
+          }
+        }
+      })
+    },
     
-    // 检查所有AI服务节点是否正确配置
-    for (const node of this.workflowNodes) {
+    // 清除高亮
+    clearHighlight() {
+      document.querySelectorAll('.connectable').forEach(element => {
+        element.classList.remove('connectable')
+      })
+      // 清除连接点高亮
+      document.querySelectorAll('.connectable-highlight').forEach(element => {
+        element.classList.remove('connectable-highlight')
+      })
+    },
+    
+    // 历史记录管理
+    saveToHistory() {
+      const state = {
+        nodes: JSON.parse(JSON.stringify(this.workflowNodes)),
+        connections: JSON.parse(JSON.stringify(this.connections))
+      }
+      
+      // 移除当前位置之后的历史记录
+      this.history = this.history.slice(0, this.historyIndex + 1)
+      this.history.push(state)
+      this.historyIndex = this.history.length - 1
+      
+      // 限制历史记录数量
+      if (this.history.length > 50) {
+        this.history.shift()
+        this.historyIndex--
+      }
+    },
+    
+    // 撤销
+    undo() {
+      if (this.historyIndex > 0) {
+        this.historyIndex--
+        this.restoreFromHistory()
+      }
+    },
+    
+    // 重做
+    redo() {
+      if (this.historyIndex < this.history.length - 1) {
+        this.historyIndex++
+        this.restoreFromHistory()
+      }
+    },
+    
+    // 从历史记录恢复
+    restoreFromHistory() {
+      const state = this.history[this.historyIndex]
+      this.workflowNodes = JSON.parse(JSON.stringify(state.nodes))
+      this.connections = JSON.parse(JSON.stringify(state.connections))
+      this.selectedNode = null
+      this.selectedNodeData = {}
+    },
+    
+    // 复制节点
+    copySelectedNode() {
+      if (this.selectedNode) {
+        const node = this.workflowNodes.find(n => n.id === this.selectedNode)
+        if (node) {
+          this.copiedNode = JSON.parse(JSON.stringify(node))
+        }
+      }
+    },
+    
+    // 粘贴节点
+    pasteNode() {
+      if (this.copiedNode) {
+        const newNode = {
+          ...this.copiedNode,
+          id: `${this.copiedNode.type}-${++this.nodeIdCounter}`,
+          x: this.copiedNode.x + 50,
+          y: this.copiedNode.y + 50
+        }
+        this.workflowNodes.push(newNode)
+        this.saveToHistory()
+      }
+    },
+    
+    // 删除选中节点
+    deleteSelectedNode() {
+      if (this.selectedNode) {
+        this.deleteNode(this.workflowNodes.find(n => n.id === this.selectedNode))
+      }
+    },
+    
+    // 选择所有节点
+    selectAllNodes() {
+      // 为所有节点添加选中状态
+      this.workflowNodes.forEach(node => {
+        const element = document.querySelector(`[data-node-id="${node.id}"]`)
+        if (element) {
+          element.classList.add('node-selected')
+        }
+      })
+    },
+    
+    // 显示错误信息
+    showError(message) {
+      if (this.$message && this.$message.error) {
+        this.$message.error(message)
+      } else {
+        console.error(message)
+      }
+    },
+    
+    // 清理资源
+    cleanup() {
+      document.removeEventListener('keydown', this.handleKeyDown)
+      document.removeEventListener('keyup', this.handleKeyUp)
+      
+      document.removeEventListener('click', this.cancelConnection)
+      
+      if (this.statusEventSource) {
+        this.statusEventSource.close()
+      }
+    },
+    
+    // 快捷键帮助
+    showKeyboardShortcuts() {
+      this.showShortcutsHelp = true
+    },
+    
+    closeShortcutsHelp() {
+      this.showShortcutsHelp = false
+    },
+    
+    // 节点配置相关方法
+    isAIServiceNode(nodeType) {
+      return ['LLM', 'STT', 'TTS', 'pic2text', 'text2pic'].includes(nodeType)
+    },
+    getPromptPlaceholder(serviceType) {
+      const placeholders = {
+        'LLM': '请输入LLM处理提示词，例如：你是一个专业的助手，请根据输入内容提供有价值的回复...',
+        'STT': '请输入语音转文字的处理指令，例如：将以下音频转换为文字，并标注时间戳...',
+        'TTS': '请输入文字转语音的处理指令，例如：以自然流畅的语调朗读以下文字...',
+        'pic2text': '请输入图片转文字的处理指令，例如：分析图片内容并提取所有文字信息...',
+        'text2pic': '请输入文字转图片的处理指令，例如：根据描述生成高质量的图片，注意细节和色彩搭配...'
+      }
+      return placeholders[serviceType] || '请输入节点处理提示词...'
+    },
+    getPromptTips(serviceType) {
+      const tips = {
+        'LLM': '提示词将影响AI的回复质量，建议明确指定角色、任务和输出格式',
+        'STT': '可以指定转换精度、语言识别偏好等参数',
+        'TTS': '可以指定语音风格、语速、情感等参数',
+        'pic2text': '可以指定提取内容类型，如只提取文字、包含图表描述等',
+        'text2pic': '详细的描述有助于生成更准确的图片，建议包含风格、颜色、构图等要素'
+      }
+      return tips[serviceType] || '根据节点功能配置相应的提示词'
+    },
+    addInput() {
+      if (!this.selectedNodeData.inputs) {
+        this.selectedNodeData.inputs = []
+      }
+      this.selectedNodeData.inputs.push({ name: 'input', type: 'text' })
+    },
+    removeInput(index) {
+      this.selectedNodeData.inputs.splice(index, 1)
+    },
+    addOutput() {
+      if (!this.selectedNodeData.outputs) {
+        this.selectedNodeData.outputs = []
+      }
+      this.selectedNodeData.outputs.push({ name: 'output', type: 'text' })
+    },
+    removeOutput(index) {
+      this.selectedNodeData.outputs.splice(index, 1)
+    },
+    saveNodeConfig() {
+      // 找到原始节点并更新
+      const nodeIndex = this.workflowNodes.findIndex(n => n.id === this.selectedNode)
+      if (nodeIndex !== -1) {
+        // 验证配置
+        if (this.validateNodeConfig()) {
+          this.workflowNodes[nodeIndex] = { ...this.selectedNodeData }
+          this.$message?.success?.(this.$t('aiAgent.workflow.configSaved', '节点配置已保存'))
+        }
+      }
+    },
+    validateNodeConfig() {
+      const node = this.selectedNodeData
+      
+      // 基础验证
+      if (!node.title || !node.title.trim()) {
+        this.$message?.error?.(this.$t('aiAgent.workflow.nameRequired', '节点名称不能为空'))
+        return false
+      }
+      
+      // AI服务节点必须配置service和prompt
       if (this.isAIServiceNode(node.type)) {
-        if (!node.service || !node.prompt) {
-          this.$message?.error?.(this.$t('aiAgent.workflow.nodeConfigIncomplete', `节点 ${node.title} 配置不完整`))
+        if (!node.service) {
+          this.$message?.error?.(this.$t('aiAgent.workflow.serviceRequired', '请选择服务类型'))
+          return false
+        }
+        
+        if (!node.prompt || !node.prompt.trim()) {
+          this.$message?.error?.(this.$t('aiAgent.workflow.promptRequired', '请配置节点提示词'))
           return false
         }
       }
-    }
-    
-    return true
-  },
-  async generateDAGData() {
-    const workflowAPI = (await import('@/config/api.js')).default
-    
-    const dagData = {
-      dag_id: workflowAPI.generateDAGId(this.currentAgent.name || 'agent'),
-      tenant_id: workflowAPI.config.getTenantId(),
-      nodes: {},
-      edges: []
-    }
-    
-    // 转换节点数据
-    this.workflowNodes.forEach(node => {
-      dagData.nodes[node.id] = {
-        prompt: node.prompt || '',
-        service: node.service || node.type
+      
+      // 条件节点必须配置条件表达式
+      if (node.type === 'condition' && (!node.condition || !node.condition.trim())) {
+        this.$message?.error?.(this.$t('aiAgent.workflow.conditionRequired', '请配置条件表达式'))
+        return false
       }
-    })
-    
-    // 转换连接数据
-    this.connections.forEach(connection => {
-      dagData.edges.push({
-        from: connection.from,
-        to: connection.to,
-        prompt: connection.prompt || ''
-      })
-    })
-    
-    return dagData
-  },
-  async monitorWorkflowExecution(dagId) {
-    const workflowAPI = (await import('@/config/api.js')).default
-    
-    const eventSource = workflowAPI.createStatusStream(
-      dagId,
-      (statusData) => {
-        console.log('工作流状态更新:', statusData)
-        this.workflowStatus = statusData.status || 'Running'
+      
+      return true
+    },
+    // 工作流操作方法
+    async saveWorkflow() {
+      try {
+        // 验证工作流
+        if (!this.validateWorkflow()) {
+          return
+        }
         
-        // 更新节点状态
-        if (statusData.node_id && statusData.node_status) {
-          const node = this.workflowNodes.find(n => n.id === statusData.node_id)
-          if (node) {
-            node.status = statusData.node_status
+        // 生成DAG数据
+        const dagData = this.generateDAGData()
+        
+        // 调用API保存
+        const workflowAPI = (await import('@/config/api.js')).default
+        await workflowAPI.submitDAG(dagData)
+        
+        this.$message?.success?.(this.$t('aiAgent.workflow.workflowSaved', '工作流已保存'))
+      } catch (error) {
+        console.error('保存工作流失败:', error)
+        this.$message?.error?.(this.$t('aiAgent.workflow.saveFailed', '保存工作流失败') + ': ' + error.message)
+      }
+    },
+    async testWorkflow() {
+      try {
+        // 验证工作流
+        if (!this.validateWorkflow()) {
+          return
+        }
+        
+        // 生成DAG数据并提交测试
+        const dagData = this.generateDAGData()
+        
+        const workflowAPI = (await import('@/config/api.js')).default
+        const result = await workflowAPI.submitDAG(dagData)
+        
+        // 通知就绪
+        await workflowAPI.notifyReady(dagData.dag_id)
+        
+        // 监听状态变化
+        await this.monitorWorkflowExecution(dagData.dag_id)
+        
+        this.$message?.success?.(this.$t('aiAgent.workflow.testStarted', '工作流测试已启动'))
+      } catch (error) {
+        console.error('测试工作流失败:', error)
+        this.$message?.error?.(this.$t('aiAgent.workflow.testFailed', '测试工作流失败') + ': ' + error.message)
+      }
+    },
+    async deployWorkflow() {
+      try {
+        // 验证工作流
+        if (!this.validateWorkflow()) {
+          return
+        }
+        
+        // 生成并部署DAG
+        const dagData = this.generateDAGData()
+        
+        const workflowAPI = (await import('@/config/api.js')).default
+        await workflowAPI.submitDAG(dagData)
+        await workflowAPI.notifyReady(dagData.dag_id)
+        
+        // 更新状态
+        this.workflowStatus = 'Deployed'
+        
+        this.$message?.success?.(this.$t('aiAgent.workflow.deploySuccess', '工作流部署成功'))
+      } catch (error) {
+        console.error('部署工作流失败:', error)
+        this.$message?.error?.(this.$t('aiAgent.workflow.deployFailed', '部署工作流失败') + ': ' + error.message)
+      }
+    },
+    validateWorkflow() {
+      // 检查是否有start和end节点
+      const hasStart = this.workflowNodes.some(node => node.type === 'start')
+      const hasEnd = this.workflowNodes.some(node => node.type === 'end')
+      
+      if (!hasStart) {
+        this.$message?.error?.(this.$t('aiAgent.workflow.startNodeRequired', '工作流必须包含开始节点'))
+        return false
+      }
+      
+      if (!hasEnd) {
+        this.$message?.error?.(this.$t('aiAgent.workflow.endNodeRequired', '工作流必须包含结束节点'))
+        return false
+      }
+      
+      // 检查所有AI服务节点是否正确配置
+      for (const node of this.workflowNodes) {
+        if (this.isAIServiceNode(node.type)) {
+          if (!node.service || !node.prompt) {
+            this.$message?.error?.(this.$t('aiAgent.workflow.nodeConfigIncomplete', `节点 ${node.title} 配置不完整`))
+            return false
           }
         }
-      },
-      (error) => {
-        console.error('监听工作流状态失败:', error)
-        this.$message?.error?.('监听工作流状态失败')
       }
-    )
-    
-    // 保存EventSource引用用于清理
-    this.statusEventSource = eventSource
-  },
-  clearCanvas() {
-    this.workflowNodes = []
-    this.connections = []
-    this.selectedNode = null
-    this.selectedNodeData = {}
-    this.workflowStatus = 'Ready'
-  },
-        getConnectionPath(connection) {
+      
+      return true
+    },
+    async generateDAGData() {
+      const workflowAPI = (await import('@/config/api.js')).default
+      
+      const dagData = {
+        dag_id: workflowAPI.generateDAGId(this.currentAgent.name || 'agent'),
+        tenant_id: workflowAPI.config.getTenantId(),
+        nodes: {},
+        edges: []
+      }
+      
+      // 转换节点数据
+      this.workflowNodes.forEach(node => {
+        dagData.nodes[node.id] = {
+          prompt: node.prompt || '',
+          service: node.service || node.type,
+          // 添加完整的节点配置信息
+          title: node.title || '',
+          description: node.description || '',
+          // 添加服务特定参数
+          ...(node.service === 'LLM' && {
+            model: node.model || 'gpt-3.5-turbo',
+            temperature: node.temperature || 0.7,
+            max_tokens: node.max_tokens || 2000,
+            top_p: node.top_p || 1.0,
+            frequency_penalty: node.frequency_penalty || 0,
+            presence_penalty: node.presence_penalty || 0,
+            stop: node.stop || '',
+            user: node.user || '',
+            stream: node.stream || false,
+            logit_bias: node.logit_bias || {}
+          }),
+          ...(node.service === 'STT' && {
+            language: node.language || 'zh',
+            model: node.model || 'whisper-1',
+            response_format: node.response_format || 'text',
+            temperature: node.temperature || 0,
+            prompt: node.prompt || '',
+            timestamp_granularities: node.timestamp_granularities || ['word']
+          }),
+          ...(node.service === 'TTS' && {
+            voice: node.voice || 'alloy',
+            response_format: node.response_format || 'mp3',
+            speed: node.speed || 1.0,
+            model: node.model || 'tts-1'
+          }),
+          ...(node.service === 'pic2text' && {
+            language: node.language || 'zh',
+            format: node.format || 'plain',
+            max_tokens: node.max_tokens || 300,
+            detail: node.detail || 'auto',
+            quality: node.quality || 'auto'
+          }),
+          ...(node.service === 'text2pic' && {
+            model: node.model || 'dall-e-3',
+            size: node.size || '1024x1024',
+            style: node.style || 'vivid',
+            quality: node.quality || 'standard',
+            n: node.n || 1,
+            user: node.user || '',
+            response_format: node.response_format || 'url'
+          }),
+          ...(node.service === 'browse' && {
+            method: node.method || 'GET',
+            headers: node.headers || {},
+            timeout: node.timeout || 30000,
+            retry_count: node.retry_count || 3,
+            retry_delay: node.retry_delay || 1000,
+            user_agent: node.user_agent || 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36',
+            load_timeout: node.load_timeout || 10000,
+            extract_mode: node.extract_mode || 'text',
+            fallback_value: node.fallback_value || ''
+          })
+        }
+      })
+      
+      // 转换连接数据
+      this.connections.forEach(connection => {
+        dagData.edges.push({
+          from: connection.from,
+          to: connection.to,
+          prompt: connection.prompt || ''
+        })
+      })
+      
+      return dagData
+    },
+    async monitorWorkflowExecution(dagId) {
+      const workflowAPI = (await import('@/config/api.js')).default
+      
+      const eventSource = workflowAPI.createStatusStream(
+        dagId,
+        (statusData) => {
+          console.log('工作流状态更新:', statusData)
+          this.workflowStatus = statusData.status || 'Running'
+          
+          // 更新节点状态
+          if (statusData.node_id && statusData.node_status) {
+            const node = this.workflowNodes.find(n => n.id === statusData.node_id)
+            if (node) {
+              node.status = statusData.node_status
+            }
+          }
+        },
+        (error) => {
+          console.error('监听工作流状态失败:', error)
+          this.$message?.error?.('监听工作流状态失败')
+        }
+      )
+      
+      // 保存EventSource引用用于清理
+      this.statusEventSource = eventSource
+    },
+    clearCanvas() {
+      this.workflowNodes = []
+      this.connections = []
+      this.selectedNode = null
+      this.selectedNodeData = {}
+      this.workflowStatus = 'Ready'
+    },
+                getConnectionPath(connection) {
       const fromNode = this.workflowNodes.find(n => n.id === connection.from)
       const toNode = this.workflowNodes.find(n => n.id === connection.to)
       
-      if (!fromNode || !toNode) return ''
-      
-      // 直接获取连接点元素的实际位置
-      const fromOutputPoint = document.querySelector(`[data-node-id="${fromNode.id}"] .output-point`)
-      const toInputPoint = document.querySelector(`[data-node-id="${toNode.id}"] .input-point`)
-      const canvas = document.querySelector('.workflow-canvas')
-      
-      if (!fromOutputPoint || !toInputPoint || !canvas) {
+      if (!fromNode || !toNode) {
         return ''
       }
       
-      // 获取canvas的偏移量
+      // 获取连接点的真实DOM位置
+      const fromOutputPoint = document.querySelector(`[data-node-id="${fromNode.id}"] .output-point`)
+      const toInputPoint = document.querySelector(`[data-node-id="${toNode.id}"] .input-point`)
+      const canvas = this.$refs.canvas
+      
+      if (!fromOutputPoint || !toInputPoint || !canvas) {
+        // 如果无法获取DOM元素，使用备用计算
+        const nodeWidth = 200
+        const nodeHeight = 120
+        const fromX = fromNode.x + nodeWidth
+        const fromY = fromNode.y + nodeHeight / 2
+        const toX = toNode.x
+        const toY = toNode.y + nodeHeight / 2
+        
+        const deltaX = toX - fromX
+        const curvature = Math.min(Math.abs(deltaX) * 0.5, 120)
+        const cp1X = fromX + curvature
+        const cp1Y = fromY
+        const cp2X = toX - curvature
+        const cp2Y = toY
+        
+        return `M ${fromX} ${fromY} C ${cp1X} ${cp1Y}, ${cp2X} ${cp2Y}, ${toX} ${toY}`
+      }
+      
+      // 获取画布的位置和变换信息
+      const scale = this.canvasScale || 1
+      const offsetX = this.canvasOffsetX || 0
+      const offsetY = this.canvasOffsetY || 0
+      
       const canvasRect = canvas.getBoundingClientRect()
       const fromRect = fromOutputPoint.getBoundingClientRect()
       const toRect = toInputPoint.getBoundingClientRect()
       
-      // 计算连接点在canvas内的相对位置（连接点中心）
-      const fromX = fromRect.left - canvasRect.left + fromRect.width / 2
-      const fromY = fromRect.top - canvasRect.top + fromRect.height / 2
-      const toX = toRect.left - canvasRect.left + toRect.width / 2
-      const toY = toRect.top - canvasRect.top + toRect.height / 2
+      // 计算连接点中心在画布内的屏幕坐标
+      const fromScreenX = (fromRect.left + fromRect.width / 2) - canvasRect.left
+      const fromScreenY = (fromRect.top + fromRect.height / 2) - canvasRect.top
+      const toScreenX = (toRect.left + toRect.width / 2) - canvasRect.left
+      const toScreenY = (toRect.top + toRect.height / 2) - canvasRect.top
       
-      // 柔和的贝塞尔曲线连接
+      // 将屏幕坐标转换为SVG坐标（考虑缩放和偏移）
+      const fromX = fromScreenX / scale - offsetX
+      const fromY = fromScreenY / scale - offsetY
+      const toX = toScreenX / scale - offsetX
+      const toY = toScreenY / scale - offsetY
+      
+
+      
+      // 创建优雅的贝塞尔曲线路径
       const deltaX = toX - fromX
       const deltaY = toY - fromY
       const distance = Math.sqrt(deltaX * deltaX + deltaY * deltaY)
       
-      // 根据距离动态调整曲线弯曲度，使曲线更自然
-      const curvature = Math.min(distance * 0.3, 100)
+      // 根据距离和方向动态调整曲线弯曲度
+      const curvature = Math.min(Math.abs(deltaX) * 0.5, 120)
       
+      // 控制点计算，让曲线更自然
       const cp1X = fromX + curvature
       const cp1Y = fromY
       const cp2X = toX - curvature
       const cp2Y = toY
       
-            return `M ${fromX} ${fromY} C ${cp1X} ${cp1Y}, ${cp2X} ${cp2Y}, ${toX} ${toY}`
+      return `M ${fromX} ${fromY} C ${cp1X} ${cp1Y}, ${cp2X} ${cp2Y}, ${toX} ${toY}`
     },
  
               setConnectionHover(connection, isHover) {
@@ -1536,6 +2853,27 @@ export default {
           // Can add special hover styles
           console.log('Connection hover:', connection.id)
         }
+      },
+      
+      getTempConnectionPath() {
+        if (!this.tempConnection) return ''
+        
+        const startX = this.tempConnection.startX || 0
+        const startY = this.tempConnection.startY || 0
+        const endX = this.tempConnection.endX || 0
+        const endY = this.tempConnection.endY || 0
+        
+        // 创建贝塞尔曲线路径
+        const deltaX = endX - startX
+        const distance = Math.sqrt(deltaX * deltaX + (endY - startY) * (endY - startY))
+        const curvature = Math.min(distance * 0.3, 100)
+        
+        const cp1X = startX + curvature
+        const cp1Y = startY
+        const cp2X = endX - curvature
+        const cp2Y = endY
+        
+        return `M ${startX} ${startY} C ${cp1X} ${cp1Y}, ${cp2X} ${cp2Y}, ${endX} ${endY}`
       },
     clearCanvas() {
       this.workflowNodes = []
@@ -1584,7 +2922,11 @@ export default {
           element.setAttribute('stroke-width', '2')
         }
       })
-    }
+    },
+    selectConnection(connection) {
+      this.selectedConnection = connection
+    },
+
   }
 }
 </script>
@@ -2816,24 +4158,37 @@ export default {
   width: 100%;
   height: 100%;
   pointer-events: none;
+  z-index: 20;
 }
 
 .connection-point {
   position: absolute;
-  width: 12px;
-  height: 12px;
+  width: 20px;
+  height: 20px;
   background: #3b82f6;
-  border: 2px solid #1a1a1a;
+  border: 3px solid #ffffff;
   border-radius: 50%;
   pointer-events: all;
   cursor: crosshair;
   transition: all 0.2s ease;
   opacity: 1;
-  z-index: 15;
+  z-index: 25;
+  display: flex;
+  align-items: center;
+  justify-content: center;
   box-shadow: 
     0 0 0 2px rgba(59, 130, 246, 0.3),
-    0 0 8px rgba(59, 130, 246, 0.2);
+    0 0 8px rgba(59, 130, 246, 0.2),
+    0 2px 8px rgba(0, 0, 0, 0.3);
   animation: pulse 2s infinite;
+}
+
+.connection-point-label {
+  font-size: 6px;
+  font-weight: bold;
+  color: white;
+  text-shadow: 0 0 2px rgba(0, 0, 0, 0.8);
+  pointer-events: none;
 }
 
 @keyframes pulse {
@@ -2861,13 +4216,13 @@ export default {
 }
 
 .input-point {
-  left: -6px;
+  left: -10px;
   top: 50%;
   transform: translateY(-50%);
 }
 
 .output-point {
-  right: -6px;
+  right: -10px;
   top: 50%;
   transform: translateY(-50%);
 }
@@ -2956,6 +4311,521 @@ export default {
   outline: none;
   border-color: #3b82f6;
   box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.2);
+}
+
+/* 网格背景 */
+.canvas-grid {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  pointer-events: none;
+  opacity: 0.1;
+  background-image: 
+    linear-gradient(to right, rgba(255, 255, 255, 0.1) 1px, transparent 1px),
+    linear-gradient(to bottom, rgba(255, 255, 255, 0.1) 1px, transparent 1px);
+  background-size: 20px 20px;
+  z-index: 1;
+}
+
+/* 连接状态样式 */
+.connectable {
+  border: 2px solid #4ecdc4 !important;
+  box-shadow: 0 0 20px rgba(78, 205, 196, 0.5) !important;
+  animation: pulse-green 1s infinite;
+}
+
+@keyframes pulse-green {
+  0%, 100% {
+    box-shadow: 0 0 20px rgba(78, 205, 196, 0.5);
+  }
+  50% {
+    box-shadow: 0 0 30px rgba(78, 205, 196, 0.8);
+  }
+}
+
+/* 节点连接状态 */
+.workflow-node.connecting {
+  border-color: #ff6b6b;
+  box-shadow: 0 0 20px rgba(255, 107, 107, 0.5);
+}
+
+.workflow-node.connected {
+  border-color: #4ecdc4;
+  box-shadow: 0 0 10px rgba(78, 205, 196, 0.3);
+}
+
+/* 临时连接线 */
+.temp-connection {
+  stroke: #ff6b6b;
+  stroke-width: 2;
+  stroke-dasharray: 5,5;
+  animation: dash 1s linear infinite;
+}
+
+@keyframes dash {
+  to {
+    stroke-dashoffset: -10;
+  }
+}
+
+/* 表单控件样式 */
+.form-checkbox {
+  width: 18px;
+  height: 18px;
+  accent-color: #4ecdc4;
+  margin-right: 8px;
+}
+
+.form-range {
+  width: 100%;
+  height: 6px;
+  background: #404040;
+  outline: none;
+  border-radius: 3px;
+  margin: 8px 0;
+}
+
+.form-range::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  width: 20px;
+  height: 20px;
+  background: #4ecdc4;
+  border-radius: 50%;
+  cursor: pointer;
+  border: 2px solid #1a1a1a;
+}
+
+.form-range::-moz-range-thumb {
+  width: 20px;
+  height: 20px;
+  background: #4ecdc4;
+  border-radius: 50%;
+  cursor: pointer;
+  border: 2px solid #1a1a1a;
+}
+
+.range-labels {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  font-size: 0.8rem;
+  color: #b0b0b0;
+  margin-top: 4px;
+}
+
+/* 输入输出端口样式 */
+.io-config {
+  border: 1px solid #404040;
+  border-radius: 8px;
+  padding: 1rem;
+  background: #2a2a2a;
+}
+
+.io-section {
+  margin-bottom: 1rem;
+}
+
+.io-section:last-child {
+  margin-bottom: 0;
+}
+
+.io-item {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  margin-bottom: 0.5rem;
+}
+
+.io-item:last-child {
+  margin-bottom: 0;
+}
+
+.form-input-sm {
+  flex: 1;
+  padding: 0.5rem;
+  border: 1px solid #555;
+  border-radius: 4px;
+  background: #404040;
+  color: #e0e0e0;
+  font-size: 0.8rem;
+}
+
+.form-select-sm {
+  padding: 0.5rem;
+  border: 1px solid #555;
+  border-radius: 4px;
+  background: #404040;
+  color: #e0e0e0;
+  font-size: 0.8rem;
+}
+
+.btn-remove {
+  width: 24px;
+  height: 24px;
+  border: none;
+  background: #ff6b6b;
+  color: white;
+  border-radius: 50%;
+  cursor: pointer;
+  font-size: 0.8rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.2s;
+}
+
+.btn-remove:hover {
+  background: #ff5252;
+  transform: scale(1.1);
+}
+
+/* 配置面板动作按钮 */
+.config-actions {
+  display: flex;
+  gap: 0.5rem;
+  padding: 1rem 1.5rem;
+  background: #2a2a2a;
+  border-top: 1px solid #404040;
+  margin-top: auto;
+}
+
+.config-actions .btn {
+  flex: 1;
+  padding: 0.75rem;
+  border: none;
+  border-radius: 6px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.config-actions .btn-primary {
+  background: #4ecdc4;
+  color: #1a1a1a;
+}
+
+.config-actions .btn-primary:hover {
+  background: #45b7b8;
+}
+
+.config-actions .btn-outline {
+  background: transparent;
+  color: #e0e0e0;
+  border: 1px solid #555;
+}
+
+.config-actions .btn-outline:hover {
+  background: #404040;
+}
+
+/* 节点端口可视化 */
+.workflow-node .node-inputs,
+.workflow-node .node-outputs {
+  font-size: 0.7rem;
+  color: #b0b0b0;
+  margin-top: 0.5rem;
+}
+
+.workflow-node .node-inputs .input-port,
+.workflow-node .node-outputs .output-port {
+  display: inline-block;
+  background: #404040;
+  padding: 0.2rem 0.5rem;
+  border-radius: 12px;
+  margin: 0.1rem;
+  border: 1px solid #555;
+}
+
+.workflow-node .node-inputs .input-port {
+  border-left: 3px solid #4ecdc4;
+}
+
+.workflow-node .node-outputs .output-port {
+  border-right: 3px solid #ff6b6b;
+}
+
+/* 提示词编辑器增强 */
+.prompt-textarea {
+  resize: vertical;
+  min-height: 120px;
+  font-family: 'Consolas', 'Monaco', monospace;
+  line-height: 1.5;
+}
+
+.prompt-tips {
+  margin-top: 0.5rem;
+  padding: 0.5rem;
+  background: #2a2a2a;
+  border-radius: 4px;
+  border-left: 3px solid #4ecdc4;
+}
+
+.prompt-tips small {
+  color: #b0b0b0;
+  font-style: italic;
+}
+
+/* 节点状态指示器 */
+.node-status {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  margin-top: 0.5rem;
+  padding: 0.3rem 0.5rem;
+  background: #2a2a2a;
+  border-radius: 4px;
+  font-size: 0.8rem;
+}
+
+.status-indicator {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  display: inline-block;
+}
+
+.status-indicator.ready {
+  background: #4ecdc4;
+  box-shadow: 0 0 4px rgba(78, 205, 196, 0.5);
+}
+
+.status-indicator.running {
+  background: #feca57;
+  box-shadow: 0 0 4px rgba(254, 202, 87, 0.5);
+  animation: pulse 1s infinite;
+}
+
+.status-indicator.completed {
+  background: #55a3ff;
+  box-shadow: 0 0 4px rgba(85, 163, 255, 0.5);
+}
+
+.status-indicator.failed {
+  background: #ff6b6b;
+  box-shadow: 0 0 4px rgba(255, 107, 107, 0.5);
+}
+
+.status-text {
+  color: #b0b0b0;
+  font-size: 0.8rem;
+}
+
+/* 快捷键帮助弹窗 */
+.shortcuts-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(0, 0, 0, 0.8);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 1000;
+}
+
+.shortcuts-dialog {
+  background: #2d2d2d;
+  border-radius: 12px;
+  max-width: 600px;
+  width: 90%;
+  max-height: 80vh;
+  overflow-y: auto;
+  border: 1px solid #404040;
+  box-shadow: 0 20px 40px rgba(0, 0, 0, 0.6);
+}
+
+.shortcuts-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 1.5rem 2rem;
+  border-bottom: 1px solid #404040;
+}
+
+.shortcuts-header h3 {
+  margin: 0;
+  color: #e0e0e0;
+  font-size: 1.3rem;
+}
+
+.shortcuts-content {
+  padding: 2rem;
+}
+
+.shortcuts-section {
+  margin-bottom: 2rem;
+}
+
+.shortcuts-section:last-child {
+  margin-bottom: 0;
+}
+
+.shortcuts-section h4 {
+  margin: 0 0 1rem 0;
+  color: #4ecdc4;
+  font-size: 1.1rem;
+  border-bottom: 1px solid #404040;
+  padding-bottom: 0.5rem;
+}
+
+.shortcut-item {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 0.75rem 0;
+  border-bottom: 1px solid #333;
+}
+
+.shortcut-item:last-child {
+  border-bottom: none;
+}
+
+.shortcut-item kbd {
+  background: #404040;
+  border: 1px solid #555;
+  border-radius: 4px;
+  padding: 0.25rem 0.5rem;
+  font-size: 0.8rem;
+  color: #e0e0e0;
+  margin: 0 0.25rem;
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.3);
+}
+
+.shortcut-item .mouse-action {
+  background: #45b7b8;
+  color: #1a1a1a;
+  border-radius: 4px;
+  padding: 0.25rem 0.5rem;
+  font-size: 0.8rem;
+  font-weight: 500;
+}
+
+.shortcut-item span:last-child {
+  color: #b0b0b0;
+  font-size: 0.9rem;
+}
+
+/* 端口标签样式 */
+.port-label {
+  font-size: 0.7rem;
+  color: #b0b0b0;
+  margin-bottom: 0.3rem;
+  font-weight: 500;
+}
+
+.port-name {
+  font-size: 0.8rem;
+  color: #e0e0e0;
+  margin-right: 0.5rem;
+}
+
+.port-type {
+  font-size: 0.7rem;
+  color: #b0b0b0;
+  background: #404040;
+  padding: 0.1rem 0.3rem;
+  border-radius: 8px;
+  border: 1px solid #555;
+}
+
+/* 按钮样式增强 */
+.btn-info {
+  background: #4ecdc4;
+  color: #1a1a1a;
+  border: 1px solid #4ecdc4;
+}
+
+.btn-info:hover {
+  background: #45b7b8;
+  border-color: #45b7b8;
+}
+
+.btn-close {
+  background: transparent;
+  border: none;
+  color: #b0b0b0;
+  font-size: 1.5rem;
+  cursor: pointer;
+  padding: 0.5rem;
+  border-radius: 4px;
+  transition: all 0.2s;
+}
+
+.btn-close:hover {
+  background: #404040;
+  color: #e0e0e0;
+}
+
+/* 配置帮助文本样式 */
+.config-help {
+  display: block;
+  margin-top: 0.3rem;
+  color: #909090;
+  font-size: 0.8rem;
+  font-style: italic;
+  line-height: 1.4;
+}
+
+/* 子配置区域样式 */
+.config-subsection {
+  margin-bottom: 1rem;
+  padding: 0.8rem;
+  background: #262626;
+  border-radius: 6px;
+  border: 1px solid #404040;
+}
+
+.config-subsection:last-child {
+  margin-bottom: 0;
+}
+
+.config-subsection label {
+  display: block;
+  margin-bottom: 0.5rem;
+  color: #e0e0e0;
+  font-weight: 500;
+  font-size: 0.85rem;
+}
+
+.config-subsection .form-input,
+.config-subsection .form-textarea,
+.config-subsection .form-select {
+  width: 100%;
+  padding: 0.6rem;
+  border: 1px solid #555555;
+  border-radius: 4px;
+  font-size: 0.85rem;
+  background: #404040;
+  color: #e0e0e0;
+}
+
+.config-subsection .form-input:focus,
+.config-subsection .form-textarea:focus,
+.config-subsection .form-select:focus {
+  outline: none;
+  border-color: #4ecdc4;
+  box-shadow: 0 0 0 2px rgba(78, 205, 196, 0.2);
+}
+
+/* 复选框标签样式 */
+.checkbox-label {
+  margin-left: 0.5rem;
+  color: #e0e0e0;
+  font-size: 0.9rem;
+  cursor: pointer;
+}
+
+/* 配置区域标题样式 */
+.config-section h5 {
+  margin: 0 0 1rem 0;
+  color: #4ecdc4;
+  font-size: 1rem;
+  font-weight: 600;
+  border-bottom: 1px solid #404040;
+  padding-bottom: 0.5rem;
 }
 
 /* 响应式设计 */
@@ -3358,5 +5228,127 @@ export default {
   font-size: 0.7rem;
   font-weight: 600;
   display: inline-block;
+}
+
+.connection-layer {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  pointer-events: none;
+  z-index: 10;
+  overflow: visible;
+}
+
+.connection-line {
+  opacity: 1;
+  transition: all 0.2s ease;
+  cursor: pointer;
+  filter: drop-shadow(0 1px 2px rgba(0, 0, 0, 0.2));
+}
+
+.connection-line:hover {
+  stroke: #8b5cf6 !important;
+  stroke-width: 3 !important;
+  filter: drop-shadow(0 2px 4px rgba(139, 92, 246, 0.3));
+}
+
+.connection-line.selected {
+  stroke: #ffd93d !important;
+  stroke-width: 3 !important;
+  filter: drop-shadow(0 0 8px rgba(255, 217, 61, 0.6));
+}
+
+.temp-connection-line {
+  stroke: #ffd93d;
+  stroke-width: 2;
+  stroke-dasharray: 6,3;
+  animation: dash 1s linear infinite;
+  filter: drop-shadow(0 0 6px rgba(255, 217, 61, 0.6));
+  pointer-events: none;
+  opacity: 0.9;
+}
+
+/* 连接配置面板样式 */
+.connection-info {
+  margin-bottom: 1rem;
+  padding: 1rem;
+  background: rgba(255, 255, 255, 0.05);
+  border-radius: 8px;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.connection-nodes {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+}
+
+.connection-node {
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+}
+
+.connection-node strong {
+  font-size: 0.9rem;
+  color: #00d4ff;
+}
+
+.connection-node span {
+  font-size: 0.95rem;
+  color: #e0e0e0;
+  padding: 0.25rem 0.5rem;
+  background: rgba(255, 255, 255, 0.1);
+  border-radius: 4px;
+}
+
+.connection-arrow {
+  font-size: 1.2rem;
+  color: #00d4ff;
+  margin: 0 0.5rem;
+}
+
+/* 连接点状态样式 */
+.connection-point.connectable-highlight {
+  background: #00d4ff !important;
+  border-color: #ffffff !important;
+  box-shadow: 
+    0 0 0 4px rgba(0, 212, 255, 0.5),
+    0 0 20px rgba(0, 212, 255, 1);
+  transform: scale(1.3);
+}
+
+.connection-point.dragging {
+  background: #ffd93d !important;
+  border-color: #ffffff !important;
+  box-shadow: 
+    0 0 0 4px rgba(255, 217, 61, 0.5),
+    0 0 25px rgba(255, 217, 61, 0.8);
+  transform: scale(1.4);
+}
+
+
+
+@keyframes dash {
+  to {
+    stroke-dashoffset: -10;
+  }
+}
+
+.selected {
+  border: 2px dashed #ff6b6b !important;
+  box-shadow: 0 0 20px rgba(255, 107, 107, 0.5) !important;
+  animation: pulse-red 1s infinite;
+}
+
+@keyframes pulse-red {
+  0%, 100% {
+    box-shadow: 0 0 20px rgba(255, 107, 107, 0.5);
+  }
+  50% {
+    box-shadow: 0 0 30px rgba(255, 107, 107, 0.8);
+  }
 }
 </style> 
