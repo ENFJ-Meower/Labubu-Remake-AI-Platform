@@ -5,20 +5,20 @@
       <div class="toolbar-left">
         <div class="agent-info">
           <div class="agent-meta">
-            <h2 class="agent-name">{{ currentAgent.name || 'Unnamed Agent' }}</h2>
-            <p class="agent-status">{{ getAgentStatus() }}</p>
+            <h2 class="agent-name">{{ currentWorkflow.name || $t('aiAgent.workflow.statusValues.unnamed', 'Unnamed Workflow') }}</h2>
+            <p class="agent-status">{{ getWorkflowStatus() }}</p>
           </div>
         </div>
       </div>
       <div class="toolbar-right">
-        <button class="btn btn-secondary" @click="saveAgent">
-          <i class="icon">💾</i> {{ $t('aiAgent.actions.saveAgent', 'Save Agent') }}
+        <button class="btn btn-secondary" @click="saveWorkflow">
+          <i class="icon">💾</i> {{ $t('aiAgent.workflow.toolbar.saveWorkflow', 'Save Workflow') }}
         </button>
-        <button class="btn btn-primary" @click="testAgent">
-          <i class="icon">🧪</i> {{ $t('aiAgent.actions.testAgent', 'Test Agent') }}
-        </button>
-        <button class="btn btn-success" @click="deployAgent">
-          <i class="icon">🚀</i> {{ $t('aiAgent.actions.deployAgent', 'Deploy Agent') }}
+                  <button class="btn btn-primary" @click="testWorkflow">
+            <i class="icon">🧪</i> {{ $t('aiAgent.workflow.toolbar.testWorkflow', 'Test Workflow') }}
+          </button>
+          <button class="btn btn-success" @click="deployWorkflow">
+            <i class="icon">🚀</i> {{ $t('aiAgent.workflow.toolbar.deployWorkflow', 'Deploy Workflow') }}
         </button>
       </div>
     </div>
@@ -38,8 +38,8 @@
           >
             <div class="tab-icon">{{ tab.icon }}</div>
             <div class="tab-content">
-              <div class="tab-title">{{ tab.title }}</div>
-              <div class="tab-description">{{ tab.description }}</div>
+              <div class="tab-title">{{ getTabTitle(tab.id) }}</div>
+              <div class="tab-description">{{ getTabDescription(tab.id) }}</div>
             </div>
             <div class="tab-indicator" v-if="tab.hasContent"></div>
           </div>
@@ -48,141 +48,8 @@
 
       <!-- Right editing area -->
       <div class="editor-area">
-        <!-- Basic information editing -->
-        <div v-if="activeTab === 'basic'" class="editor-content">
-          <div class="section-header">
-            <h3>Basic Information</h3>
-            <p>Configure Agent's basic properties and identity information</p>
-          </div>
-          
-          <div class="form-section">
-            <div class="form-group">
-              <label>Agent Name</label>
-              <input 
-                v-model="currentAgent.name" 
-                type="text" 
-                placeholder="Give your Agent a name"
-                class="form-input"
-              />
-            </div>
-            
-            <div class="form-group">
-              <label>Agent Description</label>
-              <textarea 
-                v-model="currentAgent.description" 
-                placeholder="Briefly describe your Agent's features and purpose"
-                class="form-textarea"
-                rows="3"
-              ></textarea>
-            </div>
-          </div>
-        </div>
-
-        <!-- Prompt editor -->
-        <div v-else-if="activeTab === 'prompt'" class="editor-content">
-          <div class="section-header">
-            <h3>Prompt Builder</h3>
-            <p>Design Agent's core prompts and behavior patterns</p>
-          </div>
-          
-          <div class="prompt-editor">
-            <div class="prompt-toolbar">
-              <button class="btn btn-sm">System Prompt</button>
-              <button class="btn btn-sm btn-outline">Few-shot Examples</button>
-              <button class="btn btn-sm btn-outline">Insert Variables</button>
-            </div>
-            
-            <div class="prompt-content">
-              <textarea 
-                v-model="currentAgent.systemPrompt"
-                placeholder="Write system prompt here to define Agent's role, capabilities and behavior guidelines..."
-                class="prompt-textarea"
-                rows="12"
-              ></textarea>
-            </div>
-            
-            <div class="prompt-examples">
-              <h4>Few-shot Examples</h4>
-              <div v-for="(example, index) in currentAgent.examples" :key="index" class="example-item">
-                <div class="example-header">
-                  <span>Example {{ index + 1 }}</span>
-                  <button @click="removeExample(index)" class="btn-remove">×</button>
-                </div>
-                <div class="example-pair">
-                  <div class="example-input">
-                    <label>User Input</label>
-                    <input v-model="example.input" placeholder="User might ask this..." />
-                  </div>
-                  <div class="example-output">
-                    <label>Expected Response</label>
-                    <input v-model="example.output" placeholder="Agent should respond like this..." />
-                  </div>
-                </div>
-              </div>
-              <button @click="addExample" class="btn btn-outline btn-sm">+ Add Example</button>
-            </div>
-          </div>
-        </div>
-
-        <!-- Knowledge base configuration -->
-        <div v-else-if="activeTab === 'knowledge'" class="editor-content">
-          <div class="section-header">
-            <h3>Knowledge Base Configuration</h3>
-            <p>Upload documents and configure external APIs to provide professional knowledge for Agent</p>
-          </div>
-          
-          <div class="knowledge-sections">
-            <div class="knowledge-section">
-              <h4>📄 Document Upload</h4>
-              <div class="upload-area">
-                <div class="upload-zone" @click="uploadDocument">
-                  <div class="upload-icon">📁</div>
-                  <p>Click to upload documents</p>
-                  <small>Supports PDF, TXT, DOCX, MD formats</small>
-                </div>
-              </div>
-              <div class="document-list">
-                <div v-for="doc in currentAgent.documents" :key="doc.id" class="document-item">
-                  <div class="doc-icon">📄</div>
-                  <div class="doc-info">
-                    <div class="doc-name">{{ doc.name }}</div>
-                    <div class="doc-meta">{{ doc.size }} · {{ doc.uploadTime }}</div>
-                  </div>
-                  <div class="doc-actions">
-                    <button class="btn-icon">✏️</button>
-                    <button class="btn-icon">🗑️</button>
-                  </div>
-                </div>
-              </div>
-            </div>
-            
-            <div class="knowledge-section">
-              <h4>🔗 API Integration</h4>
-              <div class="api-config">
-                <div class="form-group">
-                  <label>API Name</label>
-                  <input type="text" placeholder="Give API a name" class="form-input" />
-                </div>
-                <div class="form-group">
-                  <label>API Endpoint</label>
-                  <input type="url" placeholder="https://api.example.com/v1" class="form-input" />
-                </div>
-                <div class="form-group">
-                  <label>Authentication</label>
-                  <select class="form-select">
-                    <option>API Key</option>
-                    <option>Bearer Token</option>
-                    <option>Basic Auth</option>
-                  </select>
-                </div>
-                <button class="btn btn-primary btn-sm">Test Connection</button>
-              </div>
-            </div>
-          </div>
-        </div>
-
-        <!-- Conversation flow editing -->
-        <div v-else-if="activeTab === 'workflow'" class="editor-content workflow-container">
+        <!-- DAG workflow editing -->
+        <div v-if="activeTab === 'workflow'" class="editor-content workflow-container">
           <div class="workflow-main">
             <!-- 左侧工具栏 -->
             <div class="workflow-sidebar">
@@ -193,24 +60,10 @@
                   <div class="palette-category">
                     <h5 class="category-title">{{ $t('aiAgent.workflow.controlNodes', '控制节点') }}</h5>
                     <div class="palette-nodes">
-                      <div class="palette-node" draggable="true" @dragstart="onDragStart($event, 'start')">
-                        <div class="node-icon">🚀</div>
-                        <div class="node-info">
-                          <span class="node-name">Start</span>
-                          <span class="node-desc">{{ $t('aiAgent.workflow.startDesc', '工作流开始') }}</span>
-                        </div>
-                      </div>
-                      <div class="palette-node" draggable="true" @dragstart="onDragStart($event, 'end')">
-                        <div class="node-icon">✅</div>
-                        <div class="node-info">
-                          <span class="node-name">End</span>
-                          <span class="node-desc">{{ $t('aiAgent.workflow.endDesc', '工作流结束') }}</span>
-                        </div>
-                      </div>
                       <div class="palette-node" draggable="true" @dragstart="onDragStart($event, 'condition')">
                         <div class="node-icon">❓</div>
                         <div class="node-info">
-                          <span class="node-name">Condition</span>
+                          <span class="node-name">{{ $t('aiAgent.workflow.conditionNode', 'Condition') }}</span>
                           <span class="node-desc">{{ $t('aiAgent.workflow.conditionDesc', '条件判断') }}</span>
                         </div>
                       </div>
@@ -224,45 +77,39 @@
                       <div class="palette-node" draggable="true" @dragstart="onDragStart($event, 'LLM')">
                         <div class="node-icon">🧠</div>
                         <div class="node-info">
-                          <span class="node-name">LLM</span>
+                          <span class="node-name">{{ $t('aiAgent.workflow.llmNode', 'LLM') }}</span>
                           <span class="node-desc">{{ $t('aiAgent.workflow.llmDesc', '大语言模型') }}</span>
                         </div>
                       </div>
                       <div class="palette-node" draggable="true" @dragstart="onDragStart($event, 'STT')">
                         <div class="node-icon">🎤</div>
                         <div class="node-info">
-                          <span class="node-name">STT</span>
+                          <span class="node-name">{{ $t('aiAgent.workflow.sttNode', 'STT') }}</span>
                           <span class="node-desc">{{ $t('aiAgent.workflow.sttDesc', '语音转文字') }}</span>
                         </div>
                       </div>
                       <div class="palette-node" draggable="true" @dragstart="onDragStart($event, 'TTS')">
                         <div class="node-icon">🔊</div>
                         <div class="node-info">
-                          <span class="node-name">TTS</span>
+                          <span class="node-name">{{ $t('aiAgent.workflow.ttsNode', 'TTS') }}</span>
                           <span class="node-desc">{{ $t('aiAgent.workflow.ttsDesc', '文字转语音') }}</span>
                         </div>
                       </div>
                       <div class="palette-node" draggable="true" @dragstart="onDragStart($event, 'pic2text')">
                         <div class="node-icon">🖼️</div>
                         <div class="node-info">
-                          <span class="node-name">Pic2Text</span>
+                          <span class="node-name">{{ $t('aiAgent.workflow.pic2textNode', 'Pic2Text') }}</span>
                           <span class="node-desc">{{ $t('aiAgent.workflow.pic2textDesc', '图片转文字') }}</span>
                         </div>
                       </div>
                       <div class="palette-node" draggable="true" @dragstart="onDragStart($event, 'text2pic')">
                         <div class="node-icon">🎨</div>
                         <div class="node-info">
-                          <span class="node-name">Text2Pic</span>
+                          <span class="node-name">{{ $t('aiAgent.workflow.text2picNode', 'Text2Pic') }}</span>
                           <span class="node-desc">{{ $t('aiAgent.workflow.text2picDesc', '文字转图片') }}</span>
                         </div>
                       </div>
-                      <div class="palette-node" draggable="true" @dragstart="onDragStart($event, 'browse')">
-                        <div class="node-icon">🌐</div>
-                        <div class="node-info">
-                          <span class="node-name">Browse</span>
-                          <span class="node-desc">网页浏览与内容提取</span>
-                        </div>
-                      </div>
+
                     </div>
                   </div>
 
@@ -273,14 +120,14 @@
                       <div class="palette-node" draggable="true" @dragstart="onDragStart($event, 'process')">
                         <div class="node-icon">⚙️</div>
                         <div class="node-info">
-                          <span class="node-name">Process</span>
+                          <span class="node-name">{{ $t('aiAgent.workflow.processNode', 'Process') }}</span>
                           <span class="node-desc">{{ $t('aiAgent.workflow.processDesc', '数据处理') }}</span>
                         </div>
                       </div>
                       <div class="palette-node" draggable="true" @dragstart="onDragStart($event, 'transform')">
                         <div class="node-icon">🔄</div>
                         <div class="node-info">
-                          <span class="node-name">Transform</span>
+                          <span class="node-name">{{ $t('aiAgent.workflow.transformNode', 'Transform') }}</span>
                           <span class="node-desc">{{ $t('aiAgent.workflow.transformDesc', '数据转换') }}</span>
                         </div>
                       </div>
@@ -293,35 +140,46 @@
             <!-- 中央画布区域 -->
             <div class="workflow-canvas-container">
               <div class="canvas-header">
-                <h3>{{ currentAgent.name || 'AI Agent' }} - Workflow Designer</h3>
+                <h3>{{ currentWorkflow.name || $t('aiAgent.workflow.toolbar.dagWorkflow', 'DAG Workflow') }} - {{ $t('aiAgent.workflow.toolbar.designer', 'Designer') }}</h3>
                 <div class="canvas-toolbar">
                   <!-- 缩放控制 -->
-                  <div class="zoom-controls">
-                    <button class="btn btn-icon" @click="zoomOut" :disabled="canvasScale <= 0.25" title="缩小">
-                      <i class="icon">🔍-</i>
+                  <div class="zoom-controls-compact">
+                    <button class="zoom-btn-mini" @click="zoomOut" :disabled="canvasScale <= 0.25" title="缩小">
+                      <svg width="10" height="10" viewBox="0 0 16 16" fill="currentColor">
+                        <path d="M5 7h6v2H5V7z"/>
+                      </svg>
                     </button>
-                    <span class="zoom-level">{{ Math.round(canvasScale * 100) }}%</span>
-                    <button class="btn btn-icon" @click="zoomIn" :disabled="canvasScale >= 3" title="放大">
-                      <i class="icon">🔍+</i>
-                    </button>
-                    <button class="btn btn-icon" @click="resetZoom" title="重置缩放">
-                      <i class="icon">⌂</i>
-                    </button>
-                    <button class="btn btn-icon" @click="fitToScreen" title="适合屏幕">
-                      <i class="icon">📐</i>
+                    
+                    <div class="zoom-mini-display" @click="resetZoom" title="点击重置到100%">
+                      <span class="zoom-mini-text">{{ Math.round(canvasScale * 100) }}%</span>
+                    </div>
+                    
+                    <button class="zoom-btn-mini" @click="zoomIn" :disabled="canvasScale >= 3" title="放大">
+                      <svg width="10" height="10" viewBox="0 0 16 16" fill="currentColor">
+                        <path d="M5 7h6v2H5V7z"/>
+                        <path d="M7 5h2v6H7V5z"/>
+                      </svg>
                     </button>
                   </div>
                   
                   <!-- 操作按钮 -->
-                  <div class="canvas-actions">
-                    <button class="btn btn-sm btn-outline" @click="clearCanvas">
-                      <i class="icon">🗑️</i> Clear
+                  <div class="canvas-actions-compact">
+                    <button class="action-btn-mini" @click="clearCanvas" title="清空">
+                      <svg width="14" height="14" viewBox="0 0 16 16" fill="currentColor">
+                        <path d="M5.5 5.5A.5.5 0 0 1 6 6v6a.5.5 0 0 1-1 0V6a.5.5 0 0 1 .5-.5zm2.5 0a.5.5 0 0 1 .5.5v6a.5.5 0 0 1-1 0V6a.5.5 0 0 1 .5-.5zm3 .5a.5.5 0 0 0-1 0v6a.5.5 0 0 0 1 0V6z"/>
+                        <path fill-rule="evenodd" d="M14.5 3a1 1 0 0 1-1 1H13v9a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V4h-.5a1 1 0 0 1-1-1V2a1 1 0 0 1 1-1H6a1 1 0 0 1 1-1h2a1 1 0 0 1 1 1h3.5a1 1 0 0 1 1 1v1zM4.118 4 4 4.059V13a1 1 0 0 0 1 1h6a1 1 0 0 0 1-1V4.059L11.882 4H4.118zM2.5 3V2h11v1h-11z"/>
+                      </svg>
                     </button>
-                    <button class="btn btn-sm btn-secondary" @click="saveWorkflow">
-                      <i class="icon">💾</i> Save
+                    <button class="action-btn-mini" @click="saveWorkflow" title="保存">
+                      <svg width="14" height="14" viewBox="0 0 16 16" fill="currentColor">
+                        <path d="M2 1a1 1 0 0 0-1 1v12a1 1 0 0 0 1 1h12a1 1 0 0 0 1-1V2a1 1 0 0 0-1-1H9.5a1 1 0 0 0-1 1v7.293l2.646-2.647a.5.5 0 0 1 .708.708l-3.5 3.5a.5.5 0 0 1-.708 0l-3.5-3.5a.5.5 0 1 1 .708-.708L7.5 9.293V2a2 2 0 0 1 2-2H14a2 2 0 0 1 2 2v12a2 2 0 0 1-2 2H2a2 2 0 0 1-2-2V2a2 2 0 0 1 2-2h2.5a.5.5 0 0 1 0 1H2z"/>
+                      </svg>
                     </button>
-                    <button class="btn btn-sm btn-info" @click="showKeyboardShortcuts">
-                      <i class="icon">⌨️</i> 快捷键
+                    <button class="action-btn-mini" @click="showKeyboardShortcuts" title="快捷键">
+                      <svg width="14" height="14" viewBox="0 0 16 16" fill="currentColor">
+                        <path d="M14 5a1 1 0 0 1 1 1v5a1 1 0 0 1-1 1H2a1 1 0 0 1-1-1V6a1 1 0 0 1 1-1h12zM2 4a2 2 0 0 0-2 2v5a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V6a2 2 0 0 0-2-2H2z"/>
+                        <path d="M13 10.25a.25.25 0 0 1 .25-.25h.5a.25.25 0 0 1 .25.25v.5a.25.25 0 0 1-.25.25h-.5a.25.25 0 0 1-.25-.25v-.5zm0-2a.25.25 0 0 1 .25-.25h.5a.25.25 0 0 1 .25.25v.5a.25.25 0 0 1-.25.25h-.5a.25.25 0 0 1-.25-.25v-.5zm-5 0A.25.25 0 0 1 8.25 8h.5a.25.25 0 0 1 .25.25v.5a.25.25 0 0 1-.25.25h-.5A.25.25 0 0 1 8 8.75v-.5zm2 0a.25.25 0 0 1 .25-.25A.25.25 0 0 1 10.5 8v.5a.25.25 0 0 1-.25.25.25.25 0 0 1-.25-.25v-.5zm1 0A.25.25 0 0 1 11.25 8h.5a.25.25 0 0 1 .25.25v.5a.25.25 0 0 1-.25.25h-.5a.25.25 0 0 1-.25-.25v-.5zm-5 2A.25.25 0 0 1 6.25 10h.5a.25.25 0 0 1 .25.25v.5a.25.25 0 0 1-.25.25h-.5a.25.25 0 0 1-.25-.25v-.5zm-2 0A.25.25 0 0 1 4.25 10h.5a.25.25 0 0 1 .25.25v.5a.25.25 0 0 1-.25.25h-.5a.25.25 0 0 1-.25-.25v-.5zm-2 0A.25.25 0 0 1 2.25 10h.5a.25.25 0 0 1 .25.25v.5a.25.25 0 0 1-.25.25h-.5a.25.25 0 0 1-.25-.25v-.5zm11-2A.25.25 0 0 1 12.25 8h.5a.25.25 0 0 1 .25.25v.5a.25.25 0 0 1-.25.25h-.5a.25.25 0 0 1-.25-.25v-.5zm-2 0A.25.25 0 0 1 10.25 8h.5a.25.25 0 0 1 .25.25v.5a.25.25 0 0 1-.25.25h-.5a.25.25 0 0 1-.25-.25v-.5zm-2 0A.25.25 0 0 1 8.25 8h.5a.25.25 0 0 1 .25.25v.5a.25.25 0 0 1-.25.25h-.5A.25.25 0 0 1 8 8.75v-.5zm-2 0A.25.25 0 0 1 6.25 8h.5a.25.25 0 0 1 .25.25v.5a.25.25 0 0 1-.25.25h-.5A.25.25 0 0 1 6 8.75v-.5zm-2 0A.25.25 0 0 1 4.25 8h.5a.25.25 0 0 1 .25.25v.5a.25.25 0 0 1-.25.25h-.5A.25.25 0 0 1 4 8.75v-.5zm-2 0A.25.25 0 0 1 2.25 8h.5a.25.25 0 0 1 .25.25v.5a.25.25 0 0 1-.25.25h-.5A.25.25 0 0 1 2 8.75v-.5z"/>
+                      </svg>
                     </button>
                   </div>
                 </div>
@@ -429,9 +287,6 @@
                   <div class="node-body">
                     <div class="node-description">{{ node.description }}</div>
                     
-                    <!-- 服务类型标签 -->
-                    <div v-if="node.service" class="node-service">{{ node.service }}</div>
-                    
                     <!-- 提示词预览 -->
                     <div v-if="node.prompt" class="node-prompt" :title="node.prompt">
                       {{ node.prompt.length > 50 ? node.prompt.substring(0, 50) + '...' : node.prompt }}
@@ -439,7 +294,7 @@
                     
                     <!-- 输入端口 -->
                     <div v-if="node.inputs && node.inputs.length > 0" class="node-inputs">
-                      <div class="port-label">🔽 输入:</div>
+                      <div class="port-label">{{ $t('aiAgent.workflow.inputPortsLabel', '🔽 输入:') }}</div>
                       <div v-for="input in node.inputs" :key="input.name" class="input-port">
                         <span class="port-name">{{ input.name }}</span>
                         <span class="port-type">{{ input.type }}</span>
@@ -448,7 +303,7 @@
                     
                     <!-- 输出端口 -->
                     <div v-if="node.outputs && node.outputs.length > 0" class="node-outputs">
-                      <div class="port-label">🔼 输出:</div>
+                      <div class="port-label">{{ $t('aiAgent.workflow.outputPortsLabel', '🔼 输出:') }}</div>
                       <div v-for="output in node.outputs" :key="output.name" class="output-port">
                         <span class="port-name">{{ output.name }}</span>
                         <span class="port-type">{{ output.type }}</span>
@@ -464,23 +319,21 @@
                   
                   <!-- 连接点 -->
                   <div class="connection-points">
-                    <div v-if="node.type !== 'start'" 
-                         class="connection-point input-point"
+                    <div class="connection-point input-point"
                          @mousedown.stop="startConnectionDrag(node, 'input', $event)"
                          @mouseup.stop="endConnectionDrag(node, 'input', $event)"
                          @mouseover="highlightConnectionPoint(node, 'input')"
                          @mouseleave="clearConnectionPointHighlight(node, 'input')"
-                         title="按住拖拽创建连接">
-                      <span class="connection-point-label">IN</span>
+                         :title="$t('aiAgent.workflow.shortcuts.dragToConnect', '按住拖拽创建连接')">
+                      <span class="connection-point-label">{{ $t('aiAgent.workflow.inputPort', 'IN') }}</span>
                     </div>
-                    <div v-if="node.type !== 'end'" 
-                         class="connection-point output-point"
+                    <div class="connection-point output-point"
                          @mousedown.stop="startConnectionDrag(node, 'output', $event)"
                          @mouseup.stop="endConnectionDrag(node, 'output', $event)"
                          @mouseover="highlightConnectionPoint(node, 'output')"
                          @mouseleave="clearConnectionPointHighlight(node, 'output')"
-                         title="按住拖拽创建连接">
-                      <span class="connection-point-label">OUT</span>
+                         :title="$t('aiAgent.workflow.shortcuts.dragToConnect', '按住拖拽创建连接')">
+                      <span class="connection-point-label">{{ $t('aiAgent.workflow.outputPort', 'OUT') }}</span>
                     </div>
                   </div>
                 </div>
@@ -495,7 +348,7 @@
                 <div class="canvas-stats">
                   <span>{{ $t('aiAgent.workflow.nodes', '节点') }}: {{ workflowNodes.length }}</span>
                   <span>{{ $t('aiAgent.workflow.connections', '连接') }}: {{ connections.length }}</span>
-                  <span>{{ $t('aiAgent.workflow.status', '状态') }}: {{ workflowStatus }}</span>
+                  <span>{{ $t('aiAgent.workflow.status', '状态') }}: {{ getTranslatedStatus(workflowStatus) }}</span>
                 </div>
                 <div class="canvas-controls">
                   <button class="btn btn-outline btn-sm" @click="clearCanvas">
@@ -515,8 +368,47 @@
             </div>
             
             <!-- 右侧配置面板 -->
+            <!-- 空状态提示 -->
+            <div class="workflow-config-panel" v-if="!selectedNode && !selectedConnection">
+              <div class="config-header">
+                <h4>{{ $t('aiAgent.workflow.configurationPanel', '配置面板') }}</h4>
+              </div>
+              
+              <div class="config-content">
+                <div class="empty-config-state">
+                  <div class="empty-config-icon">⚙️</div>
+                  <h4>{{ $t('aiAgent.workflow.selectNodeToConfig', '选择节点进行配置') }}</h4>
+                  <p>{{ $t('aiAgent.workflow.configInstructions', '请按照以下步骤操作：') }}</p>
+                  <ol class="config-steps">
+                    <li>{{ $t('aiAgent.workflow.step1', '从左侧拖拽节点到画布') }}</li>
+                    <li><strong>{{ $t('aiAgent.workflow.step2', '点击节点进行选择') }}</strong> - 点击节点本身，不是连接点</li>
+                    <li>{{ $t('aiAgent.workflow.step3', '在此处配置节点参数') }}</li>
+                    <li><strong>{{ $t('aiAgent.workflow.step4', '设置输入数据（文字、图片等）') }}</strong> - 在下方"输入数据配置"中输入</li>
+                  </ol>
+                  <div class="config-tips">
+                    <div class="tip-item">
+                      <span class="tip-icon">💡</span>
+                      <span>{{ $t('aiAgent.workflow.tip1', 'LLM节点支持直接输入文字或上传图片') }}</span>
+                    </div>
+                    <div class="tip-item">
+                      <span class="tip-icon">📝</span>
+                      <span><strong>输入文字位置：</strong>选择节点后，向下滚动找到"输入数据配置"部分</span>
+                    </div>
+                    <div class="tip-item">
+                      <span class="tip-icon">🔗</span>
+                      <span>{{ $t('aiAgent.workflow.tip2', '拖拽节点连接点可以创建数据流') }}</span>
+                    </div>
+                    <div class="tip-item">
+                      <span class="tip-icon">⚡</span>
+                      <span>{{ $t('aiAgent.workflow.tip3', '配置完成后可以测试和部署工作流') }}</span>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+            
             <!-- 节点配置面板 -->
-            <div class="workflow-config-panel" v-if="selectedNode">
+            <div class="workflow-config-panel" v-else-if="selectedNode">
               <div class="config-header">
                 <h4>{{ $t('aiAgent.workflow.nodeConfiguration', '节点配置') }}</h4>
                 <button class="btn-close" @click="deselectNode">×</button>
@@ -565,10 +457,10 @@
                 <div v-if="selectedNodeData.service === 'LLM'" class="config-section">
                   <label>{{ $t('aiAgent.workflow.llmModel', 'LLM模型') }}</label>
                   <select v-model="selectedNodeData.model" class="form-select">
-                    <option value="gpt-4">GPT-4</option>
-                    <option value="gpt-3.5-turbo">GPT-3.5 Turbo</option>
-                    <option value="claude-3">Claude-3</option>
-                    <option value="llama-2">Llama-2</option>
+                    <option value="gpt-4">{{ $t('aiAgent.workflow.models.gpt4', 'GPT-4') }}</option>
+                    <option value="gpt-3.5-turbo">{{ $t('aiAgent.workflow.models.gpt35turbo', 'GPT-3.5 Turbo') }}</option>
+                    <option value="claude-3">{{ $t('aiAgent.workflow.models.claude3', 'Claude-3') }}</option>
+                    <option value="llama-2">{{ $t('aiAgent.workflow.models.llama2', 'Llama-2') }}</option>
                   </select>
                 </div>
 
@@ -590,7 +482,7 @@
                 </div>
 
                 <div v-if="selectedNodeData.service === 'LLM'" class="config-section">
-                  <label>最大Token数</label>
+                  <label>{{ $t('aiAgent.workflow.labels.maxTokens', '最大Token数') }}</label>
                   <input 
                     v-model.number="selectedNodeData.max_tokens" 
                     type="number" 
@@ -602,7 +494,7 @@
                 </div>
 
                 <div v-if="selectedNodeData.service === 'LLM'" class="config-section">
-                  <label>Top P</label>
+                  <label>{{ $t('aiAgent.workflow.labels.topP', 'Top P') }}</label>
                   <input 
                     v-model.number="selectedNodeData.top_p" 
                     type="range" 
@@ -660,18 +552,18 @@
                     rows="2" 
                     placeholder="输入停止序列，用换行分隔，例如：&#10;###&#10;---"
                   ></textarea>
-                  <small class="config-help">LLM遇到这些序列时将停止生成，每行一个序列</small>
+                  <small class="config-help">{{ $t('aiAgent.workflow.helpTexts.stopSequences', 'LLM遇到这些序列时将停止生成，每行一个序列') }}</small>
                 </div>
 
                 <div v-if="selectedNodeData.service === 'LLM'" class="config-section">
-                  <label>用户标识</label>
+                  <label>{{ $t('aiAgent.workflow.labels.userIdentifier', '用户标识') }}</label>
                   <input 
                     v-model="selectedNodeData.user" 
                     type="text" 
                     class="form-input"
                     placeholder="用于识别用户的唯一标识"
                   >
-                  <small class="config-help">用于监控和防滥用，建议使用UUID</small>
+                  <small class="config-help">{{ $t('aiAgent.workflow.helpTexts.userIdForMonitoring', '用于监控和防滥用，建议使用UUID') }}</small>
                 </div>
 
                 <div v-if="selectedNodeData.service === 'LLM'" class="config-section">
@@ -700,34 +592,34 @@
                 <div v-if="selectedNodeData.service === 'TTS'" class="config-section">
                   <label>{{ $t('aiAgent.workflow.voiceType', '语音类型') }}</label>
                   <select v-model="selectedNodeData.voice" class="form-select">
-                    <option value="alloy">Alloy</option>
-                    <option value="echo">Echo</option>
-                    <option value="fable">Fable</option>
-                    <option value="onyx">Onyx</option>
-                    <option value="nova">Nova</option>
-                    <option value="shimmer">Shimmer</option>
+                    <option value="alloy">{{ $t('aiAgent.workflow.voices.alloy', 'Alloy') }}</option>
+                    <option value="echo">{{ $t('aiAgent.workflow.voices.echo', 'Echo') }}</option>
+                    <option value="fable">{{ $t('aiAgent.workflow.voices.fable', 'Fable') }}</option>
+                    <option value="onyx">{{ $t('aiAgent.workflow.voices.onyx', 'Onyx') }}</option>
+                    <option value="nova">{{ $t('aiAgent.workflow.voices.nova', 'Nova') }}</option>
+                    <option value="shimmer">{{ $t('aiAgent.workflow.voices.shimmer', 'Shimmer') }}</option>
                   </select>
                 </div>
 
                 <div v-if="selectedNodeData.service === 'TTS'" class="config-section">
-                  <label>TTS模型</label>
+                  <label>{{ $t('aiAgent.workflow.labels.ttsModel', 'TTS模型') }}</label>
                   <select v-model="selectedNodeData.model" class="form-select">
-                    <option value="tts-1">TTS-1</option>
-                    <option value="tts-1-hd">TTS-1-HD</option>
+                    <option value="tts-1">{{ $t('aiAgent.workflow.models.tts1', 'TTS-1') }}</option>
+                    <option value="tts-1-hd">{{ $t('aiAgent.workflow.models.tts1hd', 'TTS-1-HD') }}</option>
                   </select>
                 </div>
 
                 <div v-if="selectedNodeData.service === 'TTS'" class="config-section">
-                  <label>音频格式</label>
+                  <label>{{ $t('aiAgent.workflow.labels.audioFormat', '音频格式') }}</label>
                   <select v-model="selectedNodeData.response_format" class="form-select">
-                    <option value="mp3">MP3</option>
-                    <option value="opus">Opus</option>
-                    <option value="aac">AAC</option>
-                    <option value="flac">FLAC</option>
-                    <option value="wav">WAV</option>
-                    <option value="pcm">PCM</option>
+                    <option value="mp3">{{ $t('aiAgent.workflow.formats.mp3', 'MP3') }}</option>
+                    <option value="opus">{{ $t('aiAgent.workflow.formats.opus', 'Opus') }}</option>
+                    <option value="aac">{{ $t('aiAgent.workflow.formats.aac', 'AAC') }}</option>
+                    <option value="flac">{{ $t('aiAgent.workflow.formats.flac', 'FLAC') }}</option>
+                    <option value="wav">{{ $t('aiAgent.workflow.formats.wav', 'WAV') }}</option>
+                    <option value="pcm">{{ $t('aiAgent.workflow.formats.pcm', 'PCM') }}</option>
                   </select>
-                  <small class="config-help">选择音频输出格式，影响文件大小和质量</small>
+                  <small class="config-help">{{ $t('aiAgent.workflow.helpTexts.audioFormatHelp', '选择音频输出格式，影响文件大小和质量') }}</small>
                 </div>
 
                 <div v-if="selectedNodeData.service === 'TTS'" class="config-section">
@@ -935,145 +827,78 @@
                   <small class="config-help">选择图片返回格式</small>
                 </div>
 
-                <!-- Browse特有配置 -->
-                <div v-if="selectedNodeData.service === 'browse'" class="config-section">
-                  <label>强制爬取</label>
-                  <input 
-                    v-model="selectedNodeData.enforce_crawl" 
-                    type="checkbox" 
-                    class="form-checkbox"
-                  >
-                </div>
 
-                <div v-if="selectedNodeData.service === 'browse'" class="config-section">
-                  <label>插件名称</label>
-                  <input 
-                    v-model="selectedNodeData.plugin_name" 
-                    type="text" 
-                    class="form-input"
-                    placeholder="plugin_observation"
-                  >
-                </div>
-
-                <div v-if="selectedNodeData.service === 'browse'" class="config-section">
-                  <label>超时时间(ms)</label>
-                  <input 
-                    v-model.number="selectedNodeData.timeout" 
-                    type="number" 
-                    min="1000" 
-                    max="60000" 
-                    class="form-input"
-                    placeholder="30000"
-                  >
-                  <small class="config-help">网页加载的最大等待时间</small>
-                </div>
-
-                <div v-if="selectedNodeData.service === 'browse'" class="config-section">
-                  <label>用户代理</label>
-                  <select v-model="selectedNodeData.user_agent" class="form-select">
-                    <option value="default">默认浏览器</option>
-                    <option value="chrome">Chrome浏览器</option>
-                    <option value="firefox">Firefox浏览器</option>
-                    <option value="safari">Safari浏览器</option>
-                    <option value="mobile">移动设备</option>
-                  </select>
-                  <small class="config-help">模拟不同浏览器访问网页</small>
-                </div>
-
-                <div v-if="selectedNodeData.service === 'browse'" class="config-section">
-                  <label>等待加载</label>
-                  <input 
-                    v-model.number="selectedNodeData.wait_for_load" 
-                    type="number" 
-                    min="0" 
-                    max="10000" 
-                    class="form-input"
-                    placeholder="2000"
-                  >
-                  <small class="config-help">等待页面完全加载的时间(ms)</small>
-                </div>
-
-                <div v-if="selectedNodeData.service === 'browse'" class="config-section">
-                  <label>提取模式</label>
-                  <select v-model="selectedNodeData.extract_mode" class="form-select">
-                    <option value="text">纯文本</option>
-                    <option value="html">HTML源码</option>
-                    <option value="markdown">Markdown格式</option>
-                    <option value="structured">结构化数据</option>
-                  </select>
-                  <small class="config-help">选择内容提取的格式</small>
-                </div>
 
                 <!-- 条件节点配置 -->
                 <div v-if="selectedNodeData.type === 'condition'" class="config-section">
                   <label>{{ $t('aiAgent.workflow.conditionExpression', '条件表达式') }}</label>
                   <input v-model="selectedNodeData.condition" type="text" class="form-input" :placeholder="$t('aiAgent.workflow.conditionPlaceholder', '例如：result.length > 0')">
-                  <small class="config-help">支持JavaScript表达式，可使用变量名引用输入数据</small>
+                  <small class="config-help">{{ $t('aiAgent.workflow.jsExpressionHelp', '支持JavaScript表达式，可使用变量名引用输入数据') }}</small>
                 </div>
 
                 <!-- 通用节点配置 -->
-                <div v-if="selectedNodeData.type !== 'start' && selectedNodeData.type !== 'end'" class="config-section">
-                  <h5>通用配置</h5>
+                <div class="config-section">
+                  <h5>{{ $t('aiAgent.workflow.generalConfig', '通用配置') }}</h5>
                   
                   <div class="config-subsection">
-                    <label>重试次数</label>
+                    <label>{{ $t('aiAgent.workflow.retryCount', '重试次数') }}</label>
                     <input 
                       v-model.number="selectedNodeData.retry_count" 
                       type="number" 
                       min="0" 
                       max="5" 
                       class="form-input"
-                      placeholder="3"
+                      :placeholder="$t('aiAgent.workflow.retryCountPlaceholder', '3')"
                     >
-                    <small class="config-help">节点执行失败时的重试次数</small>
+                    <small class="config-help">{{ $t('aiAgent.workflow.retryCountHelp', '节点执行失败时的重试次数') }}</small>
                   </div>
 
                   <div class="config-subsection">
-                    <label>重试间隔(ms)</label>
+                    <label>{{ $t('aiAgent.workflow.retryInterval', '重试间隔(ms)') }}</label>
                     <input 
                       v-model.number="selectedNodeData.retry_delay" 
                       type="number" 
                       min="100" 
                       max="10000" 
                       class="form-input"
-                      placeholder="1000"
+                      :placeholder="$t('aiAgent.workflow.retryIntervalPlaceholder', '1000')"
                     >
-                    <small class="config-help">每次重试之间的等待时间</small>
+                    <small class="config-help">{{ $t('aiAgent.workflow.retryIntervalHelp', '每次重试之间的等待时间') }}</small>
                   </div>
 
                   <div class="config-subsection">
-                    <label>超时时间(s)</label>
+                    <label>{{ $t('aiAgent.workflow.executionTimeout', '超时时间(s)') }}</label>
                     <input 
                       v-model.number="selectedNodeData.execution_timeout" 
                       type="number" 
                       min="1" 
                       max="300" 
                       class="form-input"
-                      placeholder="30"
+                      :placeholder="$t('aiAgent.workflow.executionTimeoutPlaceholder', '30')"
                     >
-                    <small class="config-help">节点执行的最大等待时间</small>
+                    <small class="config-help">{{ $t('aiAgent.workflow.executionTimeoutHelp', '节点执行的最大等待时间') }}</small>
                   </div>
 
                   <div class="config-subsection">
-                    <label>错误处理</label>
+                    <label>{{ $t('aiAgent.workflow.errorHandling', '错误处理') }}</label>
                     <select v-model="selectedNodeData.error_handling" class="form-select">
-                      <option value="stop">停止工作流</option>
-                      <option value="continue">继续执行</option>
-                      <option value="retry">重试执行</option>
-                      <option value="fallback">使用备用值</option>
+                      <option value="stop">{{ $t('aiAgent.workflow.errorHandlingOptions.stop', '停止工作流') }}</option>
+                      <option value="continue">{{ $t('aiAgent.workflow.errorHandlingOptions.continue', '继续执行') }}</option>
+                      <option value="retry">{{ $t('aiAgent.workflow.errorHandlingOptions.retry', '重试执行') }}</option>
+                      <option value="fallback">{{ $t('aiAgent.workflow.errorHandlingOptions.fallback', '使用备用值') }}</option>
                     </select>
-                    <small class="config-help">选择错误发生时的处理方式</small>
+                    <small class="config-help">{{ $t('aiAgent.workflow.errorHandlingHelp', '选择错误发生时的处理方式') }}</small>
                   </div>
 
                   <div v-if="selectedNodeData.error_handling === 'fallback'" class="config-subsection">
-                    <label>备用值</label>
+                    <label>{{ $t('aiAgent.workflow.fallbackValue', '备用值') }}</label>
                     <textarea 
                       v-model="selectedNodeData.fallback_value" 
                       class="form-textarea" 
                       rows="2" 
-                      placeholder="错误时使用的默认值"
+                      :placeholder="$t('aiAgent.workflow.fallbackValuePlaceholder', '错误时使用的默认值')"
                     ></textarea>
-                    <small class="config-help">当节点执行失败时使用的备用值</small>
+                    <small class="config-help">{{ $t('aiAgent.workflow.fallbackValueHelp', '当节点执行失败时使用的备用值') }}</small>
                   </div>
                 </div>
 
@@ -1085,13 +910,13 @@
                     <div class="io-section">
                       <label>{{ $t('aiAgent.workflow.inputPorts', '输入端口') }}</label>
                       <div v-for="(input, index) in selectedNodeData.inputs" :key="index" class="io-item">
-                        <input v-model="input.name" type="text" placeholder="端口名称" class="form-input-sm">
+                        <input v-model="input.name" type="text" :placeholder="$t('aiAgent.workflow.portNamePlaceholder', '端口名称')" class="form-input-sm">
                         <select v-model="input.type" class="form-select-sm">
-                          <option value="text">文本</option>
-                          <option value="image">图片</option>
-                          <option value="audio">音频</option>
-                          <option value="file">文件</option>
-                          <option value="json">JSON</option>
+                          <option value="text">{{ $t('aiAgent.workflow.portTypes.text', '文本') }}</option>
+                          <option value="image">{{ $t('aiAgent.workflow.portTypes.image', '图片') }}</option>
+                          <option value="audio">{{ $t('aiAgent.workflow.portTypes.audio', '音频') }}</option>
+                          <option value="file">{{ $t('aiAgent.workflow.portTypes.file', '文件') }}</option>
+                          <option value="json">{{ $t('aiAgent.workflow.portTypes.json', 'JSON') }}</option>
                         </select>
                         <button @click="removeInput(index)" class="btn-remove">×</button>
                       </div>
@@ -1101,17 +926,138 @@
                     <div class="io-section">
                       <label>{{ $t('aiAgent.workflow.outputPorts', '输出端口') }}</label>
                       <div v-for="(output, index) in selectedNodeData.outputs" :key="index" class="io-item">
-                        <input v-model="output.name" type="text" placeholder="端口名称" class="form-input-sm">
+                        <input v-model="output.name" type="text" :placeholder="$t('aiAgent.workflow.portNamePlaceholder', '端口名称')" class="form-input-sm">
                         <select v-model="output.type" class="form-select-sm">
-                          <option value="text">文本</option>
-                          <option value="image">图片</option>
-                          <option value="audio">音频</option>
-                          <option value="file">文件</option>
-                          <option value="json">JSON</option>
+                          <option value="text">{{ $t('aiAgent.workflow.portTypes.text', '文本') }}</option>
+                          <option value="image">{{ $t('aiAgent.workflow.portTypes.image', '图片') }}</option>
+                          <option value="audio">{{ $t('aiAgent.workflow.portTypes.audio', '音频') }}</option>
+                          <option value="file">{{ $t('aiAgent.workflow.portTypes.file', '文件') }}</option>
+                          <option value="json">{{ $t('aiAgent.workflow.portTypes.json', 'JSON') }}</option>
                         </select>
                         <button @click="removeOutput(index)" class="btn-remove">×</button>
                       </div>
                       <button @click="addOutput" class="btn btn-sm btn-outline">+ {{ $t('aiAgent.workflow.addOutput', '添加输出') }}</button>
+                    </div>
+                  </div>
+                </div>
+
+                <!-- 端口数据配置 -->
+                <div class="config-section" v-if="selectedNodeData.inputs && selectedNodeData.inputs.length > 0">
+                  <h5>{{ $t('aiAgent.workflow.inputData', '输入数据配置') }}</h5>
+                  <div class="input-data-hint">
+                    <span class="hint-icon">✨</span>
+                    <span><strong>在这里输入文字内容！</strong> 选择输入端口后，在下方文本框中输入您的内容</span>
+                  </div>
+                  
+                  <div class="input-data-config">
+                    <div v-for="(input, index) in selectedNodeData.inputs" :key="`input-data-${index}`" class="input-data-item">
+                      <div class="input-data-header">
+                        <span class="input-data-name">{{ input.name }}</span>
+                        <span class="input-data-type">{{ getPortTypeLabel(input.type) }}</span>
+                      </div>
+                      
+                      <!-- 文本输入 -->
+                      <div v-if="input.type === 'text'" class="input-control">
+                        <label>{{ $t('aiAgent.workflow.inputContent', '输入内容') }}</label>
+                        <textarea 
+                          v-model="input.value" 
+                          class="form-textarea" 
+                          rows="3" 
+                          :placeholder="$t('aiAgent.workflow.inputTextPlaceholder', '输入文本内容...')"
+                        ></textarea>
+                      </div>
+                      
+                      <!-- 图片上传 -->
+                      <div v-else-if="input.type === 'image'" class="input-control">
+                        <label>{{ $t('aiAgent.workflow.uploadImage', '上传图片') }}</label>
+                        <div class="image-upload-area">
+                          <input 
+                            type="file" 
+                            accept="image/*" 
+                            @change="handleImageUpload($event, input, index)"
+                            class="file-input"
+                            :id="`image-upload-${index}`"
+                          >
+                          <label :for="`image-upload-${index}`" class="upload-label">
+                            <div v-if="!input.value" class="upload-placeholder">
+                              <div class="upload-icon">📷</div>
+                              <div class="upload-text">{{ $t('aiAgent.workflow.clickToUpload', '点击上传图片') }}</div>
+                              <div class="upload-hint">{{ $t('aiAgent.workflow.supportedFormats', '支持 JPG、PNG、GIF 格式') }}</div>
+                            </div>
+                            <div v-else class="uploaded-image">
+                              <img :src="input.value" alt="Uploaded" class="preview-image">
+                              <div class="image-overlay">
+                                <button @click="removeImage(input, index)" class="remove-image-btn">×</button>
+                              </div>
+                            </div>
+                          </label>
+                        </div>
+                      </div>
+                      
+                      <!-- 音频上传 -->
+                      <div v-else-if="input.type === 'audio'" class="input-control">
+                        <label>{{ $t('aiAgent.workflow.uploadAudio', '上传音频') }}</label>
+                        <div class="audio-upload-area">
+                          <input 
+                            type="file" 
+                            accept="audio/*" 
+                            @change="handleAudioUpload($event, input, index)"
+                            class="file-input"
+                            :id="`audio-upload-${index}`"
+                          >
+                          <label :for="`audio-upload-${index}`" class="upload-label">
+                            <div v-if="!input.value" class="upload-placeholder">
+                              <div class="upload-icon">🎵</div>
+                              <div class="upload-text">{{ $t('aiAgent.workflow.clickToUploadAudio', '点击上传音频') }}</div>
+                              <div class="upload-hint">{{ $t('aiAgent.workflow.audioFormats', '支持 MP3、WAV、OGG 格式') }}</div>
+                            </div>
+                            <div v-else class="uploaded-audio">
+                              <div class="audio-info">
+                                <span class="audio-name">{{ input.fileName || '音频文件' }}</span>
+                                <button @click="removeAudio(input, index)" class="remove-audio-btn">×</button>
+                              </div>
+                              <audio :src="input.value" controls class="audio-preview"></audio>
+                            </div>
+                          </label>
+                        </div>
+                      </div>
+                      
+                      <!-- 文件上传 -->
+                      <div v-else-if="input.type === 'file'" class="input-control">
+                        <label>{{ $t('aiAgent.workflow.uploadFile', '上传文件') }}</label>
+                        <div class="file-upload-area">
+                          <input 
+                            type="file" 
+                            @change="handleFileUpload($event, input, index)"
+                            class="file-input"
+                            :id="`file-upload-${index}`"
+                          >
+                          <label :for="`file-upload-${index}`" class="upload-label">
+                            <div v-if="!input.value" class="upload-placeholder">
+                              <div class="upload-icon">📄</div>
+                              <div class="upload-text">{{ $t('aiAgent.workflow.clickToUploadFile', '点击上传文件') }}</div>
+                            </div>
+                            <div v-else class="uploaded-file">
+                              <div class="file-info">
+                                <span class="file-name">{{ input.fileName || '文件' }}</span>
+                                <button @click="removeFile(input, index)" class="remove-file-btn">×</button>
+                              </div>
+                            </div>
+                          </label>
+                        </div>
+                      </div>
+                      
+                      <!-- JSON输入 -->
+                      <div v-else-if="input.type === 'json'" class="input-control">
+                        <label>{{ $t('aiAgent.workflow.inputJson', 'JSON数据') }}</label>
+                        <textarea 
+                          v-model="input.value" 
+                          class="form-textarea json-textarea" 
+                          rows="4" 
+                          :placeholder="$t('aiAgent.workflow.jsonPlaceholder', '输入JSON格式数据...')"
+                        ></textarea>
+                        <small class="json-hint">{{ $t('aiAgent.workflow.jsonHint', '请输入有效的JSON格式数据') }}</small>
+                      </div>
                     </div>
                   </div>
                 </div>
@@ -1135,12 +1081,12 @@
                   <div class="connection-nodes">
                     <div class="connection-node">
                       <strong>{{ $t('aiAgent.workflow.fromNode', '源节点') }}:</strong>
-                      <span>{{ getNodeById(selectedConnection.from)?.title || 'Unknown' }}</span>
+                      <span>{{ getNodeById(selectedConnection.from)?.title || $t('aiAgent.workflow.unknown', 'Unknown') }}</span>
                     </div>
                     <div class="connection-arrow">→</div>
                     <div class="connection-node">
                       <strong>{{ $t('aiAgent.workflow.toNode', '目标节点') }}:</strong>
-                      <span>{{ getNodeById(selectedConnection.to)?.title || 'Unknown' }}</span>
+                      <span>{{ getNodeById(selectedConnection.to)?.title || $t('aiAgent.workflow.unknown', 'Unknown') }}</span>
                     </div>
                   </div>
                 </div>
@@ -1186,8 +1132,8 @@
         <!-- Workflow Management -->
         <div v-else-if="activeTab === 'workflows'" class="editor-content workflows-management">
           <div class="section-header">
-            <h3>📋 工作流管理</h3>
-            <p>查看和管理您的所有DAG工作流</p>
+            <h3>📋 {{ $t('aiAgent.workflow.workflowManagement.title', '工作流管理') }}</h3>
+            <p>{{ $t('aiAgent.workflow.workflowManagement.description', '查看和管理您的所有DAG工作流') }}</p>
           </div>
 
           <!-- 工作流统计面板 -->
@@ -1196,28 +1142,28 @@
               <div class="stat-icon">📊</div>
               <div class="stat-info">
                 <div class="stat-number">{{ workflowStats.total }}</div>
-                <div class="stat-label">总工作流</div>
+                <div class="stat-label">{{ $t('aiAgent.workflow.workflowManagement.totalWorkflows', '总工作流') }}</div>
               </div>
             </div>
             <div class="stat-card">
               <div class="stat-icon">▶️</div>
               <div class="stat-info">
                 <div class="stat-number">{{ workflowStats.running }}</div>
-                <div class="stat-label">运行中</div>
+                <div class="stat-label">{{ $t('aiAgent.workflow.workflowManagement.runningWorkflows', '运行中') }}</div>
               </div>
             </div>
             <div class="stat-card">
               <div class="stat-icon">✅</div>
               <div class="stat-info">
                 <div class="stat-number">{{ workflowStats.completed }}</div>
-                <div class="stat-label">已完成</div>
+                <div class="stat-label">{{ $t('aiAgent.workflow.workflowManagement.completedWorkflows', '已完成') }}</div>
               </div>
             </div>
             <div class="stat-card">
               <div class="stat-icon">❌</div>
               <div class="stat-info">
                 <div class="stat-number">{{ workflowStats.failed }}</div>
-                <div class="stat-label">失败</div>
+                <div class="stat-label">{{ $t('aiAgent.workflow.workflowManagement.failedWorkflows', '失败') }}</div>
               </div>
             </div>
           </div>
@@ -1228,7 +1174,7 @@
               <input 
                 v-model="workflowSearch" 
                 type="text" 
-                placeholder="搜索工作流..." 
+                :placeholder="$t('aiAgent.workflow.workflowManagement.searchPlaceholder', '搜索工作流...')" 
                 class="search-input"
               />
               <button class="search-btn">🔍</button>
@@ -1244,7 +1190,7 @@
               </button>
             </div>
             <button class="btn btn-primary" @click="refreshWorkflowList">
-              <i class="icon">🔄</i> 刷新
+              <i class="icon">🔄</i> {{ $t('aiAgent.workflow.workflowManagement.refresh', '刷新') }}
             </button>
           </div>
 
@@ -1252,10 +1198,10 @@
           <div class="workflow-list" v-if="!loadingWorkflows">
             <div v-if="filteredWorkflows.length === 0" class="empty-state">
               <div class="empty-icon">📝</div>
-              <h4>暂无工作流</h4>
-              <p>您还没有创建任何工作流，现在就开始设计您的第一个工作流吧！</p>
+              <h4>{{ $t('aiAgent.workflow.workflowManagement.noWorkflows', '暂无工作流') }}</h4>
+              <p>{{ $t('aiAgent.workflow.workflowManagement.noWorkflowsDescription', '您还没有创建任何工作流，现在就开始设计您的第一个工作流吧！') }}</p>
               <button class="btn btn-primary" @click="setActiveTab('workflow')">
-                创建工作流
+                {{ $t('aiAgent.workflow.workflowManagement.createWorkflow', '创建工作流') }}
               </button>
             </div>
             <div v-else class="workflow-grid">
@@ -1273,25 +1219,25 @@
                 </div>
                 <div class="workflow-meta">
                   <div class="meta-item">
-                    <span class="meta-label">节点数:</span>
+                    <span class="meta-label">{{ $t('aiAgent.workflow.workflowManagement.nodeCount', '节点数:') }}</span>
                     <span class="meta-value">{{ workflow.node_count || 0 }}</span>
                   </div>
                   <div class="meta-item">
-                    <span class="meta-label">创建时间:</span>
+                    <span class="meta-label">{{ $t('aiAgent.workflow.workflowManagement.createdAt', '创建时间:') }}</span>
                     <span class="meta-value">{{ formatDate(workflow.created_at) }}</span>
                   </div>
                 </div>
                 <div class="workflow-actions" @click.stop>
-                  <button class="action-btn" @click="viewWorkflowStatus(workflow)" title="查看状态">
+                  <button class="action-btn" @click="viewWorkflowStatus(workflow)" :title="$t('aiAgent.workflow.workflowManagement.viewStatus', '查看状态')">
                     📊
                   </button>
-                  <button class="action-btn" @click="viewWorkflowResults(workflow)" title="查看结果">
+                  <button class="action-btn" @click="viewWorkflowResults(workflow)" :title="$t('aiAgent.workflow.workflowManagement.viewResults', '查看结果')">
                     📋
                   </button>
-                  <button class="action-btn" @click="cloneWorkflow(workflow)" title="复制">
+                  <button class="action-btn" @click="cloneWorkflow(workflow)" :title="$t('aiAgent.workflow.workflowManagement.clone', '复制')">
                     📄
                   </button>
-                  <button class="action-btn danger" @click="deleteWorkflow(workflow)" title="删除">
+                  <button class="action-btn danger" @click="deleteWorkflow(workflow)" :title="$t('aiAgent.workflow.workflowManagement.deleteWorkflow', '删除')">
                     🗑️
                   </button>
                 </div>
@@ -1302,20 +1248,20 @@
           <!-- 加载状态 -->
           <div v-if="loadingWorkflows" class="loading-state">
             <div class="loading-spinner"></div>
-            <p>正在加载工作流列表...</p>
+            <p>{{ $t('aiAgent.workflow.workflowManagement.loading', '正在加载工作流列表...') }}</p>
           </div>
 
           <!-- 错误状态 -->
           <div v-if="workflowListError" class="error-state">
             <div class="error-icon">⚠️</div>
-            <h4>加载失败</h4>
+            <h4>{{ $t('aiAgent.workflow.workflowManagement.loadError', '加载失败') }}</h4>
             <p>{{ workflowListError }}</p>
             <div class="error-actions">
               <button class="btn btn-primary" @click="retryLoadWorkflows">
-                🔄 重试
+                🔄 {{ $t('aiAgent.workflow.workflowManagement.retry', '重试') }}
               </button>
               <button class="btn btn-secondary" @click="clearWorkflowError">
-                关闭
+                {{ $t('aiAgent.workflow.workflowManagement.close', '关闭') }}
               </button>
             </div>
           </div>
@@ -1324,40 +1270,32 @@
         <!-- Testing and deployment -->
         <div v-else-if="activeTab === 'deploy'" class="editor-content">
           <div class="section-header">
-            <h3>Testing & Deployment</h3>
-            <p>Test Agent functionality and publish to production environment</p>
+            <h3>{{ $t('aiAgent.workflow.testDeploy.title', 'Test & Deploy') }}</h3>
+            <p>{{ $t('aiAgent.workflow.testDeploy.description', 'Test workflow functionality and deploy to production') }}</p>
           </div>
           
           <div class="deploy-sections">
             <div class="deploy-section">
-              <h4>🧪 Function Testing</h4>
-              <div class="test-area">
-                <button class="btn btn-primary">Start Test Chat</button>
-                <button class="btn btn-outline">Batch Testing</button>
-                <button class="btn btn-outline">Performance Test</button>
+                              <h4>🧪 {{ $t('aiAgent.workflow.testDeploy.workflowTesting', 'Workflow Testing') }}</h4>
+                <div class="test-area">
+                  <button class="btn btn-primary" @click="testWorkflow">{{ $t('aiAgent.workflow.testDeploy.testWorkflow', 'Test Workflow') }}</button>
+                  <button class="btn btn-outline" @click="validateWorkflow">{{ $t('aiAgent.workflow.testDeploy.validateDAG', 'Validate DAG') }}</button>
+                  <button class="btn btn-outline">{{ $t('aiAgent.workflow.testDeploy.performanceTest', 'Performance Test') }}</button>
               </div>
             </div>
             
             <div class="deploy-section">
-              <h4>🚀 Deployment Configuration</h4>
-              <div class="deploy-config">
-                <div class="form-group">
-                  <label>Access Permissions</label>
-                  <select class="form-select">
-                    <option>Public Access</option>
-                    <option>Team Members Only</option>
-                    <option>Password Protected</option>
-                  </select>
-                </div>
-                <div class="form-group">
-                  <label>Deployment Environment</label>
-                  <select class="form-select">
-                    <option>Development</option>
-                    <option>Testing</option>
-                    <option>Production</option>
-                  </select>
-                </div>
-                <button class="btn btn-success">Publish Agent</button>
+                              <h4>🚀 {{ $t('aiAgent.workflow.testDeploy.deployment', 'Deployment') }}</h4>
+                <div class="deploy-config">
+                  <div class="form-group">
+                    <label>{{ $t('aiAgent.workflow.testDeploy.deploymentEnvironment', 'Deployment Environment') }}</label>
+                    <select class="form-select">
+                      <option>{{ $t('aiAgent.workflow.environments.development', 'Development') }}</option>
+                      <option>{{ $t('aiAgent.workflow.environments.testing', 'Testing') }}</option>
+                      <option>{{ $t('aiAgent.workflow.environments.production', 'Production') }}</option>
+                    </select>
+                  </div>
+                  <button class="btn btn-success" @click="deployWorkflow">{{ $t('aiAgent.workflow.testDeploy.deployWorkflow', 'Deploy Workflow') }}</button>
               </div>
             </div>
           </div>
@@ -1371,46 +1309,46 @@
     <div v-if="showShortcutsHelp" class="shortcuts-overlay" @click.self="closeShortcutsHelp">
       <div class="shortcuts-dialog">
         <div class="shortcuts-header">
-          <h3>⌨️ 快捷键指南</h3>
+          <h3>⌨️ {{ $t('aiAgent.workflow.shortcuts.keyboardGuide', '快捷键指南') }}</h3>
           <button @click="closeShortcutsHelp" class="btn-close">×</button>
         </div>
         <div class="shortcuts-content">
           <div class="shortcuts-section">
-            <h4>编辑操作</h4>
+            <h4>{{ $t('aiAgent.workflow.shortcuts.editOperations', '编辑操作') }}</h4>
             <div class="shortcut-item">
               <kbd>Ctrl</kbd> + <kbd>Z</kbd>
-              <span>撤销</span>
+              <span>{{ $t('aiAgent.workflow.shortcuts.undo', '撤销') }}</span>
             </div>
             <div class="shortcut-item">
               <kbd>Ctrl</kbd> + <kbd>Y</kbd>
-              <span>重做</span>
+              <span>{{ $t('aiAgent.workflow.shortcuts.redo', '重做') }}</span>
             </div>
             <div class="shortcut-item">
               <kbd>Ctrl</kbd> + <kbd>C</kbd>
-              <span>复制选中节点</span>
+              <span>{{ $t('aiAgent.workflow.shortcuts.copySelectedNode', '复制选中节点') }}</span>
             </div>
             <div class="shortcut-item">
               <kbd>Ctrl</kbd> + <kbd>V</kbd>
-              <span>粘贴节点</span>
+              <span>{{ $t('aiAgent.workflow.shortcuts.pasteNode', '粘贴节点') }}</span>
             </div>
             <div class="shortcut-item">
               <kbd>Delete</kbd>
-              <span>删除选中节点</span>
+              <span>{{ $t('aiAgent.workflow.shortcuts.deleteSelectedNode', '删除选中节点') }}</span>
             </div>
           </div>
           <div class="shortcuts-section">
-            <h4>工作流操作</h4>
+            <h4>{{ $t('aiAgent.workflow.shortcuts.workflowOperations', '工作流操作') }}</h4>
             <div class="shortcut-item">
               <kbd>Ctrl</kbd> + <kbd>S</kbd>
-              <span>保存工作流</span>
+              <span>{{ $t('aiAgent.workflow.shortcuts.saveWorkflow', '保存工作流') }}</span>
             </div>
             <div class="shortcut-item">
               <kbd>Ctrl</kbd> + <kbd>A</kbd>
-              <span>选择所有节点</span>
+              <span>{{ $t('aiAgent.workflow.shortcuts.selectAllNodes', '选择所有节点') }}</span>
             </div>
           </div>
           <div class="shortcuts-section">
-            <h4>画布操作</h4>
+            <h4>{{ $t('aiAgent.workflow.shortcuts.canvasOperations', '画布操作') }}</h4>
             <div class="shortcut-item">
               <span class="mouse-action">鼠标滚轮</span>
               <span>缩放画布</span>
@@ -1432,30 +1370,7 @@
       </div>
     </div>
 
-    <!-- Test dialog -->
-    <div v-if="showTestChat" class="test-chat-overlay" @click.self="closeTestChat">
-      <div class="test-chat-container">
-        <div class="chat-header">
-          <h3>🧪 Test Chat</h3>
-          <button @click="closeTestChat" class="btn-close">×</button>
-        </div>
-        <div class="chat-messages">
-          <div v-for="message in testMessages" :key="message.id" class="message" :class="message.type">
-            <div class="message-content">{{ message.content }}</div>
-            <div class="message-time">{{ message.time }}</div>
-          </div>
-        </div>
-        <div class="chat-input">
-          <input 
-            v-model="testInput" 
-            @keyup.enter="sendTestMessage"
-            placeholder="Enter message to test Agent..."
-            class="chat-input-field"
-          />
-          <button @click="sendTestMessage" class="btn btn-primary">Send</button>
-        </div>
-      </div>
-    </div>
+
 
     <!-- 状态监控弹窗 -->
     <div v-if="showStatusMonitor" class="modal-overlay" @click="closeStatusMonitor">
@@ -1560,8 +1475,10 @@
         </div>
 
         <div class="modal-footer">
-          <button class="btn btn-secondary" @click="closeStatusMonitor">关闭</button>
-          <button class="btn btn-primary" @click="refreshWorkflowStatus">刷新状态</button>
+                      <button class="btn btn-secondary" @click="closeStatusMonitor">{{ $t('aiAgent.workflow.workflowManagement.close', '关闭') }}</button>
+                          <button class="btn btn-primary" @click="refreshWorkflowStatus">
+                  <i class="icon">🔄</i> {{ $t('aiAgent.workflow.workflowManagement.refreshStatus', '刷新状态') }}
+                </button>
         </div>
       </div>
     </div>
@@ -1649,90 +1566,37 @@ export default {
   data() {
     return {
       activeTab: 'workflow',
-      showTestChat: false,
-      testInput: '',
-      testMessages: [
-        {
-          id: 1,
-          type: 'system',
-          content: 'Test environment is ready, you can start testing Agent functionality',
-          time: '10:00'
-        }
-      ],
-      currentAgent: {
+      currentWorkflow: {
         name: '',
-        description: '',
-        systemPrompt: '',
-        examples: [],
-        documents: [
-          {
-            id: 1,
-            name: 'API Documentation.pdf',
-            size: '2.3MB',
-            uploadTime: '2024-01-15'
-          }
-        ]
+        description: ''
       },
       navigationTabs: [
         {
-          id: 'basic',
-          icon: '🤖',
-          title: 'Basic Info',
-          description: 'Agent name and description',
-          hasContent: false
-        },
-        {
-          id: 'prompt',
-          icon: '📝',
-          title: 'Prompt Builder',
-          description: 'System prompt, Few-shot examples',
-          hasContent: false
-        },
-        {
-          id: 'knowledge',
-          icon: '📚',
-          title: 'Knowledge Base',
-          description: 'RAG, API tool integration',
-          hasContent: true
-        },
-        {
           id: 'workflow',
           icon: '🔄',
-          title: 'Conversation Flow',
-          description: 'Main workflow design - Core feature',
+          title: 'Workflow Design',
+          description: 'Visual DAG workflow editor - Core feature',
           hasContent: true
         },
         {
           id: 'workflows',
           icon: '📋',
           title: 'Workflow Management',
-          description: 'View and manage all workflows',
+          description: 'View and manage all DAG workflows',
           hasContent: true
         },
         {
           id: 'deploy',
           icon: '🚀',
-          title: 'Deploy & Publish',
-          description: 'Testing, deployment, permissions',
+          title: 'Test & Deploy',
+          description: 'Testing and deployment',
           hasContent: false
         }
       ],
       // 工作流相关数据
-      workflowNodes: [
-        {
-          id: 'start-1',
-          type: 'start',
-          title: 'Start',
-          description: 'Workflow start',
-          x: 100,
-          y: 100,
-          inputs: [],
-          outputs: [{ name: 'trigger', type: 'event' }]
-        }
-      ],
+      workflowNodes: [],
       connections: [],
       selectedNode: null,
-      selectedNodeData: {},
       
       // 选中连接
       selectedConnection: null,
@@ -1761,7 +1625,7 @@ export default {
       
       // 其他状态
       nodeIdCounter: 0,
-      workflowStatus: 'Ready',
+      workflowStatus: this.$t ? this.$t('aiAgent.workflow.statusValues.ready', 'Ready') : 'Ready',
       statusEventSource: null,
       
       // 快捷键映射
@@ -1792,11 +1656,11 @@ export default {
       loadingWorkflows: false,
       workflowListError: null,
       workflowStatusOptions: [
-        { value: 'all', label: '全部' },
-        { value: 'running', label: '运行中' },
-        { value: 'completed', label: '已完成' },
-        { value: 'failed', label: '失败' },
-        { value: 'pending', label: '待运行' }
+        { value: 'all', label: this.$t ? this.$t('aiAgent.workflow.statusFilters.all', '全部') : '全部' },
+        { value: 'running', label: this.$t ? this.$t('aiAgent.workflow.statusFilters.running', '运行中') : '运行中' },
+        { value: 'completed', label: this.$t ? this.$t('aiAgent.workflow.statusFilters.completed', '已完成') : '已完成' },
+        { value: 'failed', label: this.$t ? this.$t('aiAgent.workflow.statusFilters.failed', '失败') : '失败' },
+        { value: 'pending', label: this.$t ? this.$t('aiAgent.workflow.statusFilters.pending', '待运行') : '待运行' }
       ],
 
       // 状态监控相关
@@ -1877,67 +1741,57 @@ export default {
     setActiveTab(tabId) {
       this.activeTab = tabId
     },
-    getAgentStatus() {
-      if (!this.currentAgent.name) return 'Not Configured'
-      if (!this.currentAgent.systemPrompt) return 'In Progress'
-      return 'Configured'
+    getTabTitle(tabId) {
+      const titleMap = {
+        'workflow': this.$t('aiAgent.tabs.workflowDesign', 'Workflow Design'),
+        'workflows': this.$t('aiAgent.tabs.workflowManagement', 'Workflow Management'),
+        'deploy': this.$t('aiAgent.tabs.testDeploy', 'Test & Deploy')
+      }
+      return titleMap[tabId] || tabId
     },
-    saveAgent() {
-      // Save Agent configuration
-      console.log('Save Agent configuration')
+    getTabDescription(tabId) {
+      const descriptionMap = {
+        'workflow': this.$t('aiAgent.tabs.workflowDesignDesc', 'Visual DAG workflow editor - Core feature'),
+        'workflows': this.$t('aiAgent.tabs.workflowManagementDesc', 'View and manage all DAG workflows'),
+        'deploy': this.$t('aiAgent.tabs.testDeployDesc', 'Testing and deployment')
+      }
+      return descriptionMap[tabId] || ''
     },
-    testAgent() {
-      this.showTestChat = true
+    getWorkflowStatus() {
+      if (!this.currentWorkflow.name) return this.$t('aiAgent.workflow.statusValues.unnamed', 'Unnamed')
+      if (this.workflowNodes.length <= 1) return this.$t('aiAgent.workflow.statusValues.empty', 'Empty')
+      return this.$t('aiAgent.workflow.statusValues.ready', 'Ready')
     },
-    deployAgent() {
-      // Deploy Agent
-      console.log('Deploy Agent')
-    },
-    closeTestChat() {
-      this.showTestChat = false
-    },
-    sendTestMessage() {
-      if (!this.testInput.trim()) return
+    getTranslatedStatus(status) {
+      if (!status) return ''
       
-      // Add user message
-      this.testMessages.push({
-        id: Date.now(),
-        type: 'user',
-        content: this.testInput,
-        time: new Date().toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit' })
-      })
+      const statusMap = {
+        'Ready': this.$t('aiAgent.workflow.statusValues.ready', 'Ready'),
+        'Running': this.$t('aiAgent.workflow.statusValues.running', 'Running'),
+        'Completed': this.$t('aiAgent.workflow.statusValues.completed', 'Completed'),
+        'Failed': this.$t('aiAgent.workflow.statusValues.failed', 'Failed'),
+        'Deployed': this.$t('aiAgent.workflow.statusValues.deployed', 'Deployed'),
+        'Empty': this.$t('aiAgent.workflow.statusValues.empty', 'Empty'),
+        'Unnamed': this.$t('aiAgent.workflow.statusValues.unnamed', 'Unnamed')
+      }
       
-      const userInput = this.testInput
-      this.testInput = ''
-      
-      // Simulate Agent response
-      setTimeout(() => {
-        this.testMessages.push({
-          id: Date.now(),
-          type: 'assistant',
-          content: `This is a simulated response to "${userInput}". Agent is responding based on your configuration.`,
-          time: new Date().toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit' })
-        })
-      }, 1000)
+      return statusMap[status] || status
     },
-    addExample() {
-      this.currentAgent.examples.push({
-        input: '',
-        output: ''
-      })
+    saveWorkflow() {
+      // Save current workflow
+      console.log('Save Workflow')
     },
-    removeExample(index) {
-      this.currentAgent.examples.splice(index, 1)
+    testWorkflow() {
+      // Test workflow functionality
+      console.log('Test Workflow')
     },
-    uploadDocument() {
-      // Document upload logic
-      console.log('Upload document')
+    deployWorkflow() {
+      // Deploy workflow
+      console.log('Deploy Workflow')
     },
     // Workflow methods
     getNodeIcon(nodeType) {
       const icons = {
-        start: '🚀',
-        end: '✅',
         condition: '❓',
         LLM: '🧠',
         STT: '🎤',
@@ -1951,12 +1805,9 @@ export default {
     },
     getNodeTypeLabel(type) {
       const labels = {
-        start: 'Start',
-        browse: 'Browse',
         llm: 'LLM',
         process: 'Process',
-        condition: 'Condition',
-        end: 'End'
+        condition: 'Condition'
       }
       return labels[type] || type
     },
@@ -1982,26 +1833,10 @@ export default {
     createNode(nodeType, x, y) {
       const nodeId = `${nodeType}-${++this.nodeIdCounter}`
       const nodeTemplates = {
-        start: {
-          title: 'Start',
-          description: 'Workflow start',
-          inputs: [],
-          outputs: [{ name: 'trigger', type: 'event' }],
-          prompt: '',
-          service: ''
-        },
-        end: {
-          title: 'End',
-          description: 'Workflow end',
-          inputs: [{ name: 'result', type: 'text' }],
-          outputs: [],
-          prompt: '',
-          service: ''
-        },
         condition: {
           title: 'Condition',
           description: 'Condition judgment',
-          inputs: [{ name: 'input', type: 'text' }],
+          inputs: [{ name: 'input', type: 'text', value: '' }],
           outputs: [{ name: 'true', type: 'text' }, { name: 'false', type: 'text' }],
           condition: '',
           prompt: '',
@@ -2010,7 +1845,7 @@ export default {
         LLM: {
           title: 'LLM',
           description: 'Large language model processing',
-          inputs: [{ name: 'prompt', type: 'text' }],
+          inputs: [{ name: 'prompt', type: 'text', value: '' }],
           outputs: [{ name: 'response', type: 'text' }],
           service: 'LLM',
           prompt: '',
@@ -2032,7 +1867,7 @@ export default {
         STT: {
           title: 'STT',
           description: 'Speech to text conversion',
-          inputs: [{ name: 'audio', type: 'audio' }],
+          inputs: [{ name: 'audio', type: 'audio', value: null }],
           outputs: [{ name: 'text', type: 'text' }],
           service: 'STT',
           prompt: '',
@@ -2050,7 +1885,7 @@ export default {
         TTS: {
           title: 'TTS',
           description: 'Text to speech conversion',
-          inputs: [{ name: 'text', type: 'text' }],
+          inputs: [{ name: 'text', type: 'text', value: '' }],
           outputs: [{ name: 'audio', type: 'audio' }],
           service: 'TTS',
           prompt: '',
@@ -2066,7 +1901,7 @@ export default {
         pic2text: {
           title: 'Pic2Text',
           description: 'Image to text conversion',
-          inputs: [{ name: 'image', type: 'image' }],
+          inputs: [{ name: 'image', type: 'image', value: null }],
           outputs: [{ name: 'text', type: 'text' }],
           service: 'pic2text',
           prompt: '',
@@ -2083,7 +1918,7 @@ export default {
         text2pic: {
           title: 'Text2Pic',
           description: 'Text to image generation',
-          inputs: [{ name: 'prompt', type: 'text' }],
+          inputs: [{ name: 'prompt', type: 'text', value: '' }],
           outputs: [{ name: 'image', type: 'image' }],
           service: 'text2pic',
           prompt: '',
@@ -2099,36 +1934,11 @@ export default {
           execution_timeout: 60,
           error_handling: 'retry'
         },
-        browse: {
-          title: 'Browse',
-          description: 'Web browsing and content extraction',
-          inputs: [
-            { name: 'url', type: 'string' },
-            { name: 'enforce_crawl', type: 'boolean' },
-            { name: 'plugin_name', type: 'string' }
-          ],
-          outputs: [
-            { name: 'code', type: 'string' },
-            { name: 'message', type: 'string' },
-            { name: 'plugin_name', type: 'string' }
-          ],
-          service: 'browse',
-          prompt: '',
-          enforce_crawl: false,
-          plugin_name: 'plugin_observation',
-          timeout: 30000,
-          user_agent: 'default',
-          wait_for_load: 2000,
-          extract_mode: 'markdown',
-          retry_count: 3,
-          retry_delay: 1000,
-          execution_timeout: 60,
-          error_handling: 'retry'
-        },
+
         process: {
           title: 'Process',
           description: 'Data processing',
-          inputs: [{ name: 'input', type: 'text' }],
+          inputs: [{ name: 'input', type: 'text', value: '' }],
           outputs: [{ name: 'output', type: 'text' }],
           prompt: '',
           service: '',
@@ -2140,7 +1950,7 @@ export default {
         transform: {
           title: 'Transform',
           description: 'Data transformation',
-          inputs: [{ name: 'input', type: 'text' }],
+          inputs: [{ name: 'input', type: 'text', value: '' }],
           outputs: [{ name: 'output', type: 'text' }],
           prompt: '',
           service: '',
@@ -2165,11 +1975,10 @@ export default {
     },
     selectNode(node) {
       this.selectedNode = node.id
-      this.selectedNodeData = { ...node }
+      this.selectedConnection = null
     },
     deselectNode() {
       this.selectedNode = null
-      this.selectedNodeData = {}
       this.selectedConnection = null
     },
     
@@ -2177,7 +1986,6 @@ export default {
     selectConnection(connection) {
       this.selectedConnection = connection
       this.selectedNode = null
-      this.selectedNodeData = {}
     },
     
     deselectConnection() {
@@ -2738,13 +2546,13 @@ export default {
         if (node.id === sourceNode.id) return
         
         // 高亮可连接的连接点
-        if (sourcePortType === 'output' && node.type !== 'start') {
+        if (sourcePortType === 'output') {
           // 输出端口可以连接到其他节点的输入端口
           const inputPoint = document.querySelector(`[data-node-id="${node.id}"] .input-point`)
           if (inputPoint) {
             inputPoint.classList.add('connectable-highlight')
           }
-        } else if (sourcePortType === 'input' && node.type !== 'end') {
+        } else if (sourcePortType === 'input') {
           // 输入端口可以接收其他节点的输出端口
           const outputPoint = document.querySelector(`[data-node-id="${node.id}"] .output-point`)
           if (outputPoint) {
@@ -2806,7 +2614,6 @@ export default {
       this.workflowNodes = JSON.parse(JSON.stringify(state.nodes))
       this.connections = JSON.parse(JSON.stringify(state.connections))
       this.selectedNode = null
-      this.selectedNodeData = {}
     },
     
     // 复制节点
@@ -2906,35 +2713,41 @@ export default {
       return tips[serviceType] || '根据节点功能配置相应的提示词'
     },
     addInput() {
-      if (!this.selectedNodeData.inputs) {
-        this.selectedNodeData.inputs = []
-      }
-      this.selectedNodeData.inputs.push({ name: 'input', type: 'text' })
-    },
-    removeInput(index) {
-      this.selectedNodeData.inputs.splice(index, 1)
-    },
-    addOutput() {
-      if (!this.selectedNodeData.outputs) {
-        this.selectedNodeData.outputs = []
-      }
-      this.selectedNodeData.outputs.push({ name: 'output', type: 'text' })
-    },
-    removeOutput(index) {
-      this.selectedNodeData.outputs.splice(index, 1)
-    },
-    saveNodeConfig() {
-      // 找到原始节点并更新
       const nodeIndex = this.workflowNodes.findIndex(n => n.id === this.selectedNode)
       if (nodeIndex !== -1) {
-        // 验证配置
-        if (this.validateNodeConfig()) {
-          this.workflowNodes[nodeIndex] = { ...this.selectedNodeData }
-          this.$message?.success?.(this.$t('aiAgent.workflow.configSaved', '节点配置已保存'))
+        if (!this.workflowNodes[nodeIndex].inputs) {
+          this.workflowNodes[nodeIndex].inputs = []
         }
+        this.workflowNodes[nodeIndex].inputs.push({ name: 'input', type: 'text', value: '' })
       }
     },
+    removeInput(index) {
+      const nodeIndex = this.workflowNodes.findIndex(n => n.id === this.selectedNode)
+      if (nodeIndex !== -1 && this.workflowNodes[nodeIndex].inputs) {
+        this.workflowNodes[nodeIndex].inputs.splice(index, 1)
+      }
+    },
+    addOutput() {
+      const nodeIndex = this.workflowNodes.findIndex(n => n.id === this.selectedNode)
+      if (nodeIndex !== -1) {
+        if (!this.workflowNodes[nodeIndex].outputs) {
+          this.workflowNodes[nodeIndex].outputs = []
+        }
+        this.workflowNodes[nodeIndex].outputs.push({ name: 'output', type: 'text' })
+      }
+    },
+    removeOutput(index) {
+      const nodeIndex = this.workflowNodes.findIndex(n => n.id === this.selectedNode)
+      if (nodeIndex !== -1 && this.workflowNodes[nodeIndex].outputs) {
+        this.workflowNodes[nodeIndex].outputs.splice(index, 1)
+      }
+    },
+    saveNodeConfig() {
+      // 节点配置已经通过双向绑定自动保存到workflowNodes数组中
+      this.$message?.success?.(this.$t('aiAgent.workflow.configSaved', '节点配置已保存'))
+    },
     validateNodeConfig() {
+      if (!this.selectedNode) return false
       const node = this.selectedNodeData
       
       // 基础验证
@@ -3034,20 +2847,6 @@ export default {
       }
     },
     validateWorkflow() {
-      // 检查是否有start和end节点
-      const hasStart = this.workflowNodes.some(node => node.type === 'start')
-      const hasEnd = this.workflowNodes.some(node => node.type === 'end')
-      
-      if (!hasStart) {
-        this.$message?.error?.(this.$t('aiAgent.workflow.startNodeRequired', '工作流必须包含开始节点'))
-        return false
-      }
-      
-      if (!hasEnd) {
-        this.$message?.error?.(this.$t('aiAgent.workflow.endNodeRequired', '工作流必须包含结束节点'))
-        return false
-      }
-      
       // 检查所有AI服务节点是否正确配置
       for (const node of this.workflowNodes) {
         if (this.isAIServiceNode(node.type)) {
@@ -3064,7 +2863,7 @@ export default {
       const workflowAPI = (await import('@/config/api.js')).default
       
       const dagData = {
-        dag_id: workflowAPI.generateDAGId(this.currentAgent.name || 'agent'),
+        dag_id: workflowAPI.generateDAGId(this.currentWorkflow.name || 'workflow'),
         tenant_id: workflowAPI.config.getTenantId(),
         nodes: {},
         edges: []
@@ -3121,17 +2920,7 @@ export default {
             user: node.user || '',
             response_format: node.response_format || 'url'
           }),
-          ...(node.service === 'browse' && {
-            method: node.method || 'GET',
-            headers: node.headers || {},
-            timeout: node.timeout || 30000,
-            retry_count: node.retry_count || 3,
-            retry_delay: node.retry_delay || 1000,
-            user_agent: node.user_agent || 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36',
-            load_timeout: node.load_timeout || 10000,
-            extract_mode: node.extract_mode || 'text',
-            fallback_value: node.fallback_value || ''
-          })
+
         }
       })
       
@@ -3176,7 +2965,6 @@ export default {
       this.workflowNodes = []
       this.connections = []
       this.selectedNode = null
-      this.selectedNodeData = {}
       this.workflowStatus = 'Ready'
     },
                 getConnectionPath(connection) {
@@ -3283,12 +3071,6 @@ export default {
       this.workflowNodes = []
       this.connections = []
       this.deselectNode()
-    },
-    saveNodeConfig() {
-      const nodeIndex = this.workflowNodes.findIndex(n => n.id === this.selectedNode)
-      if (nodeIndex !== -1) {
-        this.workflowNodes[nodeIndex] = { ...this.selectedNodeData }
-      }
     },
     setConnectionHover(connection, isHover) {
       // Dynamic arrow style change
@@ -3653,10 +3435,10 @@ export default {
     // 工具方法
     getStatusLabel(status) {
       const labels = {
-        running: '运行中',
-        completed: '已完成', 
-        failed: '失败',
-        pending: '待运行'
+        running: this.$t('aiAgent.workflow.statusValues.running', 'Running'),
+        completed: this.$t('aiAgent.workflow.statusValues.completed', 'Completed'),
+        failed: this.$t('aiAgent.workflow.statusValues.failed', 'Failed'),
+        pending: this.$t('aiAgent.workflow.statusValues.pending', 'Pending')
       }
       return labels[status] || status
     },
@@ -3699,7 +3481,7 @@ export default {
         this.$message?.success?.('状态已刷新')
       } catch (error) {
         console.error('刷新工作流状态失败:', error)
-        this.$message?.error?.('刷新状态失败: ' + error.message)
+        this.$message?.error?.(this.$t('aiAgent.workflow.workflowManagement.refreshStatusFailed', '刷新状态失败') + ': ' + error.message)
       }
     },
 
@@ -3905,6 +3687,135 @@ export default {
     // 清除错误日志
     clearErrorLogs() {
       localStorage.removeItem('ai-agent-error-logs')
+    },
+
+    // 获取端口类型标签
+    getPortTypeLabel(type) {
+      const labels = {
+        'text': this.$t('aiAgent.workflow.portTypes.text', '文本'),
+        'image': this.$t('aiAgent.workflow.portTypes.image', '图片'),
+        'audio': this.$t('aiAgent.workflow.portTypes.audio', '音频'),
+        'file': this.$t('aiAgent.workflow.portTypes.file', '文件'),
+        'json': this.$t('aiAgent.workflow.portTypes.json', 'JSON')
+      }
+      return labels[type] || type
+    },
+
+    // 处理图片上传
+    async handleImageUpload(event, input, index) {
+      const file = event.target.files[0]
+      if (!file) return
+      
+      // 验证文件类型
+      if (!file.type.startsWith('image/')) {
+        this.$message?.error?.('只支持图片格式的文件')
+        return
+      }
+      
+      // 验证文件大小（10MB限制）
+      if (file.size > 10 * 1024 * 1024) {
+        this.$message?.error?.('图片大小不能超过10MB')
+        return
+      }
+      
+      try {
+        // 将文件转换为base64
+        const reader = new FileReader()
+        reader.onload = (e) => {
+          input.value = e.target.result
+          input.fileName = file.name
+          input.fileSize = file.size
+          input.fileType = file.type
+        }
+        reader.readAsDataURL(file)
+      } catch (error) {
+        console.error('图片上传失败:', error)
+        this.$message?.error?.('图片上传失败: ' + error.message)
+      }
+    },
+
+    // 处理音频上传
+    async handleAudioUpload(event, input, index) {
+      const file = event.target.files[0]
+      if (!file) return
+      
+      // 验证文件类型
+      if (!file.type.startsWith('audio/')) {
+        this.$message?.error?.('只支持音频格式的文件')
+        return
+      }
+      
+      // 验证文件大小（50MB限制）
+      if (file.size > 50 * 1024 * 1024) {
+        this.$message?.error?.('音频大小不能超过50MB')
+        return
+      }
+      
+      try {
+        // 将文件转换为base64
+        const reader = new FileReader()
+        reader.onload = (e) => {
+          input.value = e.target.result
+          input.fileName = file.name
+          input.fileSize = file.size
+          input.fileType = file.type
+        }
+        reader.readAsDataURL(file)
+      } catch (error) {
+        console.error('音频上传失败:', error)
+        this.$message?.error?.('音频上传失败: ' + error.message)
+      }
+    },
+
+    // 处理文件上传
+    async handleFileUpload(event, input, index) {
+      const file = event.target.files[0]
+      if (!file) return
+      
+      // 验证文件大小（100MB限制）
+      if (file.size > 100 * 1024 * 1024) {
+        this.$message?.error?.('文件大小不能超过100MB')
+        return
+      }
+      
+      try {
+        // 将文件转换为base64
+        const reader = new FileReader()
+        reader.onload = (e) => {
+          input.value = e.target.result
+          input.fileName = file.name
+          input.fileSize = file.size
+          input.fileType = file.type
+        }
+        reader.readAsDataURL(file)
+      } catch (error) {
+        console.error('文件上传失败:', error)
+        this.$message?.error?.('文件上传失败: ' + error.message)
+      }
+    },
+
+    // 移除图片
+    removeImage(input, index) {
+      input.value = null
+      input.fileName = null
+      input.fileSize = null
+      input.fileType = null
+    },
+
+    // 移除音频
+    removeAudio(input, index) {
+      input.value = null
+      input.fileName = null
+      input.fileSize = null
+      input.fileType = null
+    },
+
+    // 移除文件
+    removeFile(input, index) {
+      input.value = null
+      input.fileName = null
+      input.fileSize = null
+      input.fileType = null
     }
   }
 }
@@ -4416,10 +4327,6 @@ export default {
   position: relative;
 }
 
-.workflow-node.start-node {
-  border-color: #4ecdc4;
-}
-
 .workflow-node.message-node {
   border-color: #ff6b6b;
 }
@@ -4434,10 +4341,6 @@ export default {
 
 .workflow-node.api-node {
   border-color: #a8e6cf;
-}
-
-.workflow-node.end-node {
-  border-color: #96ceb4;
 }
 
 .node-header {
@@ -4575,102 +4478,7 @@ export default {
   gap: 1rem;
 }
 
-/* Test dialog */
-.test-chat-overlay {
-  position: fixed;
-  top: 0;
-  left: 0;
-  right: 0;
-  bottom: 0;
-  background: rgba(0, 0, 0, 0.8);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  z-index: 1000;
-}
 
-.test-chat-container {
-  background: #2d2d2d;
-  border-radius: 12px;
-  width: 90%;
-  max-width: 600px;
-  height: 80%;
-  display: flex;
-  flex-direction: column;
-  overflow: hidden;
-}
-
-.chat-header {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  padding: 1rem 1.5rem;
-  border-bottom: 1px solid #404040;
-}
-
-.chat-header h3 {
-  margin: 0;
-  color: #ff6b6b;
-}
-
-.btn-close {
-  background: none;
-  border: none;
-  color: #b0b0b0;
-  cursor: pointer;
-  font-size: 1.5rem;
-  padding: 0;
-  width: 30px;
-  height: 30px;
-  border-radius: 50%;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-}
-
-.btn-close:hover {
-  background: rgba(255, 255, 255, 0.1);
-}
-
-.chat-messages {
-  flex: 1;
-  overflow-y: auto;
-  padding: 1rem;
-  display: flex;
-  flex-direction: column;
-  gap: 1rem;
-}
-
-.message {
-  max-width: 80%;
-  padding: 0.75rem 1rem;
-  border-radius: 12px;
-  position: relative;
-}
-
-.message.user {
-  align-self: flex-end;
-  background: linear-gradient(45deg, #ff6b6b, #4ecdc4);
-  color: white;
-}
-
-.message.assistant {
-  align-self: flex-start;
-  background: #1a1a1a;
-  border: 1px solid #404040;
-}
-
-.message.system {
-  align-self: center;
-  background: #404040;
-  color: #b0b0b0;
-  font-size: 0.9rem;
-  max-width: 90%;
-}
-
-.message-content {
-  margin-bottom: 0.25rem;
-}
 
 /* 工作流编辑器样式 */
 .workflow-container {
@@ -4693,57 +4501,79 @@ export default {
   width: 250px;
   background: #2d2d2d;
   border-right: 1px solid #404040;
-  padding: 1rem;
+  padding: 0.75rem;
   box-shadow: 2px 0 8px rgba(0, 0, 0, 0.3);
   flex-shrink: 0;
+  height: calc(100vh - 80px);
+  overflow-y: auto;
+}
+
+/* 自定义滚动条样式 */
+.workflow-sidebar::-webkit-scrollbar {
+  width: 6px;
+}
+
+.workflow-sidebar::-webkit-scrollbar-track {
+  background: #1a1a1a;
+  border-radius: 3px;
+}
+
+.workflow-sidebar::-webkit-scrollbar-thumb {
+  background: #555555;
+  border-radius: 3px;
+  transition: background 0.2s ease;
+}
+
+.workflow-sidebar::-webkit-scrollbar-thumb:hover {
+  background: #666666;
 }
 
 .node-palette h4 {
-  margin: 0 0 1rem 0;
+  margin: 0 0 0.75rem 0;
   color: #4ecdc4;
-  font-size: 1.1rem;
+  font-size: 1rem;
   font-weight: 600;
   text-align: center;
   border-bottom: 2px solid #4ecdc4;
-  padding-bottom: 0.5rem;
+  padding-bottom: 0.4rem;
 }
 
 .palette-categories {
   display: flex;
   flex-direction: column;
-  gap: 1rem;
+  gap: 0.6rem;
 }
 
 .palette-category {
   background: #323232;
-  border-radius: 8px;
-  padding: 0.75rem;
+  border-radius: 6px;
+  padding: 0.5rem;
   border-left: 3px solid #ff6b6b;
 }
 
 .category-title {
-  margin: 0 0 0.75rem 0;
+  margin: 0 0 0.5rem 0;
   color: #ff6b6b;
-  font-size: 0.85rem;
+  font-size: 0.8rem;
   font-weight: 600;
   text-transform: uppercase;
-  letter-spacing: 0.5px;
+  letter-spacing: 0.4px;
 }
 
 .palette-nodes {
   display: flex;
   flex-direction: column;
-  gap: 0.5rem;
+  gap: 0.3rem;
 }
 
 .palette-node {
   display: flex;
   align-items: center;
-  gap: 0.75rem;
-  padding: 0.75rem 1rem;
+  gap: 0.5rem;
+  padding: 0.4rem 0.75rem;
   background: #404040;
   border: 1px solid #555555;
-  border-radius: 8px;
+  border-radius: 6px;
   cursor: grab;
   transition: all 0.2s ease;
 }
@@ -4751,8 +4581,8 @@ export default {
 .palette-node:hover {
   background: #4a4a4a;
   border-color: #3b82f6;
-  transform: translateY(-2px);
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+  transform: translateY(-1px);
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.3);
 }
 
 .palette-node:active {
@@ -4760,27 +4590,27 @@ export default {
 }
 
 .palette-node .node-icon {
-  font-size: 1.2rem;
-  min-width: 30px;
+  font-size: 1rem;
+  min-width: 24px;
 }
 
 .node-info {
   display: flex;
   flex-direction: column;
-  gap: 0.2rem;
+  gap: 0.1rem;
   flex: 1;
 }
 
 .node-name {
-  font-size: 0.9rem;
+  font-size: 0.8rem;
   font-weight: 600;
   color: #e0e0e0;
 }
 
 .node-desc {
-  font-size: 0.75rem;
+  font-size: 0.7rem;
   color: #b0b0b0;
-  line-height: 1.2;
+  line-height: 1.1;
 }
 
 /* 画布容器 */
@@ -4797,69 +4627,398 @@ export default {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  padding: 1rem 1.5rem;
+  padding: 8px 16px;
   background: #2d2d2d;
   border-bottom: 1px solid #404040;
+  min-height: 48px;
 }
 
 .canvas-header h3 {
   margin: 0;
   color: #e0e0e0;
-  font-size: 1.2rem;
+  font-size: 1rem;
   font-weight: 600;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  max-width: 400px;
+  flex: 1;
 }
 
 .canvas-toolbar {
   display: flex;
   align-items: center;
-  gap: 1rem;
-  flex: 1;
-  justify-content: space-between;
+  gap: 8px;
+  justify-content: flex-end;
+  min-height: 32px;
+  flex-shrink: 0;
 }
 
-.zoom-controls {
+/* 紧凑版缩放控件 */
+.zoom-controls-compact {
   display: flex;
   align-items: center;
-  gap: 0.5rem;
-  background: rgba(255, 255, 255, 0.1);
+  gap: 3px;
+  background: rgba(30, 35, 48, 0.9);
   backdrop-filter: blur(10px);
   border-radius: 8px;
-  padding: 0.25rem;
-  border: 1px solid rgba(255, 255, 255, 0.1);
+  padding: 3px 6px;
+  border: 1px solid rgba(78, 205, 196, 0.2);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
 }
 
-.btn-icon {
+.zoom-btn-mini {
   display: flex;
   align-items: center;
   justify-content: center;
-  width: 32px;
-  height: 32px;
+  width: 22px;
+  height: 22px;
   border: none;
-  border-radius: 6px;
-  background: rgba(255, 255, 255, 0.1);
-  color: #e2e8f0;
-  font-size: 14px;
+  border-radius: 4px;
+  background: rgba(78, 205, 196, 0.1);
+  color: #4ecdc4;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  border: 1px solid rgba(78, 205, 196, 0.2);
+}
+
+.zoom-btn-mini:hover:not(:disabled) {
+  background: rgba(78, 205, 196, 0.2);
+  color: #ffffff;
+  transform: translateY(-0.5px);
+  box-shadow: 0 2px 6px rgba(78, 205, 196, 0.3);
+}
+
+.zoom-btn-mini:disabled {
+  opacity: 0.3;
+  cursor: not-allowed;
+  transform: none;
+  box-shadow: none;
+}
+
+.zoom-mini-display {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 36px;
+  height: 22px;
+  background: rgba(78, 205, 196, 0.1);
+  border: 1px solid rgba(78, 205, 196, 0.2);
+  border-radius: 4px;
   cursor: pointer;
   transition: all 0.2s ease;
 }
 
-.btn-icon:hover:not(:disabled) {
-  background: rgba(255, 255, 255, 0.2);
+.zoom-mini-display:hover {
+  background: rgba(78, 205, 196, 0.15);
+  border-color: rgba(78, 205, 196, 0.3);
+  transform: translateY(-0.5px);
+}
+
+.zoom-mini-text {
+  font-size: 10px;
+  font-weight: 700;
+  color: #4ecdc4;
+  font-family: 'Courier New', monospace;
+  letter-spacing: 0.2px;
+}
+
+.zoom-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 28px;
+  height: 28px;
+  border: none;
+  border-radius: 6px;
+  background: rgba(78, 205, 196, 0.15);
+  color: #4ecdc4;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  border: 1px solid rgba(78, 205, 196, 0.3);
+}
+
+.zoom-btn:hover:not(:disabled) {
+  background: rgba(78, 205, 196, 0.25);
   color: #ffffff;
   transform: translateY(-1px);
+  box-shadow: 0 4px 12px rgba(78, 205, 196, 0.3);
 }
 
-.btn-icon:disabled {
-  opacity: 0.5;
+.zoom-btn:disabled {
+  opacity: 0.3;
   cursor: not-allowed;
+  transform: none;
+  box-shadow: none;
 }
 
-.zoom-level {
+.zoom-slider-container {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 4px;
+  min-width: 120px;
+}
+
+.zoom-slider {
+  width: 100%;
+  height: 3px;
+  background: rgba(78, 205, 196, 0.2);
+  border-radius: 1.5px;
+  outline: none;
+  cursor: pointer;
+  appearance: none;
+  -webkit-appearance: none;
+  transition: all 0.2s ease;
+}
+
+.zoom-slider::-webkit-slider-thumb {
+  appearance: none;
+  width: 12px;
+  height: 12px;
+  background: linear-gradient(135deg, #4ecdc4, #45b7aa);
+  border-radius: 50%;
+  cursor: pointer;
+  box-shadow: 0 1px 4px rgba(78, 205, 196, 0.4);
+  transition: all 0.2s ease;
+}
+
+.zoom-slider::-webkit-slider-thumb:hover {
+  transform: scale(1.1);
+  box-shadow: 0 2px 8px rgba(78, 205, 196, 0.6);
+}
+
+.zoom-slider::-moz-range-thumb {
+  width: 12px;
+  height: 12px;
+  background: linear-gradient(135deg, #4ecdc4, #45b7aa);
+  border-radius: 50%;
+  cursor: pointer;
+  border: none;
+  box-shadow: 0 1px 4px rgba(78, 205, 196, 0.4);
+}
+
+.zoom-level-display {
+  position: relative;
+  width: 100%;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.zoom-percentage {
   font-size: 12px;
-  font-weight: 600;
-  color: #e2e8f0;
-  min-width: 40px;
+  font-weight: 700;
+  color: #4ecdc4;
+  background: rgba(78, 205, 196, 0.1);
+  padding: 2px 8px;
+  border-radius: 8px;
+  border: 1px solid rgba(78, 205, 196, 0.3);
+  min-width: 48px;
   text-align: center;
+  font-family: 'Courier New', monospace;
+  letter-spacing: 0.3px;
+}
+
+.zoom-scale-marks {
+  position: absolute;
+  top: -6px;
+  left: 0;
+  right: 0;
+  height: 2px;
+  pointer-events: none;
+}
+
+.scale-mark {
+  position: absolute;
+  width: 1.5px;
+  height: 1.5px;
+  background: rgba(78, 205, 196, 0.4);
+  border-radius: 50%;
+  transform: translateX(-0.75px);
+  transition: all 0.2s ease;
+}
+
+.scale-mark.active {
+  background: #4ecdc4;
+  width: 3px;
+  height: 3px;
+  transform: translateX(-1.5px);
+  box-shadow: 0 0 4px rgba(78, 205, 196, 0.8);
+}
+
+.zoom-actions {
+  display: flex;
+  gap: 4px;
+}
+
+.zoom-action-btn {
+  display: flex;
+  align-items: center;
+  gap: 2px;
+  padding: 4px 6px;
+  border: none;
+  border-radius: 6px;
+  background: rgba(78, 205, 196, 0.1);
+  color: #4ecdc4;
+  font-size: 10px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  border: 1px solid rgba(78, 205, 196, 0.2);
+}
+
+.zoom-action-btn:hover {
+  background: rgba(78, 205, 196, 0.2);
+  color: #ffffff;
+  transform: translateY(-1px);
+  box-shadow: 0 1px 4px rgba(78, 205, 196, 0.3);
+}
+
+.zoom-action-btn span {
+  font-size: 9px;
+  font-weight: 600;
+}
+
+/* 紧凑版响应式设计 */
+@media (max-width: 1200px) {
+  .canvas-header {
+    padding: 6px 12px;
+    min-height: 44px;
+  }
+  
+  .canvas-header h3 {
+    font-size: 0.9rem;
+    max-width: 150px;
+  }
+  
+  .canvas-toolbar {
+    gap: 6px;
+  }
+}
+
+@media (max-width: 1024px) {
+  .zoom-controls-compact {
+    gap: 2px;
+    padding: 2px 4px;
+  }
+  
+  .zoom-btn-mini {
+    width: 20px;
+    height: 20px;
+  }
+  
+  .zoom-mini-display {
+    min-width: 32px;
+    height: 20px;
+  }
+  
+  .zoom-mini-text {
+    font-size: 9px;
+  }
+  
+  .action-btn-mini {
+    width: 24px;
+    height: 24px;
+  }
+  
+  .canvas-actions-compact {
+    gap: 3px;
+  }
+}
+
+@media (max-width: 768px) {
+  .zoom-controls {
+    gap: 6px;
+    padding: 6px 8px;
+    border-radius: 12px;
+  }
+  
+  .zoom-btn {
+    width: 32px;
+    height: 32px;
+  }
+  
+  .zoom-slider-container {
+    min-width: 100px;
+  }
+  
+  .zoom-percentage {
+    font-size: 12px;
+    padding: 2px 8px;
+    min-width: 45px;
+  }
+  
+  .zoom-actions {
+    display: none; /* 在小屏幕上隐藏快捷操作按钮 */
+  }
+}
+
+/* 缩放控件动画效果 */
+.zoom-controls {
+  transition: all 0.3s ease;
+}
+
+.zoom-controls:hover {
+  transform: translateY(-0.5px);
+  box-shadow: 0 6px 20px rgba(0, 0, 0, 0.4);
+  border-color: rgba(78, 205, 196, 0.3);
+}
+
+/* 缩放滑块轨道高亮效果 */
+.zoom-slider:hover {
+  background: rgba(78, 205, 196, 0.3);
+}
+
+.zoom-slider:focus {
+  background: rgba(78, 205, 196, 0.4);
+}
+
+/* 缩放百分比数字动画 */
+.zoom-percentage {
+  transition: all 0.2s ease;
+}
+
+.zoom-percentage:hover {
+  transform: scale(1.05);
+  background: rgba(78, 205, 196, 0.2);
+  border-color: rgba(78, 205, 196, 0.5);
+}
+
+/* 紧凑版操作按钮 */
+.canvas-actions-compact {
+  display: flex;
+  gap: 4px;
+}
+
+.action-btn-mini {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 28px;
+  height: 28px;
+  border: none;
+  border-radius: 6px;
+  background: rgba(30, 35, 48, 0.8);
+  color: #e2e8f0;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  border: 1px solid rgba(78, 205, 196, 0.1);
+  backdrop-filter: blur(5px);
+}
+
+.action-btn-mini:hover {
+  background: rgba(78, 205, 196, 0.15);
+  color: #4ecdc4;
+  border-color: rgba(78, 205, 196, 0.3);
+  transform: translateY(-1px);
+  box-shadow: 0 2px 8px rgba(78, 205, 196, 0.2);
+}
+
+.action-btn-mini:active {
+  transform: translateY(0);
+  box-shadow: 0 1px 4px rgba(78, 205, 196, 0.2);
 }
 
 .canvas-actions {
@@ -4946,23 +5105,9 @@ export default {
 }
 
 /* 不同类型节点的颜色 */
-.node-start {
-  border-color: #28a745;
-}
 
-.node-start .node-header {
-  background: linear-gradient(135deg, #28a745, #20c997);
-  color: white;
-}
 
-.node-browse {
-  border-color: #007bff;
-}
 
-.node-browse .node-header {
-  background: linear-gradient(135deg, #007bff, #0056b3);
-  color: white;
-}
 
 .node-LLM {
   border-color: #6f42c1;
@@ -5036,14 +5181,7 @@ export default {
   color: #333;
 }
 
-.node-end {
-  border-color: #dc3545;
-}
 
-.node-end .node-header {
-  background: linear-gradient(135deg, #dc3545, #c82333);
-  color: white;
-}
 
 .node-header {
   display: flex;
@@ -5748,6 +5886,36 @@ export default {
   line-height: 1.4;
 }
 
+/* 输入数据提示样式 */
+.input-data-hint {
+  background: linear-gradient(135deg, #ff6b6b, #ffa500);
+  color: white;
+  padding: 12px 16px;
+  border-radius: 8px;
+  margin-bottom: 16px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-weight: 500;
+  box-shadow: 0 2px 8px rgba(255, 107, 107, 0.3);
+  animation: pulse 2s infinite;
+}
+
+.input-data-hint .hint-icon {
+  font-size: 18px;
+  animation: bounce 1s infinite;
+}
+
+@keyframes pulse {
+  0%, 100% { transform: scale(1); }
+  50% { transform: scale(1.02); }
+}
+
+@keyframes bounce {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-3px); }
+}
+
 /* 子配置区域样式 */
 .config-subsection {
   margin-bottom: 1rem;
@@ -5851,31 +6019,7 @@ export default {
   }
  }
  
- .message-time {
-  font-size: 0.7rem;
-  opacity: 0.7;
-}
 
-.chat-input {
-  display: flex;
-  gap: 0.5rem;
-  padding: 1rem 1.5rem;
-  border-top: 1px solid #404040;
-}
-
-.chat-input-field {
-  flex: 1;
-  padding: 0.75rem;
-  border: 1px solid #404040;
-  border-radius: 8px;
-  background: #1a1a1a;
-  color: #e0e0e0;
-}
-
-.chat-input-field:focus {
-  outline: none;
-  border-color: #ff6b6b;
-}
 
 /* Button styles */
 .btn {
@@ -5980,10 +6124,7 @@ export default {
     flex-wrap: wrap;
   }
   
-  .test-chat-container {
-    width: 95%;
-    height: 90%;
-  }
+
 }
 
 /* 节点配置面板样式 */
@@ -6198,16 +6339,7 @@ export default {
   text-overflow: ellipsis;
 }
 
-.node-body .node-service {
-  margin-top: 0.25rem;
-  padding: 0.25rem 0.5rem;
-  background: #4ecdc4;
-  color: #1a1a1a;
-  border-radius: 12px;
-  font-size: 0.7rem;
-  font-weight: 600;
-  display: inline-block;
-}
+
 
 .connection-layer {
   position: absolute;
@@ -7513,6 +7645,347 @@ export default {
     right: 10px;
     left: 10px;
     max-width: none;
+  }
+}
+
+/* 端口数据配置样式 */
+.input-data-config {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+.input-data-item {
+  background: #3a3a3a;
+  border: 1px solid #4a4a4a;
+  border-radius: 8px;
+  padding: 1rem;
+}
+
+.input-data-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 0.75rem;
+}
+
+.input-data-name {
+  font-weight: 600;
+  color: #e0e0e0;
+}
+
+.input-data-type {
+  padding: 0.25rem 0.5rem;
+  background: #6c757d;
+  color: white;
+  border-radius: 4px;
+  font-size: 0.75rem;
+}
+
+.input-control label {
+  display: block;
+  margin-bottom: 0.5rem;
+  font-weight: 500;
+  color: #ccc;
+}
+
+/* 文件上传样式 */
+.file-input {
+  display: none;
+}
+
+.upload-label {
+  display: block;
+  cursor: pointer;
+  border: 2px dashed #666;
+  border-radius: 8px;
+  padding: 1rem;
+  transition: all 0.3s ease;
+  background: #2d2d2d;
+}
+
+.upload-label:hover {
+  border-color: #ff6b6b;
+  background-color: #3a3a3a;
+}
+
+.upload-placeholder {
+  text-align: center;
+  color: #ccc;
+}
+
+.upload-icon {
+  font-size: 2rem;
+  margin-bottom: 0.5rem;
+}
+
+.upload-text {
+  font-weight: 500;
+  margin-bottom: 0.25rem;
+  color: #e0e0e0;
+}
+
+.upload-hint {
+  font-size: 0.875rem;
+  color: #999;
+}
+
+/* 图片上传样式 */
+.image-upload-area {
+  position: relative;
+}
+
+.uploaded-image {
+  position: relative;
+  display: inline-block;
+}
+
+.preview-image {
+  max-width: 100%;
+  max-height: 200px;
+  border-radius: 8px;
+  border: 1px solid #666;
+}
+
+.image-overlay {
+  position: absolute;
+  top: 0;
+  right: 0;
+  background: rgba(0, 0, 0, 0.7);
+  border-radius: 0 8px 0 8px;
+}
+
+.remove-image-btn {
+  background: none;
+  border: none;
+  color: white;
+  font-size: 1.25rem;
+  padding: 0.25rem 0.5rem;
+  cursor: pointer;
+  line-height: 1;
+  transition: all 0.2s ease;
+}
+
+.remove-image-btn:hover {
+  background: rgba(255, 255, 255, 0.2);
+}
+
+/* 音频上传样式 */
+.audio-upload-area {
+  position: relative;
+}
+
+.uploaded-audio {
+  background: #3a3a3a;
+  border: 1px solid #4a4a4a;
+  border-radius: 8px;
+  padding: 1rem;
+}
+
+.audio-info {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 0.5rem;
+}
+
+.audio-name {
+  font-weight: 500;
+  color: #e0e0e0;
+}
+
+.remove-audio-btn {
+  background: #dc3545;
+  border: none;
+  color: white;
+  border-radius: 4px;
+  padding: 0.25rem 0.5rem;
+  cursor: pointer;
+  font-size: 0.875rem;
+  transition: all 0.2s ease;
+}
+
+.remove-audio-btn:hover {
+  background: #c82333;
+}
+
+.audio-preview {
+  width: 100%;
+  max-width: 300px;
+  filter: invert(1);
+  opacity: 0.8;
+}
+
+/* 文件上传样式 */
+.file-upload-area {
+  position: relative;
+}
+
+.uploaded-file {
+  background: #3a3a3a;
+  border: 1px solid #4a4a4a;
+  border-radius: 8px;
+  padding: 1rem;
+}
+
+.file-info {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.file-name {
+  font-weight: 500;
+  color: #e0e0e0;
+}
+
+.remove-file-btn {
+  background: #dc3545;
+  border: none;
+  color: white;
+  border-radius: 4px;
+  padding: 0.25rem 0.5rem;
+  cursor: pointer;
+  font-size: 0.875rem;
+  transition: all 0.2s ease;
+}
+
+.remove-file-btn:hover {
+  background: #c82333;
+}
+
+/* JSON输入样式 */
+.json-textarea {
+  font-family: 'Courier New', monospace;
+  font-size: 0.875rem;
+  resize: vertical;
+  background: #2d2d2d;
+  color: #e0e0e0;
+  border: 1px solid #4a4a4a;
+  border-radius: 4px;
+  padding: 0.5rem;
+}
+
+.json-hint {
+  color: #999;
+  font-size: 0.75rem;
+  margin-top: 0.25rem;
+}
+
+/* 空状态配置面板样式 */
+.empty-config-state {
+  text-align: center;
+  padding: 2rem;
+  color: #ccc;
+}
+
+.empty-config-icon {
+  font-size: 4rem;
+  margin-bottom: 1rem;
+}
+
+.empty-config-state h4 {
+  color: #e0e0e0;
+  margin-bottom: 1rem;
+  font-size: 1.25rem;
+}
+
+.empty-config-state p {
+  margin-bottom: 1.5rem;
+  color: #aaa;
+}
+
+.config-steps {
+  text-align: left;
+  margin: 1.5rem 0;
+  padding-left: 1.5rem;
+}
+
+.config-steps li {
+  margin-bottom: 0.75rem;
+  color: #ddd;
+  line-height: 1.5;
+}
+
+.config-tips {
+  margin-top: 2rem;
+  padding: 1rem;
+  background: #3a3a3a;
+  border-radius: 8px;
+  border: 1px solid #4a4a4a;
+}
+
+.tip-item {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  margin-bottom: 0.75rem;
+  text-align: left;
+}
+
+.tip-item:last-child {
+  margin-bottom: 0;
+}
+
+.tip-icon {
+  font-size: 1.25rem;
+  flex-shrink: 0;
+}
+
+.tip-item span:last-child {
+  color: #ddd;
+  font-size: 0.9rem;
+  line-height: 1.4;
+}
+
+/* 响应式设计 */
+@media (max-width: 768px) {
+  .input-data-config {
+    gap: 0.75rem;
+  }
+  
+  .input-data-item {
+    padding: 0.75rem;
+  }
+  
+  .input-data-header {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 0.5rem;
+  }
+  
+  .preview-image {
+    max-height: 150px;
+  }
+  
+  .upload-label {
+    padding: 0.75rem;
+  }
+  
+  .upload-icon {
+    font-size: 1.5rem;
+  }
+  
+  .empty-config-state {
+    padding: 1.5rem;
+  }
+  
+  .empty-config-icon {
+    font-size: 3rem;
+  }
+  
+  .config-steps {
+    padding-left: 1rem;
+  }
+  
+  .tip-item {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 0.5rem;
+  }
+  
+  .tip-icon {
+    align-self: flex-start;
   }
 }
 </style> 

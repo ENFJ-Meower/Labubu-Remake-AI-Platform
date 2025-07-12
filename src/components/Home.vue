@@ -33,7 +33,7 @@
             </p>
             <div class="hero-buttons">
               <router-link to="/ai-agent" class="btn btn-primary btn-large ripple-effect">
-                {{ $t('home.startChat', 'Start Chat') }}
+                {{ $t('home.buildAgent', 'Build Agent') }}
               </router-link>
               <router-link to="/community" class="btn btn-secondary btn-large ripple-effect">
                 {{ $t('home.learnMore', 'Learn More') }}

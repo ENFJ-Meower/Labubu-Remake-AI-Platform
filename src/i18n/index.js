@@ -64,7 +64,7 @@ const translations = reactive({
     home: {
       title: 'Welcome to Labubu AI Platform',
       subtitle: 'Create, Share, and Explore AI-Generated Content',
-      startChat: 'Start Chat',
+      buildAgent: 'Build Agent',
       learnMore: 'Learn More',
       features: {
         aiAgent: 'AI Agent Studio',
@@ -84,37 +84,7 @@ const translations = reactive({
         discord: 'Join Discord'
       }
     },
-    // 聊天系统
-    chat: {
-      title: 'AI Chat',
-      placeholder: 'Enter your message...',
-      welcomeMessage: 'Hello! I am your AI assistant, happy to serve you.',
-      aiThinking: 'AI is thinking...',
-      regeneratingResponse: 'Regenerating response...',
-      failedToRegenerate: 'Failed to regenerate. Please try again.',
-      uploadFile: 'Upload File',
-      voiceInput: 'Voice Input',
-      fileUpload: {
-        image: 'Image',
-        audio: 'Audio',
-        document: 'Document',
-        uploading: 'Uploading',
-        uploadFailed: 'Upload failed',
-        fileSizeExceeds: 'File size exceeds limit',
-        fileTypeNotSupported: 'File type not supported'
-      },
-      status: {
-        online: 'Online',
-        offline: 'Offline',
-        connecting: 'Connecting...'
-      },
-      suggestions: [
-        'Hello, can you introduce your features?',
-        'Help me analyze this problem',
-        'What can you help me with?',
-        'Give me some suggestions'
-      ]
-    },
+
     // AI Agent
     aiAgent: {
       title: 'AI Agent Studio',
@@ -126,7 +96,13 @@ const translations = reactive({
         workflow: 'Workflow',
         multimodal: 'Multimodal',
         model: 'Model Config',
-        test: 'Test & Deploy'
+        test: 'Test & Deploy',
+        workflowDesign: 'Workflow Design',
+        workflowDesignDesc: 'Visual DAG workflow editor - Core feature',
+        workflowManagement: 'Workflow Management',
+        workflowManagementDesc: 'View and manage all DAG workflows',
+        testDeploy: 'Test & Deploy',
+        testDeployDesc: 'Testing and deployment'
       },
       actions: {
         saveAgent: 'Save Agent',
@@ -144,8 +120,7 @@ const translations = reactive({
         controlNodes: 'Control Nodes',
         aiServices: 'AI Services',
         toolNodes: 'Tool Nodes',
-        startDesc: 'Workflow Start',
-        endDesc: 'Workflow End',
+
         conditionDesc: 'Condition Logic',
         llmDesc: 'Large Language Model',
         sttDesc: 'Speech to Text',
@@ -195,8 +170,7 @@ const translations = reactive({
         testFailed: 'Failed to test workflow',
         deploySuccess: 'Workflow deployed successfully',
         deployFailed: 'Failed to deploy workflow',
-        startNodeRequired: 'Workflow must contain start node',
-        endNodeRequired: 'Workflow must contain end node',
+
         nodeConfigIncomplete: 'Node configuration incomplete',
         nodes: 'Nodes',
         connections: 'Connections',
@@ -208,7 +182,313 @@ const translations = reactive({
         zoomIn: 'Zoom In',
         zoomOut: 'Zoom Out',
         resetZoom: 'Reset Zoom',
-        fitToScreen: 'Fit to Screen'
+        fitToScreen: 'Fit to Screen',
+        // 节点名称
+        conditionNode: 'Condition',
+        llmNode: 'LLM',
+        sttNode: 'STT',
+        ttsNode: 'TTS',
+        pic2textNode: 'Pic2Text',
+        text2picNode: 'Text2Pic',
+        processNode: 'Process',
+        transformNode: 'Transform',
+        // 连接点
+        inputPort: 'IN',
+        outputPort: 'OUT',
+        // 模型选项
+        models: {
+          gpt4: 'GPT-4',
+          gpt35turbo: 'GPT-3.5 Turbo',
+          claude3: 'Claude-3',
+          llama2: 'Llama-2',
+          whisper1: 'Whisper-1',
+          tts1: 'TTS-1',
+          tts1hd: 'TTS-1-HD',
+          dalle3: 'DALL-E 3',
+          dalle2: 'DALL-E 2'
+        },
+        // 语音选项
+        voices: {
+          alloy: 'Alloy',
+          echo: 'Echo',
+          fable: 'Fable',
+          onyx: 'Onyx',
+          nova: 'Nova',
+          shimmer: 'Shimmer'
+        },
+        // 语言选项
+        languages: {
+          chinese: 'Chinese',
+          english: 'English',
+          japanese: 'Japanese',
+          korean: 'Korean'
+        },
+        // 格式选项
+        formats: {
+          mp3: 'MP3',
+          opus: 'Opus',
+          aac: 'AAC',
+          flac: 'FLAC',
+          wav: 'WAV',
+          pcm: 'PCM',
+          json: 'JSON',
+          text: 'Text',
+          srt: 'SRT',
+          verboseJson: 'Verbose JSON',
+          vtt: 'VTT',
+          plainText: 'Plain Text',
+          markdown: 'Markdown',
+          url: 'URL Link',
+          base64: 'Base64 Encoded'
+        },
+        // 配置标签
+        labels: {
+          maxTokens: 'Max Tokens',
+          topP: 'Top P',
+          ttsModel: 'TTS Model',
+          audioFormat: 'Audio Format',
+          speechSpeed: 'Speech Speed',
+          sttModel: 'STT Model',
+          responseFormat: 'Response Format',
+          recognitionLanguage: 'Recognition Language',
+          outputFormat: 'Output Format',
+          detailLevel: 'Detail Level',
+          imageModel: 'Image Model',
+          imageCount: 'Image Count',
+          userIdentifier: 'User Identifier',
+          conditionExpression: 'Condition Expression',
+          retryCount: 'Retry Count',
+          retryInterval: 'Retry Interval (ms)',
+          timeoutSeconds: 'Timeout (s)',
+          errorHandling: 'Error Handling',
+          fallbackValue: 'Fallback Value',
+          portName: 'Port Name',
+          dataType: 'Data Type'
+        },
+        // 帮助文本
+        helpTexts: {
+          stopSequences: 'LLM will stop generating when encountering these sequences, one per line',
+          userIdForMonitoring: 'For monitoring and abuse prevention, recommend using UUID',
+          logitBias: 'Adjust probability of specific tokens, JSON object format',
+          audioFormatHelp: 'Choose audio output format, affects file size and quality',
+          maxTokensHelp: 'Limit maximum length of output text',
+          conditionHelp: 'Supports JavaScript expressions, can reference input data using variable names',
+          retryHelp: 'Number of retries when node execution fails',
+          retryIntervalHelp: 'Wait time between retries',
+          timeoutHelp: 'Maximum wait time for node execution',
+          errorHandlingHelp: 'Choose how to handle errors',
+          fallbackHelp: 'Default value to use when node execution fails',
+          imageCountHelp: 'Number of images to generate at once, DALL-E 3 supports max 1',
+          userIdImageHelp: 'For monitoring and abuse prevention, recommend using UUID'
+        },
+        // 尺寸选项
+        imageSizes: {
+          size256: '256x256',
+          size512: '512x512',
+          size1024: '1024x1024',
+          size1792x1024: '1792x1024 (Landscape)',
+          size1024x1792: '1024x1792 (Portrait)'
+        },
+        // 数据类型
+        dataTypes: {
+          text: 'Text',
+          image: 'Image',
+          audio: 'Audio',
+          file: 'File',
+          json: 'JSON'
+        },
+        // 错误处理选项
+        errorHandlingOptions: {
+          stop: 'Stop Workflow',
+          continue: 'Continue Execution',
+          retry: 'Retry Execution',
+          fallback: 'Use Fallback Value'
+        },
+        // 详细程度选项
+        detailLevels: {
+          low: 'Low - Fast Processing',
+          high: 'High - Detailed Analysis',
+          auto: 'Auto - Smart Selection'
+        },
+        // 环境选项
+        environments: {
+          development: 'Development',
+          testing: 'Testing',
+          production: 'Production'
+        },
+        // 页面标题和描述
+        workflowManagement: {
+          title: 'Workflow Management',
+          description: 'View and manage all your DAG workflows',
+          runningLabel: 'Running',
+          totalWorkflows: 'Total Workflows',
+          runningWorkflows: 'Running',
+          completedWorkflows: 'Completed',
+          failedWorkflows: 'Failed',
+          searchPlaceholder: 'Search workflows...',
+          refresh: 'Refresh',
+          noWorkflows: 'No Workflows',
+          noWorkflowsDescription: 'You haven\'t created any workflows yet. Start designing your first workflow!',
+          createWorkflow: 'Create Workflow',
+          nodeCount: 'Node Count:',
+          createdAt: 'Created At:',
+          viewStatus: 'View Status',
+          viewResults: 'View Results',
+          clone: 'Clone',
+          deleteWorkflow: 'Delete',
+          loading: 'Loading workflow list...',
+          loadError: 'Load Failed',
+          retry: 'Retry',
+          close: 'Close',
+          refreshStatus: 'Refresh Status',
+          refreshStatusFailed: 'Failed to refresh status'
+        },
+        inputData: 'Input Data Configuration',
+        inputContent: 'Input Content',
+        inputTextPlaceholder: 'Enter text content...',
+        uploadImage: 'Upload Image',
+        uploadAudio: 'Upload Audio',
+        uploadFile: 'Upload File',
+        clickToUpload: 'Click to upload image',
+        clickToUploadAudio: 'Click to upload audio',
+        clickToUploadFile: 'Click to upload file',
+        supportedFormats: 'Supports JPG, PNG, GIF formats',
+        audioFormats: 'Supports MP3, WAV, OGG formats',
+        inputJson: 'JSON Data',
+        jsonPlaceholder: 'Enter JSON format data...',
+        jsonHint: 'Please enter valid JSON format data',
+        configurationPanel: 'Configuration Panel',
+        selectNodeToConfig: 'Select Node to Configure',
+        configInstructions: 'Please follow these steps:',
+        step1: 'Drag nodes from left sidebar to canvas',
+        step2: 'Click on a node to select it',
+        step3: 'Configure node parameters here',
+        step4: 'Set input data (text, images, etc.)',
+        tip1: 'LLM nodes support direct text input or image upload',
+        tip2: 'Drag connection points to create data flows',
+        tip3: 'Test and deploy workflow after configuration',
+        testDeploy: {
+          title: 'Test & Deploy',
+          description: 'Test workflow functionality and deploy to production',
+          workflowTesting: 'Workflow Testing',
+          testWorkflow: 'Test Workflow',
+          validateDAG: 'Validate DAG',
+          performanceTest: 'Performance Test',
+          deployment: 'Deployment',
+          deploymentEnvironment: 'Deployment Environment',
+          deployWorkflow: 'Deploy Workflow'
+        },
+        // 快捷键
+        shortcuts: {
+          keyboardGuide: 'Keyboard Shortcuts Guide',
+          editOperations: 'Edit Operations',
+          workflowOperations: 'Workflow Operations',
+          canvasOperations: 'Canvas Operations',
+          undo: 'Undo',
+          redo: 'Redo',
+          copySelectedNode: 'Copy Selected Node',
+          pasteNode: 'Paste Node',
+          deleteSelectedNode: 'Delete Selected Node',
+          saveWorkflow: 'Save Workflow',
+          selectAllNodes: 'Select All Nodes',
+          zoomCanvas: 'Zoom Canvas',
+          moveCanvas: 'Move Canvas',
+          selectNode: 'Select Node',
+          dragNode: 'Drag Node',
+          mouseWheel: 'Mouse Wheel',
+          dragBlankArea: 'Drag Blank Area',
+          clickNode: 'Click Node',
+          dragToConnect: 'Drag to create connection'
+        },
+        // 状态值
+        statusValues: {
+          ready: 'Ready',
+          running: 'Running',
+          completed: 'Completed',
+          failed: 'Failed',
+          empty: 'Empty',
+          unnamed: 'Unnamed Workflow',
+          deployed: 'Deployed',
+          pending: 'Pending'
+        },
+        // 工具栏按钮
+        toolbar: {
+          clear: 'Clear',
+          save: 'Save',
+          saveWorkflow: 'Save Workflow',
+          testWorkflow: 'Test Workflow',
+          deployWorkflow: 'Deploy Workflow',
+          designer: 'Designer',
+          dagWorkflow: 'DAG Workflow'
+        },
+        // 状态筛选器
+        statusFilters: {
+          all: 'All',
+          running: 'Running',
+          completed: 'Completed',
+          failed: 'Failed',
+          pending: 'Pending'
+        },
+        // 节点描述
+        nodeDescriptions: {
+          workflowStart: 'Workflow start',
+          workflowEnd: 'Workflow end',
+          conditionJudgment: 'Condition judgment',
+          dataProcessing: 'Data processing',
+          dataTransformation: 'Data transformation'
+        },
+        // 端口配置
+        ports: {
+          trigger: 'trigger',
+          result: 'result',
+          input: 'input',
+          output: 'output',
+          true: 'true',
+          false: 'false',
+          prompt: 'prompt',
+          response: 'response',
+          audio: 'audio',
+          text: 'text',
+          image: 'image'
+        },
+        // 额外的翻译项
+        inputPortsLabel: '🔽 Input:',
+        outputPortsLabel: '🔼 Output:',
+        generalConfig: 'General Configuration',
+        retryCount: 'Retry Count',
+        retryCountPlaceholder: '3',
+        retryCountHelp: 'Number of retries when node execution fails',
+        retryInterval: 'Retry Interval(ms)',
+        retryIntervalPlaceholder: '1000',
+        retryIntervalHelp: 'Wait time between each retry',
+        executionTimeout: 'Execution Timeout(s)',
+        executionTimeoutPlaceholder: '30',
+        executionTimeoutHelp: 'Maximum wait time for node execution',
+        errorHandling: 'Error Handling',
+        errorHandlingHelp: 'Choose how to handle errors',
+        fallbackValue: 'Fallback Value',
+        fallbackValuePlaceholder: 'Default value to use on error',
+        fallbackValueHelp: 'Fallback value when node execution fails',
+        portNamePlaceholder: 'Port Name',
+        portTypes: {
+          text: 'Text',
+          image: 'Image',
+          audio: 'Audio',
+          file: 'File',
+          json: 'JSON'
+        },
+        unknown: 'Unknown',
+        jsExpressionHelp: 'Supports JavaScript expressions, can reference input data using variable names',
+        fromNode: 'From Node',
+        toNode: 'To Node',
+        connectionConfiguration: 'Connection Configuration',
+        connectionPrompt: 'Connection Prompt',
+        connectionPromptPlaceholder: 'Enter connection prompt for data transformation during passing...',
+        connectionPromptTips: 'Connection prompt defines transformation logic for data passing between nodes, can include variables like {input_data}',
+        connectionDescription: 'Connection Description',
+        connectionDescPlaceholder: 'Describe this connection\'s purpose...',
+        saveConnection: 'Save Connection',
+        deleteConnection: 'Delete Connection'
       }
     },
     // 社区
@@ -358,7 +638,7 @@ const translations = reactive({
     home: {
       title: '欢迎来到Labubu AI平台',
       subtitle: '创造、分享和探索AI生成内容',
-      startChat: '开始对话',
+      buildAgent: '构建智能体',
       learnMore: '了解更多',
       features: {
         aiAgent: 'AI智能体工作室',
@@ -378,37 +658,7 @@ const translations = reactive({
         discord: '加入Discord'
       }
     },
-    // 聊天系统
-    chat: {
-      title: 'AI对话',
-      placeholder: '输入您的消息...',
-      welcomeMessage: '您好！我是您的AI助手，很高兴为您服务。',
-      aiThinking: 'AI正在思考...',
-      regeneratingResponse: '正在重新生成回复...',
-      failedToRegenerate: '重新生成失败，请重试。',
-      uploadFile: '上传文件',
-      voiceInput: '语音输入',
-      fileUpload: {
-        image: '图片',
-        audio: '音频',
-        document: '文档',
-        uploading: '上传中',
-        uploadFailed: '上传失败',
-        fileSizeExceeds: '文件大小超出限制',
-        fileTypeNotSupported: '不支持的文件类型'
-      },
-      status: {
-        online: '在线',
-        offline: '离线',
-        connecting: '连接中...'
-      },
-      suggestions: [
-        '您好，可以介绍一下您的功能吗？',
-        '帮我分析这个问题',
-        '您能帮我做什么？',
-        '给我一些建议'
-      ]
-    },
+
     // AI Agent
     aiAgent: {
       title: 'AI智能体工作室',
@@ -420,7 +670,13 @@ const translations = reactive({
         workflow: '工作流',
         multimodal: '多模态',
         model: '模型配置',
-        test: '测试与部署'
+        test: '测试与部署',
+        workflowDesign: '工作流设计',
+        workflowDesignDesc: '可视化DAG工作流编辑器 - 核心功能',
+        workflowManagement: '工作流管理',
+        workflowManagementDesc: '查看和管理您的所有DAG工作流',
+        testDeploy: '测试与部署',
+        testDeployDesc: '测试和部署功能'
       },
       actions: {
         saveAgent: '保存智能体',
@@ -438,8 +694,7 @@ const translations = reactive({
         controlNodes: '控制节点',
         aiServices: 'AI服务',
         toolNodes: '工具节点',
-        startDesc: '工作流开始',
-        endDesc: '工作流结束',
+
         conditionDesc: '条件判断',
         llmDesc: '大语言模型',
         sttDesc: '语音转文字',
@@ -489,8 +744,7 @@ const translations = reactive({
         testFailed: '测试工作流失败',
         deploySuccess: '工作流部署成功',
         deployFailed: '部署工作流失败',
-        startNodeRequired: '工作流必须包含开始节点',
-        endNodeRequired: '工作流必须包含结束节点',
+
         nodeConfigIncomplete: '节点配置不完整',
         nodes: '节点',
         connections: '连接',
@@ -502,7 +756,313 @@ const translations = reactive({
         zoomIn: '放大',
         zoomOut: '缩小',
         resetZoom: '重置缩放',
-        fitToScreen: '适合屏幕'
+        fitToScreen: '适合屏幕',
+        // 节点名称
+        conditionNode: '条件',
+        llmNode: 'LLM',
+        sttNode: 'STT',
+        ttsNode: 'TTS',
+        pic2textNode: '图片转文字',
+        text2picNode: '文字转图片',
+        processNode: '处理',
+        transformNode: '转换',
+        // 连接点
+        inputPort: '入',
+        outputPort: '出',
+        // 模型选项
+        models: {
+          gpt4: 'GPT-4',
+          gpt35turbo: 'GPT-3.5 Turbo',
+          claude3: 'Claude-3',
+          llama2: 'Llama-2',
+          whisper1: 'Whisper-1',
+          tts1: 'TTS-1',
+          tts1hd: 'TTS-1-HD',
+          dalle3: 'DALL-E 3',
+          dalle2: 'DALL-E 2'
+        },
+        // 语音选项
+        voices: {
+          alloy: 'Alloy',
+          echo: 'Echo',
+          fable: 'Fable',
+          onyx: 'Onyx',
+          nova: 'Nova',
+          shimmer: 'Shimmer'
+        },
+        // 语言选项
+        languages: {
+          chinese: '中文',
+          english: '英文',
+          japanese: '日文',
+          korean: '韩文'
+        },
+        // 格式选项
+        formats: {
+          mp3: 'MP3',
+          opus: 'Opus',
+          aac: 'AAC',
+          flac: 'FLAC',
+          wav: 'WAV',
+          pcm: 'PCM',
+          json: 'JSON',
+          text: '文本',
+          srt: 'SRT',
+          verboseJson: '详细JSON',
+          vtt: 'VTT',
+          plainText: '纯文本',
+          markdown: 'Markdown',
+          url: 'URL链接',
+          base64: 'Base64编码'
+        },
+        // 配置标签
+        labels: {
+          maxTokens: '最大Token数',
+          topP: 'Top P',
+          ttsModel: 'TTS模型',
+          audioFormat: '音频格式',
+          speechSpeed: '语速',
+          sttModel: 'STT模型',
+          responseFormat: '响应格式',
+          recognitionLanguage: '识别语言',
+          outputFormat: '输出格式',
+          detailLevel: '详细程度',
+          imageModel: '图片模型',
+          imageCount: '图片数量',
+          userIdentifier: '用户标识',
+          conditionExpression: '条件表达式',
+          retryCount: '重试次数',
+          retryInterval: '重试间隔(ms)',
+          timeoutSeconds: '超时时间(s)',
+          errorHandling: '错误处理',
+          fallbackValue: '备用值',
+          portName: '端口名称',
+          dataType: '数据类型'
+        },
+        // 帮助文本
+        helpTexts: {
+          stopSequences: 'LLM遇到这些序列时将停止生成，每行一个序列',
+          userIdForMonitoring: '用于监控和防滥用，建议使用UUID',
+          logitBias: '调整特定令牌的出现概率，格式为JSON对象',
+          audioFormatHelp: '选择音频输出格式，影响文件大小和质量',
+          maxTokensHelp: '限制输出文本的最大长度',
+          conditionHelp: '支持JavaScript表达式，可使用变量名引用输入数据',
+          retryHelp: '节点执行失败时的重试次数',
+          retryIntervalHelp: '每次重试之间的等待时间',
+          timeoutHelp: '节点执行的最大等待时间',
+          errorHandlingHelp: '选择错误发生时的处理方式',
+          fallbackHelp: '当节点执行失败时使用的备用值',
+          imageCountHelp: '一次生成的图片数量，DALL-E 3最多支持1张',
+          userIdImageHelp: '用于监控和防滥用，建议使用UUID'
+        },
+        // 尺寸选项
+        imageSizes: {
+          size256: '256x256',
+          size512: '512x512',
+          size1024: '1024x1024',
+          size1792x1024: '1792x1024 (横向)',
+          size1024x1792: '1024x1792 (纵向)'
+        },
+        // 数据类型
+        dataTypes: {
+          text: '文本',
+          image: '图片',
+          audio: '音频',
+          file: '文件',
+          json: 'JSON'
+        },
+        // 错误处理选项
+        errorHandlingOptions: {
+          stop: '停止工作流',
+          continue: '继续执行',
+          retry: '重试执行',
+          fallback: '使用备用值'
+        },
+        // 详细程度选项
+        detailLevels: {
+          low: '低 - 快速处理',
+          high: '高 - 详细分析',
+          auto: '自动 - 智能选择'
+        },
+        // 环境选项
+        environments: {
+          development: '开发环境',
+          testing: '测试环境',
+          production: '生产环境'
+        },
+        // 页面标题和描述
+        workflowManagement: {
+          title: '工作流管理',
+          description: '查看和管理您的所有DAG工作流',
+          runningLabel: '运行中',
+          totalWorkflows: '总工作流',
+          runningWorkflows: '运行中',
+          completedWorkflows: '已完成',
+          failedWorkflows: '失败',
+          searchPlaceholder: '搜索工作流...',
+          refresh: '刷新',
+          noWorkflows: '暂无工作流',
+          noWorkflowsDescription: '您还没有创建任何工作流，现在就开始设计您的第一个工作流吧！',
+          createWorkflow: '创建工作流',
+          nodeCount: '节点数:',
+          createdAt: '创建时间:',
+          viewStatus: '查看状态',
+          viewResults: '查看结果',
+          clone: '复制',
+          deleteWorkflow: '删除',
+          loading: '正在加载工作流列表...',
+          loadError: '加载失败',
+          retry: '重试',
+          close: '关闭',
+          refreshStatus: '刷新状态',
+          refreshStatusFailed: '刷新状态失败'
+        },
+        inputData: '输入数据配置',
+        inputContent: '输入内容',
+        inputTextPlaceholder: '输入文本内容...',
+        uploadImage: '上传图片',
+        uploadAudio: '上传音频',
+        uploadFile: '上传文件',
+        clickToUpload: '点击上传图片',
+        clickToUploadAudio: '点击上传音频',
+        clickToUploadFile: '点击上传文件',
+        supportedFormats: '支持 JPG、PNG、GIF 格式',
+        audioFormats: '支持 MP3、WAV、OGG 格式',
+        inputJson: 'JSON数据',
+        jsonPlaceholder: '输入JSON格式数据...',
+        jsonHint: '请输入有效的JSON格式数据',
+        configurationPanel: '配置面板',
+        selectNodeToConfig: '选择节点进行配置',
+        configInstructions: '请按照以下步骤操作：',
+        step1: '从左侧拖拽节点到画布',
+        step2: '点击节点进行选择',
+        step3: '在此处配置节点参数',
+        step4: '设置输入数据（文字、图片等）',
+        tip1: 'LLM节点支持直接输入文字或上传图片',
+        tip2: '拖拽节点连接点可以创建数据流',
+        tip3: '配置完成后可以测试和部署工作流',
+        testDeploy: {
+          title: '测试与部署',
+          description: '测试工作流功能并部署到生产环境',
+          workflowTesting: '工作流测试',
+          testWorkflow: '测试工作流',
+          validateDAG: '验证DAG',
+          performanceTest: '性能测试',
+          deployment: '部署',
+          deploymentEnvironment: '部署环境',
+          deployWorkflow: '部署工作流'
+        },
+        // 快捷键
+        shortcuts: {
+          keyboardGuide: '快捷键指南',
+          editOperations: '编辑操作',
+          workflowOperations: '工作流操作',
+          canvasOperations: '画布操作',
+          undo: '撤销',
+          redo: '重做',
+          copySelectedNode: '复制选中节点',
+          pasteNode: '粘贴节点',
+          deleteSelectedNode: '删除选中节点',
+          saveWorkflow: '保存工作流',
+          selectAllNodes: '选择所有节点',
+          zoomCanvas: '缩放画布',
+          moveCanvas: '移动画布',
+          selectNode: '选择节点',
+          dragNode: '拖拽节点',
+          mouseWheel: '鼠标滚轮',
+          dragBlankArea: '拖拽空白区域',
+          clickNode: '点击节点',
+          dragToConnect: '按住拖拽创建连接'
+        },
+        // 状态值
+        statusValues: {
+          ready: '就绪',
+          running: '运行中',
+          completed: '已完成',
+          failed: '失败',
+          empty: '空白',
+          unnamed: '未命名工作流',
+          deployed: '已部署',
+          pending: '待运行'
+        },
+        // 工具栏按钮
+        toolbar: {
+          clear: '清空',
+          save: '保存',
+          saveWorkflow: '保存工作流',
+          testWorkflow: '测试工作流',
+          deployWorkflow: '部署工作流',
+          designer: '设计器',
+          dagWorkflow: 'DAG工作流'
+        },
+        // 状态筛选器
+        statusFilters: {
+          all: '全部',
+          running: '运行中',
+          completed: '已完成',
+          failed: '失败',
+          pending: '待运行'
+        },
+        // 节点描述
+        nodeDescriptions: {
+          workflowStart: '工作流开始',
+          workflowEnd: '工作流结束',
+          conditionJudgment: '条件判断',
+          dataProcessing: '数据处理',
+          dataTransformation: '数据转换'
+        },
+        // 端口配置
+        ports: {
+          trigger: '触发器',
+          result: '结果',
+          input: '输入',
+          output: '输出',
+          true: '真',
+          false: '假',
+          prompt: '提示',
+          response: '响应',
+          audio: '音频',
+          text: '文本',
+          image: '图片'
+        },
+        // 额外的翻译项
+        inputPortsLabel: '🔽 输入:',
+        outputPortsLabel: '🔼 输出:',
+        generalConfig: '通用配置',
+        retryCount: '重试次数',
+        retryCountPlaceholder: '3',
+        retryCountHelp: '节点执行失败时的重试次数',
+        retryInterval: '重试间隔(ms)',
+        retryIntervalPlaceholder: '1000',
+        retryIntervalHelp: '每次重试之间的等待时间',
+        executionTimeout: '超时时间(s)',
+        executionTimeoutPlaceholder: '30',
+        executionTimeoutHelp: '节点执行的最大等待时间',
+        errorHandling: '错误处理',
+        errorHandlingHelp: '选择错误发生时的处理方式',
+        fallbackValue: '备用值',
+        fallbackValuePlaceholder: '错误时使用的默认值',
+        fallbackValueHelp: '当节点执行失败时使用的备用值',
+        portNamePlaceholder: '端口名称',
+        portTypes: {
+          text: '文本',
+          image: '图片',
+          audio: '音频',
+          file: '文件',
+          json: 'JSON'
+        },
+        unknown: '未知',
+        jsExpressionHelp: '支持JavaScript表达式，可使用变量名引用输入数据',
+        fromNode: '源节点',
+        toNode: '目标节点',
+        connectionConfiguration: '连接配置',
+        connectionPrompt: '连接提示词',
+        connectionPromptPlaceholder: '输入连接提示词，用于在数据传递时进行转换或处理...',
+        connectionPromptTips: '连接提示词用于定义数据在节点间传递时的转换逻辑，可以包含变量如 {input_data}',
+        connectionDescription: '连接描述',
+        connectionDescPlaceholder: '描述此连接的作用...',
+        saveConnection: '保存连接',
+        deleteConnection: '删除连接'
       }
     },
     // 社区
