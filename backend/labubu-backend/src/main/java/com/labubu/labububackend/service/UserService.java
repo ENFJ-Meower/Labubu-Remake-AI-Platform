@@ -9,12 +9,20 @@ import java.security.SecureRandom;
 import java.sql.Timestamp;
 import java.util.Base64;
 import org.springframework.security.crypto.bcrypt.BCrypt;
+import com.labubu.labububackend.util.MailUtil;
+import java.util.concurrent.ConcurrentHashMap;
 
 @Service
 public class UserService {
 
     @Autowired
     private UserRepository userRepository;
+
+    @Autowired
+    private MailUtil mailUtil;
+
+    // 内存存储验证码（生产环境建议用Redis）
+    private ConcurrentHashMap<String, String> emailCodeMap = new ConcurrentHashMap<>();
 
     // 注册新用户
     public User register(String username, String email, String password) {
@@ -54,6 +62,24 @@ public class UserService {
             throw new RuntimeException("密码错误");
         }
         return user;
+    }
+
+    // 发送验证码
+    public void sendEmailCode(String email) {
+        String code = String.valueOf((int)((Math.random()*9+1)*100000));
+        emailCodeMap.put(email, code);
+        // 临时禁用邮件发送，改为控制台输出
+        System.out.println("========== 验证码发送 ==========");
+        System.out.println("邮箱: " + email);
+        System.out.println("验证码: " + code);
+        System.out.println("================================");
+        // mailUtil.sendSimpleMail(email, "Labubu注册验证码", "您的验证码是：" + code + "，5分钟内有效。");
+    }
+
+    // 校验验证码
+    public boolean verifyEmailCode(String email, String code) {
+        String realCode = emailCodeMap.get(email);
+        return code != null && code.equals(realCode);
     }
 
     // 生成盐

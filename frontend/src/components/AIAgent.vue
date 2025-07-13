@@ -381,9 +381,9 @@
                   <p>{{ $t('aiAgent.workflow.configInstructions', '请按照以下步骤操作：') }}</p>
                   <ol class="config-steps">
                     <li>{{ $t('aiAgent.workflow.step1', '从左侧拖拽节点到画布') }}</li>
-                    <li><strong>{{ $t('aiAgent.workflow.step2', '点击节点进行选择') }}</strong> - 点击节点本身，不是连接点</li>
+                    <li><strong>{{ $t('aiAgent.workflow.step2', '点击节点进行选择') }}</strong> - {{ $t('aiAgent.workflow.step2Detail', '点击节点本身，不是连接点') }}</li>
                     <li>{{ $t('aiAgent.workflow.step3', '在此处配置节点参数') }}</li>
-                    <li><strong>{{ $t('aiAgent.workflow.step4', '设置输入数据（文字、图片等）') }}</strong> - 在下方"输入数据配置"中输入</li>
+                    <li><strong>{{ $t('aiAgent.workflow.step4', '设置输入数据（文字、图片等）') }}</strong> - {{ $t('aiAgent.workflow.step4Detail', '在下方"输入数据配置"中输入') }}</li>
                   </ol>
                   <div class="config-tips">
                     <div class="tip-item">
@@ -392,7 +392,7 @@
                     </div>
                     <div class="tip-item">
                       <span class="tip-icon">📝</span>
-                      <span><strong>输入文字位置：</strong>选择节点后，向下滚动找到"输入数据配置"部分</span>
+                      <span>{{ $t('aiAgent.workflow.tipInputLocation', '输入文字位置：选择节点后，向下滚动找到"输入数据配置"部分') }}</span>
                     </div>
                     <div class="tip-item">
                       <span class="tip-icon">🔗</span>
@@ -415,531 +415,30 @@
               </div>
               
               <div class="config-content">
-                <!-- 基础配置 -->
+                <!-- 核心配置 -->
                 <div class="config-section">
                   <label>{{ $t('aiAgent.workflow.nodeName', '节点名称') }}</label>
                   <input v-model="selectedNodeData.title" type="text" class="form-input" :placeholder="$t('aiAgent.workflow.nodeNamePlaceholder', '输入节点名称')">
                 </div>
-                
+
+                <!-- Prompt配置（核心配置） -->
                 <div class="config-section">
-                  <label>{{ $t('aiAgent.workflow.nodeDescription', '节点描述') }}</label>
-                  <textarea v-model="selectedNodeData.description" class="form-textarea" rows="3" :placeholder="$t('aiAgent.workflow.nodeDescPlaceholder', '描述节点功能')"></textarea>
-                </div>
-
-                <!-- 服务类型配置（AI服务节点必须配置） -->
-                <div v-if="isAIServiceNode(selectedNodeData.type)" class="config-section">
-                  <label>{{ $t('aiAgent.workflow.serviceType', '服务类型') }}</label>
-                  <select v-model="selectedNodeData.service" class="form-select">
-                    <option value="">{{ $t('aiAgent.workflow.selectServiceType', '选择服务类型') }}</option>
-                    <option value="LLM">LLM - {{ $t('aiAgent.workflow.llmService', '大语言模型') }}</option>
-                    <option value="STT">STT - {{ $t('aiAgent.workflow.sttService', '语音转文字') }}</option>
-                    <option value="TTS">TTS - {{ $t('aiAgent.workflow.ttsService', '文字转语音') }}</option>
-                    <option value="pic2text">Pic2Text - {{ $t('aiAgent.workflow.pic2textService', '图片转文字') }}</option>
-                    <option value="text2pic">Text2Pic - {{ $t('aiAgent.workflow.text2picService', '文字转图片') }}</option>
-                  </select>
-                </div>
-
-                <!-- Prompt配置（所有AI服务节点必须配置） -->
-                <div v-if="isAIServiceNode(selectedNodeData.type)" class="config-section">
                   <label>{{ $t('aiAgent.workflow.nodePrompt', '节点提示词') }}</label>
                   <textarea 
                     v-model="selectedNodeData.prompt" 
                     class="form-textarea prompt-textarea" 
-                    rows="8" 
-                    :placeholder="getPromptPlaceholder(selectedNodeData.service)"
+                    rows="6" 
+                    :placeholder="$t('aiAgent.workflow.nodePromptPlaceholder', '输入节点的提示词...')"
                   ></textarea>
                   <div class="prompt-tips">
-                    <small>{{ getPromptTips(selectedNodeData.service) }}</small>
-                  </div>
-                </div>
-                
-                <!-- LLM特有配置 -->
-                <div v-if="selectedNodeData.service === 'LLM'" class="config-section">
-                  <label>{{ $t('aiAgent.workflow.llmModel', 'LLM模型') }}</label>
-                  <select v-model="selectedNodeData.model" class="form-select">
-                    <option value="gpt-4">{{ $t('aiAgent.workflow.models.gpt4', 'GPT-4') }}</option>
-                    <option value="gpt-3.5-turbo">{{ $t('aiAgent.workflow.models.gpt35turbo', 'GPT-3.5 Turbo') }}</option>
-                    <option value="claude-3">{{ $t('aiAgent.workflow.models.claude3', 'Claude-3') }}</option>
-                    <option value="llama-2">{{ $t('aiAgent.workflow.models.llama2', 'Llama-2') }}</option>
-                  </select>
-                </div>
-
-                <div v-if="selectedNodeData.service === 'LLM'" class="config-section">
-                  <label>{{ $t('aiAgent.workflow.temperature', '温度值') }}</label>
-                  <input 
-                    v-model.number="selectedNodeData.temperature" 
-                    type="range" 
-                    min="0" 
-                    max="2" 
-                    step="0.1" 
-                    class="form-range"
-                  >
-                  <div class="range-labels">
-                    <span>{{ $t('aiAgent.workflow.conservative', '保守') }} (0)</span>
-                    <span>{{ selectedNodeData.temperature }}</span>
-                    <span>{{ $t('aiAgent.workflow.creative', '创造') }} (2)</span>
+                    <small>{{ $t('aiAgent.workflow.promptTipsSimple', '提示词用于指导AI如何处理输入数据') }}</small>
                   </div>
                 </div>
 
-                <div v-if="selectedNodeData.service === 'LLM'" class="config-section">
-                  <label>{{ $t('aiAgent.workflow.labels.maxTokens', '最大Token数') }}</label>
-                  <input 
-                    v-model.number="selectedNodeData.max_tokens" 
-                    type="number" 
-                    min="1" 
-                    max="4000" 
-                    class="form-input"
-                    placeholder="2000"
-                  >
-                </div>
-
-                <div v-if="selectedNodeData.service === 'LLM'" class="config-section">
-                  <label>{{ $t('aiAgent.workflow.labels.topP', 'Top P') }}</label>
-                  <input 
-                    v-model.number="selectedNodeData.top_p" 
-                    type="range" 
-                    min="0" 
-                    max="1" 
-                    step="0.1" 
-                    class="form-range"
-                  >
-                  <div class="range-labels">
-                    <span>确定 (0)</span>
-                    <span>{{ selectedNodeData.top_p }}</span>
-                    <span>随机 (1)</span>
-                  </div>
-                </div>
-
-                <div v-if="selectedNodeData.service === 'LLM'" class="config-section">
-                  <label>频率惩罚</label>
-                  <input 
-                    v-model.number="selectedNodeData.frequency_penalty" 
-                    type="range" 
-                    min="0" 
-                    max="2" 
-                    step="0.1" 
-                    class="form-range"
-                  >
-                  <div class="range-labels">
-                    <span>无 (0)</span>
-                    <span>{{ selectedNodeData.frequency_penalty }}</span>
-                    <span>强 (2)</span>
-                  </div>
-                </div>
-
-                <div v-if="selectedNodeData.service === 'LLM'" class="config-section">
-                  <label>存在惩罚</label>
-                  <input 
-                    v-model.number="selectedNodeData.presence_penalty" 
-                    type="range" 
-                    min="0" 
-                    max="2" 
-                    step="0.1" 
-                    class="form-range"
-                  >
-                  <div class="range-labels">
-                    <span>无 (0)</span>
-                    <span>{{ selectedNodeData.presence_penalty }}</span>
-                    <span>强 (2)</span>
-                  </div>
-                </div>
-
-                <div v-if="selectedNodeData.service === 'LLM'" class="config-section">
-                  <label>停止序列</label>
-                  <textarea 
-                    v-model="selectedNodeData.stop" 
-                    class="form-textarea" 
-                    rows="2" 
-                    placeholder="输入停止序列，用换行分隔，例如：&#10;###&#10;---"
-                  ></textarea>
-                  <small class="config-help">{{ $t('aiAgent.workflow.helpTexts.stopSequences', 'LLM遇到这些序列时将停止生成，每行一个序列') }}</small>
-                </div>
-
-                <div v-if="selectedNodeData.service === 'LLM'" class="config-section">
-                  <label>{{ $t('aiAgent.workflow.labels.userIdentifier', '用户标识') }}</label>
-                  <input 
-                    v-model="selectedNodeData.user" 
-                    type="text" 
-                    class="form-input"
-                    placeholder="用于识别用户的唯一标识"
-                  >
-                  <small class="config-help">{{ $t('aiAgent.workflow.helpTexts.userIdForMonitoring', '用于监控和防滥用，建议使用UUID') }}</small>
-                </div>
-
-                <div v-if="selectedNodeData.service === 'LLM'" class="config-section">
-                  <label>流式输出</label>
-                  <input 
-                    v-model="selectedNodeData.stream" 
-                    type="checkbox" 
-                    class="form-checkbox"
-                  >
-                  <span class="checkbox-label">启用流式输出</span>
-                  <small class="config-help">启用后将实时返回生成的内容</small>
-                </div>
-
-                <div v-if="selectedNodeData.service === 'LLM'" class="config-section">
-                  <label>令牌偏差</label>
-                  <textarea 
-                    v-model="selectedNodeData.logit_bias" 
-                    class="form-textarea" 
-                    rows="3" 
-                    placeholder="JSON格式，例如：{&quot;1234&quot;: 10, &quot;5678&quot;: -10}"
-                  ></textarea>
-                  <small class="config-help">调整特定令牌的出现概率，格式为JSON对象</small>
-                </div>
-
-                <!-- TTS特有配置 -->
-                <div v-if="selectedNodeData.service === 'TTS'" class="config-section">
-                  <label>{{ $t('aiAgent.workflow.voiceType', '语音类型') }}</label>
-                  <select v-model="selectedNodeData.voice" class="form-select">
-                    <option value="alloy">{{ $t('aiAgent.workflow.voices.alloy', 'Alloy') }}</option>
-                    <option value="echo">{{ $t('aiAgent.workflow.voices.echo', 'Echo') }}</option>
-                    <option value="fable">{{ $t('aiAgent.workflow.voices.fable', 'Fable') }}</option>
-                    <option value="onyx">{{ $t('aiAgent.workflow.voices.onyx', 'Onyx') }}</option>
-                    <option value="nova">{{ $t('aiAgent.workflow.voices.nova', 'Nova') }}</option>
-                    <option value="shimmer">{{ $t('aiAgent.workflow.voices.shimmer', 'Shimmer') }}</option>
-                  </select>
-                </div>
-
-                <div v-if="selectedNodeData.service === 'TTS'" class="config-section">
-                  <label>{{ $t('aiAgent.workflow.labels.ttsModel', 'TTS模型') }}</label>
-                  <select v-model="selectedNodeData.model" class="form-select">
-                    <option value="tts-1">{{ $t('aiAgent.workflow.models.tts1', 'TTS-1') }}</option>
-                    <option value="tts-1-hd">{{ $t('aiAgent.workflow.models.tts1hd', 'TTS-1-HD') }}</option>
-                  </select>
-                </div>
-
-                <div v-if="selectedNodeData.service === 'TTS'" class="config-section">
-                  <label>{{ $t('aiAgent.workflow.labels.audioFormat', '音频格式') }}</label>
-                  <select v-model="selectedNodeData.response_format" class="form-select">
-                    <option value="mp3">{{ $t('aiAgent.workflow.formats.mp3', 'MP3') }}</option>
-                    <option value="opus">{{ $t('aiAgent.workflow.formats.opus', 'Opus') }}</option>
-                    <option value="aac">{{ $t('aiAgent.workflow.formats.aac', 'AAC') }}</option>
-                    <option value="flac">{{ $t('aiAgent.workflow.formats.flac', 'FLAC') }}</option>
-                    <option value="wav">{{ $t('aiAgent.workflow.formats.wav', 'WAV') }}</option>
-                    <option value="pcm">{{ $t('aiAgent.workflow.formats.pcm', 'PCM') }}</option>
-                  </select>
-                  <small class="config-help">{{ $t('aiAgent.workflow.helpTexts.audioFormatHelp', '选择音频输出格式，影响文件大小和质量') }}</small>
-                </div>
-
-                <div v-if="selectedNodeData.service === 'TTS'" class="config-section">
-                  <label>语速</label>
-                  <input 
-                    v-model.number="selectedNodeData.speed" 
-                    type="range" 
-                    min="0.25" 
-                    max="4.0" 
-                    step="0.25" 
-                    class="form-range"
-                  >
-                  <div class="range-labels">
-                    <span>慢 (0.25)</span>
-                    <span>{{ selectedNodeData.speed }}</span>
-                    <span>快 (4.0)</span>
-                  </div>
-                </div>
-
-                <!-- STT特有配置 -->
-                <div v-if="selectedNodeData.service === 'STT'" class="config-section">
-                  <label>{{ $t('aiAgent.workflow.language', '语言') }}</label>
-                  <select v-model="selectedNodeData.language" class="form-select">
-                    <option value="zh">中文</option>
-                    <option value="en">English</option>
-                    <option value="ja">日本語</option>
-                    <option value="ko">한국어</option>
-                  </select>
-                </div>
-
-                <div v-if="selectedNodeData.service === 'STT'" class="config-section">
-                  <label>STT模型</label>
-                  <select v-model="selectedNodeData.model" class="form-select">
-                    <option value="whisper-1">Whisper-1</option>
-                  </select>
-                </div>
-
-                <div v-if="selectedNodeData.service === 'STT'" class="config-section">
-                  <label>响应格式</label>
-                  <select v-model="selectedNodeData.response_format" class="form-select">
-                    <option value="json">JSON</option>
-                    <option value="text">Text</option>
-                    <option value="srt">SRT</option>
-                    <option value="verbose_json">详细JSON</option>
-                    <option value="vtt">VTT</option>
-                  </select>
-                </div>
-
-                <div v-if="selectedNodeData.service === 'STT'" class="config-section">
-                  <label>温度值</label>
-                  <input 
-                    v-model.number="selectedNodeData.temperature" 
-                    type="range" 
-                    min="0" 
-                    max="1" 
-                    step="0.1" 
-                    class="form-range"
-                  >
-                  <div class="range-labels">
-                    <span>确定 (0)</span>
-                    <span>{{ selectedNodeData.temperature }}</span>
-                    <span>随机 (1)</span>
-                  </div>
-                </div>
-
-                <div v-if="selectedNodeData.service === 'STT'" class="config-section">
-                  <label>转录提示词</label>
-                  <textarea 
-                    v-model="selectedNodeData.stt_prompt" 
-                    class="form-textarea" 
-                    rows="3" 
-                    placeholder="用于引导转录的提示词，例如：请转录这段医疗对话..."
-                  ></textarea>
-                  <small class="config-help">可选的提示词用于引导转录风格和专业术语</small>
-                </div>
-
-                <div v-if="selectedNodeData.service === 'STT'" class="config-section">
-                  <label>时间戳粒度</label>
-                  <select v-model="selectedNodeData.timestamp_granularities" class="form-select">
-                    <option value="segment">段落级</option>
-                    <option value="word">词级</option>
-                  </select>
-                  <small class="config-help">选择时间戳的精细程度</small>
-                </div>
-
-                <!-- pic2text特有配置 -->
-                <div v-if="selectedNodeData.service === 'pic2text'" class="config-section">
-                  <label>识别语言</label>
-                  <select v-model="selectedNodeData.language" class="form-select">
-                    <option value="zh">中文</option>
-                    <option value="en">English</option>
-                    <option value="ja">日本語</option>
-                    <option value="ko">한국어</option>
-                  </select>
-                </div>
-
-                <div v-if="selectedNodeData.service === 'pic2text'" class="config-section">
-                  <label>输出格式</label>
-                  <select v-model="selectedNodeData.format" class="form-select">
-                    <option value="plain">纯文本</option>
-                    <option value="markdown">Markdown</option>
-                    <option value="json">JSON</option>
-                  </select>
-                </div>
-
-                <div v-if="selectedNodeData.service === 'pic2text'" class="config-section">
-                  <label>最大Token数</label>
-                  <input 
-                    v-model.number="selectedNodeData.max_tokens" 
-                    type="number" 
-                    min="1" 
-                    max="2000" 
-                    class="form-input"
-                    placeholder="1000"
-                  >
-                  <small class="config-help">限制输出文本的最大长度</small>
-                </div>
-
-                <div v-if="selectedNodeData.service === 'pic2text'" class="config-section">
-                  <label>详细程度</label>
-                  <select v-model="selectedNodeData.detail" class="form-select">
-                    <option value="low">低 - 快速处理</option>
-                    <option value="high">高 - 详细分析</option>
-                    <option value="auto">自动 - 智能选择</option>
-                  </select>
-                  <small class="config-help">选择图片分析的详细程度</small>
-                </div>
-
-                <div v-if="selectedNodeData.service === 'pic2text'" class="config-section">
-                  <label>图片质量</label>
-                  <select v-model="selectedNodeData.quality" class="form-select">
-                    <option value="standard">标准质量</option>
-                    <option value="hd">高清质量</option>
-                  </select>
-                  <small class="config-help">选择图片处理质量</small>
-                </div>
-
-                <!-- 图片生成特有配置 -->
-                <div v-if="selectedNodeData.service === 'text2pic'" class="config-section">
-                  <label>图片模型</label>
-                  <select v-model="selectedNodeData.model" class="form-select">
-                    <option value="dall-e-3">DALL-E 3</option>
-                    <option value="dall-e-2">DALL-E 2</option>
-                  </select>
-                </div>
-
-                <div v-if="selectedNodeData.service === 'text2pic'" class="config-section">
-                  <label>{{ $t('aiAgent.workflow.imageSize', '图片尺寸') }}</label>
-                  <select v-model="selectedNodeData.size" class="form-select">
-                    <option value="256x256">256x256</option>
-                    <option value="512x512">512x512</option>
-                    <option value="1024x1024">1024x1024</option>
-                    <option value="1792x1024">1792x1024 (横向)</option>
-                    <option value="1024x1792">1024x1792 (纵向)</option>
-                  </select>
-                </div>
-
-                <div v-if="selectedNodeData.service === 'text2pic'" class="config-section">
-                  <label>{{ $t('aiAgent.workflow.imageStyle', '图片风格') }}</label>
-                  <select v-model="selectedNodeData.style" class="form-select">
-                    <option value="natural">自然</option>
-                    <option value="vivid">生动</option>
-                    <option value="artistic">艺术</option>
-                  </select>
-                </div>
-
-                <div v-if="selectedNodeData.service === 'text2pic'" class="config-section">
-                  <label>图片质量</label>
-                  <select v-model="selectedNodeData.quality" class="form-select">
-                    <option value="standard">标准</option>
-                    <option value="hd">高清</option>
-                  </select>
-                </div>
-
-                <div v-if="selectedNodeData.service === 'text2pic'" class="config-section">
-                  <label>生成数量</label>
-                  <input 
-                    v-model.number="selectedNodeData.n" 
-                    type="number" 
-                    min="1" 
-                    max="4" 
-                    class="form-input"
-                    placeholder="1"
-                  >
-                  <small class="config-help">一次生成的图片数量，DALL-E 3最多支持1张</small>
-                </div>
-
-                <div v-if="selectedNodeData.service === 'text2pic'" class="config-section">
-                  <label>用户标识</label>
-                  <input 
-                    v-model="selectedNodeData.user" 
-                    type="text" 
-                    class="form-input"
-                    placeholder="用于识别用户的唯一标识"
-                  >
-                  <small class="config-help">用于监控和防滥用，建议使用UUID</small>
-                </div>
-
-                <div v-if="selectedNodeData.service === 'text2pic'" class="config-section">
-                  <label>响应格式</label>
-                  <select v-model="selectedNodeData.response_format" class="form-select">
-                    <option value="url">URL链接</option>
-                    <option value="b64_json">Base64编码</option>
-                  </select>
-                  <small class="config-help">选择图片返回格式</small>
-                </div>
 
 
 
-                <!-- 条件节点配置 -->
-                <div v-if="selectedNodeData.type === 'condition'" class="config-section">
-                  <label>{{ $t('aiAgent.workflow.conditionExpression', '条件表达式') }}</label>
-                  <input v-model="selectedNodeData.condition" type="text" class="form-input" :placeholder="$t('aiAgent.workflow.conditionPlaceholder', '例如：result.length > 0')">
-                  <small class="config-help">{{ $t('aiAgent.workflow.jsExpressionHelp', '支持JavaScript表达式，可使用变量名引用输入数据') }}</small>
-                </div>
 
-                <!-- 通用节点配置 -->
-                <div class="config-section">
-                  <h5>{{ $t('aiAgent.workflow.generalConfig', '通用配置') }}</h5>
-                  
-                  <div class="config-subsection">
-                    <label>{{ $t('aiAgent.workflow.retryCount', '重试次数') }}</label>
-                    <input 
-                      v-model.number="selectedNodeData.retry_count" 
-                      type="number" 
-                      min="0" 
-                      max="5" 
-                      class="form-input"
-                      :placeholder="$t('aiAgent.workflow.retryCountPlaceholder', '3')"
-                    >
-                    <small class="config-help">{{ $t('aiAgent.workflow.retryCountHelp', '节点执行失败时的重试次数') }}</small>
-                  </div>
-
-                  <div class="config-subsection">
-                    <label>{{ $t('aiAgent.workflow.retryInterval', '重试间隔(ms)') }}</label>
-                    <input 
-                      v-model.number="selectedNodeData.retry_delay" 
-                      type="number" 
-                      min="100" 
-                      max="10000" 
-                      class="form-input"
-                      :placeholder="$t('aiAgent.workflow.retryIntervalPlaceholder', '1000')"
-                    >
-                    <small class="config-help">{{ $t('aiAgent.workflow.retryIntervalHelp', '每次重试之间的等待时间') }}</small>
-                  </div>
-
-                  <div class="config-subsection">
-                    <label>{{ $t('aiAgent.workflow.executionTimeout', '超时时间(s)') }}</label>
-                    <input 
-                      v-model.number="selectedNodeData.execution_timeout" 
-                      type="number" 
-                      min="1" 
-                      max="300" 
-                      class="form-input"
-                      :placeholder="$t('aiAgent.workflow.executionTimeoutPlaceholder', '30')"
-                    >
-                    <small class="config-help">{{ $t('aiAgent.workflow.executionTimeoutHelp', '节点执行的最大等待时间') }}</small>
-                  </div>
-
-                  <div class="config-subsection">
-                    <label>{{ $t('aiAgent.workflow.errorHandling', '错误处理') }}</label>
-                    <select v-model="selectedNodeData.error_handling" class="form-select">
-                      <option value="stop">{{ $t('aiAgent.workflow.errorHandlingOptions.stop', '停止工作流') }}</option>
-                      <option value="continue">{{ $t('aiAgent.workflow.errorHandlingOptions.continue', '继续执行') }}</option>
-                      <option value="retry">{{ $t('aiAgent.workflow.errorHandlingOptions.retry', '重试执行') }}</option>
-                      <option value="fallback">{{ $t('aiAgent.workflow.errorHandlingOptions.fallback', '使用备用值') }}</option>
-                    </select>
-                    <small class="config-help">{{ $t('aiAgent.workflow.errorHandlingHelp', '选择错误发生时的处理方式') }}</small>
-                  </div>
-
-                  <div v-if="selectedNodeData.error_handling === 'fallback'" class="config-subsection">
-                    <label>{{ $t('aiAgent.workflow.fallbackValue', '备用值') }}</label>
-                    <textarea 
-                      v-model="selectedNodeData.fallback_value" 
-                      class="form-textarea" 
-                      rows="2" 
-                      :placeholder="$t('aiAgent.workflow.fallbackValuePlaceholder', '错误时使用的默认值')"
-                    ></textarea>
-                    <small class="config-help">{{ $t('aiAgent.workflow.fallbackValueHelp', '当节点执行失败时使用的备用值') }}</small>
-                  </div>
-                </div>
-
-                <!-- 输入输出配置 -->
-                <div class="config-section">
-                  <h5>{{ $t('aiAgent.workflow.inputOutput', '输入输出') }}</h5>
-                  
-                  <div class="io-config">
-                    <div class="io-section">
-                      <label>{{ $t('aiAgent.workflow.inputPorts', '输入端口') }}</label>
-                      <div v-for="(input, index) in selectedNodeData.inputs" :key="index" class="io-item">
-                        <input v-model="input.name" type="text" :placeholder="$t('aiAgent.workflow.portNamePlaceholder', '端口名称')" class="form-input-sm">
-                        <select v-model="input.type" class="form-select-sm">
-                          <option value="text">{{ $t('aiAgent.workflow.portTypes.text', '文本') }}</option>
-                          <option value="image">{{ $t('aiAgent.workflow.portTypes.image', '图片') }}</option>
-                          <option value="audio">{{ $t('aiAgent.workflow.portTypes.audio', '音频') }}</option>
-                          <option value="file">{{ $t('aiAgent.workflow.portTypes.file', '文件') }}</option>
-                          <option value="json">{{ $t('aiAgent.workflow.portTypes.json', 'JSON') }}</option>
-                        </select>
-                        <button @click="removeInput(index)" class="btn-remove">×</button>
-                      </div>
-                      <button @click="addInput" class="btn btn-sm btn-outline">+ {{ $t('aiAgent.workflow.addInput', '添加输入') }}</button>
-                    </div>
-
-                    <div class="io-section">
-                      <label>{{ $t('aiAgent.workflow.outputPorts', '输出端口') }}</label>
-                      <div v-for="(output, index) in selectedNodeData.outputs" :key="index" class="io-item">
-                        <input v-model="output.name" type="text" :placeholder="$t('aiAgent.workflow.portNamePlaceholder', '端口名称')" class="form-input-sm">
-                        <select v-model="output.type" class="form-select-sm">
-                          <option value="text">{{ $t('aiAgent.workflow.portTypes.text', '文本') }}</option>
-                          <option value="image">{{ $t('aiAgent.workflow.portTypes.image', '图片') }}</option>
-                          <option value="audio">{{ $t('aiAgent.workflow.portTypes.audio', '音频') }}</option>
-                          <option value="file">{{ $t('aiAgent.workflow.portTypes.file', '文件') }}</option>
-                          <option value="json">{{ $t('aiAgent.workflow.portTypes.json', 'JSON') }}</option>
-                        </select>
-                        <button @click="removeOutput(index)" class="btn-remove">×</button>
-                      </div>
-                      <button @click="addOutput" class="btn btn-sm btn-outline">+ {{ $t('aiAgent.workflow.addOutput', '添加输出') }}</button>
-                    </div>
-                  </div>
-                </div>
 
                 <!-- 端口数据配置 -->
                 <div class="config-section" v-if="selectedNodeData.inputs && selectedNodeData.inputs.length > 0">
@@ -1063,8 +562,14 @@
                 </div>
                 
                 <div class="config-actions">
-                  <button class="btn btn-primary" @click="saveNodeConfig">{{ $t('aiAgent.workflow.saveConfig', '保存配置') }}</button>
-                  <button class="btn btn-outline" @click="validateNodeConfig">{{ $t('aiAgent.workflow.validateConfig', '验证配置') }}</button>
+                  <button class="btn btn-save" @click="saveNodeConfig">
+                    <span class="btn-icon">💾</span>
+                    {{ $t('aiAgent.workflow.saveConfig', '保存配置') }}
+                  </button>
+                  <button class="btn btn-validate" @click="validateNodeConfig">
+                    <span class="btn-icon">✅</span>
+                    {{ $t('aiAgent.workflow.validateConfig', '验证配置') }}
+                  </button>
                 </div>
               </div>
             </div>
@@ -1115,11 +620,13 @@
                 </div>
                 
                 <div class="config-actions">
-                  <button class="btn btn-primary" @click="saveConnectionConfig">
-                    <i class="icon">💾</i> {{ $t('aiAgent.workflow.saveConnection', '保存连接') }}
+                  <button class="btn btn-save" @click="saveConnectionConfig">
+                    <span class="btn-icon">💾</span>
+                    {{ $t('aiAgent.workflow.saveConnection', '保存连接') }}
                   </button>
                   <button class="btn btn-danger" @click="deleteConnection">
-                    <i class="icon">🗑️</i> {{ $t('aiAgent.workflow.deleteConnection', '删除连接') }}
+                    <span class="btn-icon">🗑️</span>
+                    {{ $t('aiAgent.workflow.deleteConnection', '删除连接') }}
                   </button>
                 </div>
               </div>
@@ -1487,62 +994,185 @@
     <div v-if="showResultsViewer" class="modal-overlay" @click="closeResultsViewer">
       <div class="results-viewer-modal" @click.stop>
         <div class="modal-header">
-          <h3>📋 执行结果查看器</h3>
+          <h3>📋 工作流执行结果 - {{ currentWorkflow.name || monitoringWorkflowId }}</h3>
           <button class="close-btn" @click="closeResultsViewer">×</button>
         </div>
         
         <div class="modal-body">
-          <!-- 结果概览 -->
-          <div class="results-overview">
-            <h4>结果概览</h4>
-            <div class="overview-stats">
-              <div class="overview-item">
-                <div class="overview-label">总计消息</div>
-                <div class="overview-value">{{ workflowResults?.total_messages || 0 }}</div>
+          <!-- 🎯 最终输出区域 -->
+          <div class="final-output-section" :class="{ 'focused': focusOnFinalOutput }">
+            <div class="final-output-header">
+              <h4>🎯 最终输出</h4>
+              <div class="output-node-info" v-if="finalOutputNode">
+                <span class="node-type">{{ finalOutputNode.service || finalOutputNode.type }}</span>
+                <span class="node-name">{{ finalOutputNode.name || finalOutputNode.id }}</span>
               </div>
-              <div class="overview-item">
-                <div class="overview-label">成功处理</div>
-                <div class="overview-value">{{ workflowResults?.successful_messages || 0 }}</div>
+            </div>
+            
+            <div class="final-output-content">
+              <div v-if="!finalOutputData" class="no-final-output">
+                <div class="empty-icon">🎯</div>
+                <p>暂无最终输出结果</p>
+                <small>工作流可能未完成或没有输出节点</small>
               </div>
-              <div class="overview-item">
-                <div class="overview-label">处理失败</div>
-                <div class="overview-value">{{ workflowResults?.failed_messages || 0 }}</div>
+              
+              <div v-else class="final-output-display" :class="finalOutputData.type">
+                <!-- 文本输出 -->
+                <div v-if="finalOutputData.type === 'text'" class="output-text">
+                  <pre>{{ finalOutputData.displayContent }}</pre>
+                </div>
+                
+                <!-- JSON输出 -->
+                <div v-else-if="finalOutputData.type === 'json'" class="output-json">
+                  <pre>{{ finalOutputData.displayContent }}</pre>
+                </div>
+                
+                <!-- 图片输出 -->
+                <div v-else-if="finalOutputData.type === 'image'" class="output-image">
+                  <img :src="finalOutputData.content" alt="输出图片" @error="handleImageError" />
+                </div>
+                
+                <!-- 音频输出 -->
+                <div v-else-if="finalOutputData.type === 'audio'" class="output-audio">
+                  <audio controls :src="finalOutputData.content" @error="handleAudioError">
+                    您的浏览器不支持音频播放
+                  </audio>
+                </div>
+                
+                <!-- 视频输出 -->
+                <div v-else-if="finalOutputData.type === 'video'" class="output-video">
+                  <video controls :src="finalOutputData.content" @error="handleVideoError">
+                    您的浏览器不支持视频播放
+                  </video>
+                </div>
+                
+                <!-- 其他类型 -->
+                <div v-else class="output-other">
+                  <pre>{{ finalOutputData.displayContent }}</pre>
+                </div>
+              </div>
+              
+              <!-- 操作按钮 -->
+              <div v-if="finalOutputData" class="output-actions">
+                <button class="action-btn primary" @click="copyFinalOutput" title="复制">
+                  <i class="icon">📋</i> 复制
+                </button>
+                <button class="action-btn secondary" @click="downloadFinalOutput" title="下载">
+                  <i class="icon">💾</i> 下载
+                </button>
+                <button class="action-btn secondary" @click="shareFinalOutput" title="分享">
+                  <i class="icon">🔗</i> 分享
+                </button>
+                <button class="action-btn secondary" @click="viewFinalOutputFullscreen" title="全屏">
+                  <i class="icon">⛶</i> 全屏
+                </button>
               </div>
             </div>
           </div>
 
-          <!-- 消息列表 -->
-          <div class="messages-section">
-            <h4>消息列表</h4>
-            <div class="messages-filters">
-              <select v-model="selectedMessageType" class="filter-select">
-                <option value="all">所有消息</option>
-                <option value="input">输入消息</option>
-                <option value="output">输出消息</option>
-                <option value="error">错误消息</option>
-              </select>
-              <button class="btn btn-sm" @click="exportResults">导出结果</button>
-            </div>
-            <div class="messages-list">
-              <div v-if="!filteredMessages || filteredMessages.length === 0" 
-                   class="empty-messages">
-                <div class="empty-icon">💬</div>
-                <p>暂无消息记录</p>
+          <!-- 📊 执行摘要 -->
+          <div class="execution-summary-section">
+            <h4>📊 执行摘要</h4>
+            <div class="summary-stats">
+              <div class="summary-item">
+                <div class="summary-label">总耗时</div>
+                <div class="summary-value">{{ formatDuration(calculateExecutionSummary().totalTime) }}</div>
               </div>
-              <div v-else class="messages-grid">
-                <div v-for="message in filteredMessages" 
-                     :key="message.id"
-                     class="message-item"
-                     :class="message.type">
-                  <div class="message-header">
-                    <div class="message-type">{{ message.type }}</div>
-                    <div class="message-time">{{ formatTime(message.timestamp) }}</div>
+              <div class="summary-item">
+                <div class="summary-label">成功节点</div>
+                <div class="summary-value">{{ calculateExecutionSummary().successfulNodes }}/{{ calculateExecutionSummary().totalNodes }}</div>
+              </div>
+              <div class="summary-item">
+                <div class="summary-label">执行状态</div>
+                <div class="summary-value status-badge" :class="calculateExecutionSummary().status">
+                  {{ getStatusLabel(calculateExecutionSummary().status) }}
+                </div>
+              </div>
+              <div class="summary-item">
+                <div class="summary-label">完成时间</div>
+                <div class="summary-value">{{ formatDate(currentWorkflowStatus?.end_time) }}</div>
+              </div>
+            </div>
+          </div>
+
+          <!-- 🔄 节点执行详情 -->
+          <div class="node-execution-details">
+            <h4>🔄 节点执行详情</h4>
+            <div class="execution-flow">
+              <div v-if="!currentWorkflowStatus?.nodes || currentWorkflowStatus.nodes.length === 0" 
+                   class="empty-nodes">
+                <div class="empty-icon">🔄</div>
+                <p>暂无节点执行详情</p>
+              </div>
+              <div v-else class="nodes-flow">
+                <div v-for="(node, index) in currentWorkflowStatus.nodes" 
+                     :key="node.node_id"
+                     class="flow-node"
+                     :class="{ 'final-node': node.node_id === finalOutputNode?.id }">
+                  <div class="node-info">
+                    <div class="node-icon">{{ getNodeIcon(node.node_type) }}</div>
+                    <div class="node-details">
+                      <div class="node-name">{{ node.node_name || node.node_id }}</div>
+                      <div class="node-type">{{ node.node_type }}</div>
+                    </div>
                   </div>
-                  <div class="message-content">
-                    <pre v-if="message.content">{{ formatMessageContent(message.content) }}</pre>
-                    <div v-if="message.error" class="message-error">
-                      <div class="error-icon">❌</div>
-                      <div class="error-text">{{ message.error }}</div>
+                  <div class="node-status-badge" :class="node.status">
+                    {{ getStatusLabel(node.status) }}
+                  </div>
+                  <div class="node-time">{{ formatTime(node.execution_time) }}</div>
+                  
+                  <!-- 连接箭头 -->
+                  <div v-if="index < currentWorkflowStatus.nodes.length - 1" class="flow-arrow">
+                    ➜
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- 📋 完整日志 (可折叠) -->
+          <div class="full-logs-section">
+            <div class="logs-header" @click="toggleLogsExpanded">
+              <h4>📋 完整日志</h4>
+              <button class="expand-btn" :class="{ 'expanded': logsExpanded }">
+                {{ logsExpanded ? '收起' : '展开' }}
+              </button>
+            </div>
+            
+            <div v-if="logsExpanded" class="logs-content">
+              <!-- 消息筛选 -->
+              <div class="messages-filters">
+                <select v-model="selectedMessageType" class="filter-select">
+                  <option value="all">所有消息</option>
+                  <option value="input">输入消息</option>
+                  <option value="output">输出消息</option>
+                  <option value="error">错误消息</option>
+                </select>
+                <button class="btn btn-sm" @click="exportResults">导出日志</button>
+              </div>
+              
+              <!-- 消息列表 -->
+              <div class="messages-list">
+                <div v-if="!filteredMessages || filteredMessages.length === 0" 
+                     class="empty-messages">
+                  <div class="empty-icon">💬</div>
+                  <p>暂无消息记录</p>
+                </div>
+                <div v-else class="messages-grid">
+                  <div v-for="message in filteredMessages" 
+                       :key="message.id"
+                       class="message-item"
+                       :class="message.type">
+                    <div class="message-header">
+                      <div class="message-type">{{ message.type }}</div>
+                      <div class="message-time">{{ formatTime(message.timestamp) }}</div>
+                    </div>
+                    <div class="message-content">
+                      <pre v-if="message.content">{{ formatMessageContent(message.content) }}</pre>
+                      <div v-if="message.error" class="message-error">
+                        <div class="error-icon">❌</div>
+                        <div class="error-text">{{ message.error }}</div>
+                      </div>
                     </div>
                   </div>
                 </div>
@@ -1625,7 +1255,7 @@ export default {
       
       // 其他状态
       nodeIdCounter: 0,
-      workflowStatus: this.$t ? this.$t('aiAgent.workflow.statusValues.ready', 'Ready') : 'Ready',
+      workflowStatus: 'Ready', // 始终使用英文key，通过getTranslatedStatus方法进行翻译
       statusEventSource: null,
       
       // 快捷键映射
@@ -1670,6 +1300,13 @@ export default {
       showStatusMonitor: false,
       showResultsViewer: false,
       selectedMessageType: 'all',
+      
+      // 最终输出相关
+      finalOutputNode: null,
+      finalOutputData: null,
+      finalOutputType: 'text',
+      focusOnFinalOutput: false,
+      logsExpanded: false,
       
       // SSE连接状态
       sseConnectionStatus: 'disconnected', // disconnected, connecting, connected, error
@@ -1765,17 +1402,29 @@ export default {
     getTranslatedStatus(status) {
       if (!status) return ''
       
-      const statusMap = {
-        'Ready': this.$t('aiAgent.workflow.statusValues.ready', 'Ready'),
-        'Running': this.$t('aiAgent.workflow.statusValues.running', 'Running'),
-        'Completed': this.$t('aiAgent.workflow.statusValues.completed', 'Completed'),
-        'Failed': this.$t('aiAgent.workflow.statusValues.failed', 'Failed'),
-        'Deployed': this.$t('aiAgent.workflow.statusValues.deployed', 'Deployed'),
-        'Empty': this.$t('aiAgent.workflow.statusValues.empty', 'Empty'),
-        'Unnamed': this.$t('aiAgent.workflow.statusValues.unnamed', 'Unnamed')
+      // 将状态值标准化为英文key，然后进行翻译
+      const statusKeyMap = {
+        'Ready': 'ready',
+        'Running': 'running', 
+        'Completed': 'completed',
+        'Failed': 'failed',
+        'Deployed': 'deployed',
+        'Empty': 'empty',
+        'Unnamed': 'unnamed',
+        'Pending': 'pending',
+        // 中文状态值也映射到相应的key
+        '就绪': 'ready',
+        '运行中': 'running',
+        '已完成': 'completed',
+        '失败': 'failed',
+        '已部署': 'deployed',
+        '空白': 'empty',
+        '未命名工作流': 'unnamed',
+        '待运行': 'pending'
       }
       
-      return statusMap[status] || status
+      const statusKey = statusKeyMap[status] || status.toLowerCase()
+      return this.$t(`aiAgent.workflow.statusValues.${statusKey}`, status)
     },
     saveWorkflow() {
       // Save current workflow
@@ -1811,6 +1460,16 @@ export default {
       }
       return labels[type] || type
     },
+    getPortTypeLabel(type) {
+      const typeMap = {
+        'text': this.$t('aiAgent.workflow.portTypes.text', '文本'),
+        'image': this.$t('aiAgent.workflow.portTypes.image', '图片'),
+        'audio': this.$t('aiAgent.workflow.portTypes.audio', '音频'),
+        'file': this.$t('aiAgent.workflow.portTypes.file', '文件'),
+        'json': this.$t('aiAgent.workflow.portTypes.json', 'JSON')
+      }
+      return typeMap[type] || type
+    },
     onDragStart(event, nodeType) {
       event.dataTransfer.setData('nodeType', nodeType)
       event.dataTransfer.effectAllowed = 'copy'
@@ -1834,130 +1493,81 @@ export default {
       const nodeId = `${nodeType}-${++this.nodeIdCounter}`
       const nodeTemplates = {
         condition: {
-          title: 'Condition',
-          description: 'Condition judgment',
-          inputs: [{ name: 'input', type: 'text', value: '' }],
-          outputs: [{ name: 'true', type: 'text' }, { name: 'false', type: 'text' }],
+          title: this.$t('aiAgent.workflow.conditionNode', '条件'),
+          description: this.$t('aiAgent.workflow.conditionDesc', '条件判断'),
+          inputs: [{ name: this.$t('aiAgent.workflow.ports.input', '输入'), type: 'text', value: '' }],
+          outputs: [{ name: this.$t('aiAgent.workflow.ports.true', '真'), type: 'text' }, { name: this.$t('aiAgent.workflow.ports.false', '假'), type: 'text' }],
           condition: '',
-          prompt: '',
+          prompt: this.$t('aiAgent.workflow.defaultPrompts.condition', '根据输入内容进行条件判断，返回true或false。'),
           service: ''
         },
         LLM: {
           title: 'LLM',
-          description: 'Large language model processing',
-          inputs: [{ name: 'prompt', type: 'text', value: '' }],
-          outputs: [{ name: 'response', type: 'text' }],
+          description: this.$t('aiAgent.workflow.llmDesc', '大语言模型处理'),
+          inputs: [{ name: this.$t('aiAgent.workflow.ports.prompt', '提示'), type: 'text', value: '' }],
+          outputs: [{ name: this.$t('aiAgent.workflow.ports.response', '响应'), type: 'text' }],
           service: 'LLM',
-          prompt: '',
+          prompt: this.$t('aiAgent.workflow.defaultPrompts.llm', '请根据输入内容提供有用的回答，保持回答准确、简洁、有帮助。'),
           model: 'gpt-4',
           temperature: 0.7,
-          max_tokens: 2000,
-          top_p: 1.0,
-          frequency_penalty: 0.0,
-          presence_penalty: 0.0,
-          stop: '',
-          user: '',
-          stream: false,
-          logit_bias: '',
-          retry_count: 3,
-          retry_delay: 1000,
-          execution_timeout: 30,
-          error_handling: 'retry'
+          max_tokens: 2000
         },
         STT: {
           title: 'STT',
-          description: 'Speech to text conversion',
-          inputs: [{ name: 'audio', type: 'audio', value: null }],
-          outputs: [{ name: 'text', type: 'text' }],
+          description: this.$t('aiAgent.workflow.sttDesc', '语音转文字'),
+          inputs: [{ name: this.$t('aiAgent.workflow.ports.audio', '音频'), type: 'audio', value: null }],
+          outputs: [{ name: this.$t('aiAgent.workflow.ports.text', '文本'), type: 'text' }],
           service: 'STT',
-          prompt: '',
+          prompt: this.$t('aiAgent.workflow.defaultPrompts.stt', '请将音频准确转换为文字，保持自然的句子结构和正确的标点符号。'),
           language: 'zh',
-          model: 'whisper-1',
-          response_format: 'json',
-          temperature: 0.0,
-          stt_prompt: '',
-          timestamp_granularities: 'segment',
-          retry_count: 3,
-          retry_delay: 1000,
-          execution_timeout: 60,
-          error_handling: 'retry'
+          model: 'whisper-1'
         },
         TTS: {
           title: 'TTS',
-          description: 'Text to speech conversion',
-          inputs: [{ name: 'text', type: 'text', value: '' }],
-          outputs: [{ name: 'audio', type: 'audio' }],
+          description: this.$t('aiAgent.workflow.ttsDesc', '文字转语音'),
+          inputs: [{ name: this.$t('aiAgent.workflow.ports.text', '文本'), type: 'text', value: '' }],
+          outputs: [{ name: this.$t('aiAgent.workflow.ports.audio', '音频'), type: 'audio' }],
           service: 'TTS',
-          prompt: '',
+          prompt: this.$t('aiAgent.workflow.defaultPrompts.tts', '请以自然、清晰的语调朗读文字，注意语速适中，语音自然。'),
           voice: 'alloy',
-          model: 'tts-1',
-          response_format: 'mp3',
-          speed: 1.0,
-          retry_count: 3,
-          retry_delay: 1000,
-          execution_timeout: 30,
-          error_handling: 'retry'
+          speed: 1.0
         },
         pic2text: {
-          title: 'Pic2Text',
-          description: 'Image to text conversion',
-          inputs: [{ name: 'image', type: 'image', value: null }],
-          outputs: [{ name: 'text', type: 'text' }],
+          title: this.$t('aiAgent.workflow.pic2textNode', '图片转文字'),
+          description: this.$t('aiAgent.workflow.pic2textDesc', '图片转文字'),
+          inputs: [{ name: this.$t('aiAgent.workflow.ports.image', '图片'), type: 'image', value: null }],
+          outputs: [{ name: this.$t('aiAgent.workflow.ports.text', '文本'), type: 'text' }],
           service: 'pic2text',
-          prompt: '',
+          prompt: this.$t('aiAgent.workflow.defaultPrompts.pic2text', '请识别图片中的所有文字内容，保持原有的排版结构，准确提取文字信息。'),
           language: 'zh',
-          format: 'markdown',
-          max_tokens: 1000,
-          detail: 'auto',
-          quality: 'standard',
-          retry_count: 3,
-          retry_delay: 1000,
-          execution_timeout: 30,
-          error_handling: 'retry'
+          format: 'markdown'
         },
         text2pic: {
-          title: 'Text2Pic',
-          description: 'Text to image generation',
-          inputs: [{ name: 'prompt', type: 'text', value: '' }],
-          outputs: [{ name: 'image', type: 'image' }],
+          title: this.$t('aiAgent.workflow.text2picNode', '文字转图片'),
+          description: this.$t('aiAgent.workflow.text2picDesc', '文字转图片'),
+          inputs: [{ name: this.$t('aiAgent.workflow.ports.prompt', '提示'), type: 'text', value: '' }],
+          outputs: [{ name: this.$t('aiAgent.workflow.ports.image', '图片'), type: 'image' }],
           service: 'text2pic',
-          prompt: '',
-          model: 'dall-e-3',
+          prompt: this.$t('aiAgent.workflow.defaultPrompts.text2pic', '根据描述生成高质量图片，画面构图合理，色彩和谐，细节丰富。'),
           size: '1024x1024',
-          style: 'natural',
-          quality: 'standard',
-          n: 1,
-          user: '',
-          response_format: 'url',
-          retry_count: 3,
-          retry_delay: 1000,
-          execution_timeout: 60,
-          error_handling: 'retry'
+          style: 'natural'
         },
 
         process: {
-          title: 'Process',
-          description: 'Data processing',
-          inputs: [{ name: 'input', type: 'text', value: '' }],
-          outputs: [{ name: 'output', type: 'text' }],
-          prompt: '',
-          service: '',
-          retry_count: 3,
-          retry_delay: 1000,
-          execution_timeout: 30,
-          error_handling: 'retry'
+          title: this.$t('aiAgent.workflow.processNode', '处理'),
+          description: this.$t('aiAgent.workflow.processDesc', '数据处理'),
+          inputs: [{ name: this.$t('aiAgent.workflow.ports.input', '输入'), type: 'text', value: '' }],
+          outputs: [{ name: this.$t('aiAgent.workflow.ports.output', '输出'), type: 'text' }],
+          prompt: this.$t('aiAgent.workflow.defaultPrompts.process', '对输入数据进行处理和分析，提取有用信息并整理输出。'),
+          service: ''
         },
         transform: {
-          title: 'Transform',
-          description: 'Data transformation',
-          inputs: [{ name: 'input', type: 'text', value: '' }],
-          outputs: [{ name: 'output', type: 'text' }],
-          prompt: '',
-          service: '',
-          retry_count: 3,
-          retry_delay: 1000,
-          execution_timeout: 30,
-          error_handling: 'retry'
+          title: this.$t('aiAgent.workflow.transformNode', '转换'),
+          description: this.$t('aiAgent.workflow.transformDesc', '数据转换'),
+          inputs: [{ name: this.$t('aiAgent.workflow.ports.input', '输入'), type: 'text', value: '' }],
+          outputs: [{ name: this.$t('aiAgent.workflow.ports.output', '输出'), type: 'text' }],
+          prompt: this.$t('aiAgent.workflow.defaultPrompts.transform', '将输入数据转换为指定格式，保持数据的完整性和准确性。'),
+          service: ''
         }
       }
       
@@ -2718,7 +2328,10 @@ export default {
         if (!this.workflowNodes[nodeIndex].inputs) {
           this.workflowNodes[nodeIndex].inputs = []
         }
-        this.workflowNodes[nodeIndex].inputs.push({ name: 'input', type: 'text', value: '' })
+        
+        // LLM节点只能添加文本类型的输入端口，符合API规范
+        const inputType = this.workflowNodes[nodeIndex].service === 'LLM' ? 'text' : 'text'
+        this.workflowNodes[nodeIndex].inputs.push({ name: 'input', type: inputType, value: '' })
       }
     },
     removeInput(index) {
@@ -2951,6 +2564,13 @@ export default {
               node.status = statusData.node_status
             }
           }
+          
+          // 如果工作流完成，自动显示结果
+          if (statusData.status === 'completed') {
+            setTimeout(() => {
+              this.onWorkflowCompleted(dagId)
+            }, 1000) // 延迟1秒确保结果已保存
+          }
         },
         (error) => {
           console.error('监听工作流状态失败:', error)
@@ -2965,7 +2585,7 @@ export default {
       this.workflowNodes = []
       this.connections = []
       this.selectedNode = null
-      this.workflowStatus = 'Ready'
+      this.workflowStatus = 'Ready' // 使用英文key，通过getTranslatedStatus方法进行翻译
     },
                 getConnectionPath(connection) {
       const fromNode = this.workflowNodes.find(n => n.id === connection.from)
@@ -3186,11 +2806,359 @@ export default {
         const results = await workflowAPI.getResult(workflow.dag_id)
         
         this.workflowResults = results
+        this.monitoringWorkflowId = workflow.dag_id
+        
+        // 识别和处理最终输出
+        await this.processFinalOutput(results)
+        
         this.showResultsViewer = true
         
       } catch (error) {
         console.error('获取工作流结果失败:', error)
         this.$message?.error?.('获取工作流结果失败: ' + error.message)
+      }
+    },
+
+    // ==================== 最终输出处理方法 ====================
+    
+    // 识别最终输出节点
+    identifyFinalOutputNode() {
+      if (!this.workflowNodes || this.workflowNodes.length === 0) {
+        return null
+      }
+      
+      // 找出没有输出连接的节点（终端节点）
+      const terminalNodes = this.workflowNodes.filter(node => {
+        return !this.connections.some(conn => conn.from === node.id)
+      })
+      
+      // 如果有多个终端节点，选择最后创建的那个
+      if (terminalNodes.length > 1) {
+        return terminalNodes.reduce((latest, current) => {
+          return current.id > latest.id ? current : latest
+        })
+      }
+      
+      return terminalNodes.length > 0 ? terminalNodes[0] : null
+    },
+
+    // 处理最终输出数据
+    async processFinalOutput(results) {
+      try {
+        // 识别最终输出节点
+        this.finalOutputNode = this.identifyFinalOutputNode()
+        
+        if (!this.finalOutputNode) {
+          this.finalOutputData = null
+          return
+        }
+        
+        // 从结果中提取最终输出数据
+        const finalOutput = this.extractFinalOutputFromResults(results, this.finalOutputNode.id)
+        
+        if (finalOutput) {
+          this.finalOutputData = this.formatFinalOutput(finalOutput)
+        } else {
+          this.finalOutputData = null
+        }
+        
+      } catch (error) {
+        console.error('处理最终输出失败:', error)
+        this.finalOutputData = null
+      }
+    },
+
+    // 从结果中提取最终输出
+    extractFinalOutputFromResults(results, nodeId) {
+      // 尝试从results中找到对应节点的输出
+      if (results?.results && results.results[nodeId]) {
+        return results.results[nodeId].output
+      }
+      
+      // 尝试从final_output字段获取
+      if (results?.final_output) {
+        return results.final_output
+      }
+      
+      // 尝试从messages中找到最后一个输出消息
+      if (results?.messages && results.messages.length > 0) {
+        const outputMessages = results.messages.filter(msg => msg.type === 'output')
+        if (outputMessages.length > 0) {
+          return outputMessages[outputMessages.length - 1].content
+        }
+      }
+      
+      return null
+    },
+
+    // 格式化最终输出
+    formatFinalOutput(output) {
+      if (!output) return null
+      
+      // 检测输出类型
+      const outputType = this.detectOutputType(output)
+      
+      return {
+        type: outputType,
+        content: output,
+        displayContent: this.formatDisplayContent(output, outputType),
+        timestamp: new Date().toISOString()
+      }
+    },
+
+    // 检测输出类型
+    detectOutputType(output) {
+      if (typeof output === 'string') {
+        // 检查是否是图片URL
+        if (output.match(/\.(jpg|jpeg|png|gif|bmp|webp)$/i) || 
+            output.startsWith('data:image/') || 
+            output.match(/^https?:\/\/.*\.(jpg|jpeg|png|gif|bmp|webp)$/i)) {
+          return 'image'
+        }
+        
+        // 检查是否是音频URL
+        if (output.match(/\.(mp3|wav|ogg|m4a)$/i) || 
+            output.startsWith('data:audio/') ||
+            output.match(/^https?:\/\/.*\.(mp3|wav|ogg|m4a)$/i)) {
+          return 'audio'
+        }
+        
+        // 检查是否是视频URL
+        if (output.match(/\.(mp4|webm|avi|mov)$/i) || 
+            output.startsWith('data:video/') ||
+            output.match(/^https?:\/\/.*\.(mp4|webm|avi|mov)$/i)) {
+          return 'video'
+        }
+        
+        // 检查是否是JSON字符串
+        try {
+          JSON.parse(output)
+          return 'json'
+        } catch (e) {
+          return 'text'
+        }
+      }
+      
+      if (typeof output === 'object') {
+        return 'json'
+      }
+      
+      return 'text'
+    },
+
+    // 格式化显示内容
+    formatDisplayContent(content, type) {
+      switch (type) {
+        case 'json':
+          return typeof content === 'string' ? content : JSON.stringify(content, null, 2)
+        case 'text':
+          return String(content)
+        case 'image':
+        case 'audio':
+        case 'video':
+          return content // URL或base64数据
+        default:
+          return String(content)
+      }
+    },
+
+    // 工作流完成时自动显示结果
+    async onWorkflowCompleted(dagId) {
+      try {
+        // 获取工作流信息
+        const workflow = this.workflowList.find(w => w.dag_id === dagId) || { dag_id: dagId }
+        
+        // 获取并显示结果
+        await this.viewWorkflowResults(workflow)
+        
+        // 聚焦到最终输出
+        this.focusOnFinalOutput = true
+        
+        // 3秒后取消聚焦效果
+        setTimeout(() => {
+          this.focusOnFinalOutput = false
+        }, 3000)
+        
+      } catch (error) {
+        console.error('自动显示结果失败:', error)
+      }
+    },
+
+    // ==================== 最终输出交互功能 ====================
+
+    // 复制最终输出到剪贴板
+    async copyFinalOutput() {
+      if (!this.finalOutputData) {
+        this.$message?.error?.('没有可复制的内容')
+        return
+      }
+
+      try {
+        const textContent = this.finalOutputData.type === 'json' 
+          ? this.finalOutputData.displayContent 
+          : this.finalOutputData.content
+
+        await navigator.clipboard.writeText(textContent)
+        this.$message?.success?.('内容已复制到剪贴板')
+      } catch (error) {
+        console.error('复制失败:', error)
+        this.$message?.error?.('复制失败: ' + error.message)
+      }
+    },
+
+    // 下载最终输出
+    downloadFinalOutput() {
+      if (!this.finalOutputData) {
+        this.$message?.error?.('没有可下载的内容')
+        return
+      }
+
+      try {
+        const { type, content, displayContent } = this.finalOutputData
+        const filename = `workflow_output_${this.monitoringWorkflowId}_${Date.now()}`
+        
+        if (type === 'image') {
+          this.downloadFile(content, `${filename}.png`, 'image/png')
+        } else if (type === 'audio') {
+          this.downloadFile(content, `${filename}.mp3`, 'audio/mpeg')
+        } else if (type === 'video') {
+          this.downloadFile(content, `${filename}.mp4`, 'video/mp4')
+        } else if (type === 'json') {
+          this.downloadTextFile(displayContent, `${filename}.json`, 'application/json')
+        } else {
+          this.downloadTextFile(content, `${filename}.txt`, 'text/plain')
+        }
+        
+        this.$message?.success?.('下载已开始')
+      } catch (error) {
+        console.error('下载失败:', error)
+        this.$message?.error?.('下载失败: ' + error.message)
+      }
+    },
+
+    // 分享最终输出
+    async shareFinalOutput() {
+      if (!this.finalOutputData) {
+        this.$message?.error?.('没有可分享的内容')
+        return
+      }
+
+      try {
+        const shareData = {
+          title: `工作流执行结果 - ${this.monitoringWorkflowId}`,
+          text: `工作流执行结果：\n${this.finalOutputData.displayContent}`,
+          url: window.location.href
+        }
+
+        if (navigator.share) {
+          await navigator.share(shareData)
+          this.$message?.success?.('分享成功')
+        } else {
+          // 降级方案：复制到剪贴板
+          await navigator.clipboard.writeText(shareData.text)
+          this.$message?.success?.('分享内容已复制到剪贴板')
+        }
+      } catch (error) {
+        console.error('分享失败:', error)
+        this.$message?.error?.('分享失败: ' + error.message)
+      }
+    },
+
+    // 全屏查看最终输出
+    viewFinalOutputFullscreen() {
+      if (!this.finalOutputData) {
+        this.$message?.error?.('没有可查看的内容')
+        return
+      }
+
+      // 创建全屏模态窗口
+      const modal = document.createElement('div')
+      modal.className = 'fullscreen-output-modal'
+      modal.innerHTML = `
+        <div class="fullscreen-content">
+          <div class="fullscreen-header">
+            <h3>🎯 最终输出 - 全屏查看</h3>
+            <button class="fullscreen-close" onclick="this.parentElement.parentElement.parentElement.remove()">×</button>
+          </div>
+          <div class="fullscreen-body">
+            ${this.generateOutputHTML(this.finalOutputData)}
+          </div>
+        </div>
+      `
+      
+      document.body.appendChild(modal)
+      
+      // 添加ESC键关闭功能
+      const handleEscape = (e) => {
+        if (e.key === 'Escape') {
+          modal.remove()
+          document.removeEventListener('keydown', handleEscape)
+        }
+      }
+      document.addEventListener('keydown', handleEscape)
+    },
+
+    // 生成输出HTML
+    generateOutputHTML(outputData) {
+      const { type, content, displayContent } = outputData
+      
+      switch (type) {
+        case 'image':
+          return `<img src="${content}" alt="输出图片" style="max-width: 100%; height: auto;" />`
+        case 'audio':
+          return `<audio controls style="width: 100%;"><source src="${content}" type="audio/mpeg"></audio>`
+        case 'video':
+          return `<video controls style="max-width: 100%; height: auto;"><source src="${content}" type="video/mp4"></video>`
+        case 'json':
+          return `<pre style="background: #1a1a1a; color: #e0e0e0; padding: 20px; border-radius: 8px; overflow: auto; font-family: 'Consolas', monospace; font-size: 14px; line-height: 1.5;">${displayContent}</pre>`
+        default:
+          return `<pre style="background: #1a1a1a; color: #e0e0e0; padding: 20px; border-radius: 8px; overflow: auto; font-family: 'Consolas', monospace; font-size: 14px; line-height: 1.5; white-space: pre-wrap;">${displayContent}</pre>`
+      }
+    },
+
+    // 工具方法：下载文件
+    downloadFile(url, filename, mimeType) {
+      const a = document.createElement('a')
+      a.href = url
+      a.download = filename
+      a.target = '_blank'
+      document.body.appendChild(a)
+      a.click()
+      document.body.removeChild(a)
+    },
+
+    // 工具方法：下载文本文件
+    downloadTextFile(content, filename, mimeType) {
+      const blob = new Blob([content], { type: mimeType })
+      const url = URL.createObjectURL(blob)
+      this.downloadFile(url, filename, mimeType)
+      URL.revokeObjectURL(url)
+    },
+
+    // 计算执行摘要
+    calculateExecutionSummary() {
+      if (!this.workflowResults || !this.currentWorkflowStatus) {
+        return {
+          totalTime: 0,
+          successfulNodes: 0,
+          totalNodes: 0,
+          status: 'unknown'
+        }
+      }
+
+      const totalNodes = this.workflowNodes.length
+      const successfulNodes = this.currentWorkflowStatus.nodes 
+        ? this.currentWorkflowStatus.nodes.filter(node => node.status === 'completed').length
+        : 0
+      
+      const totalTime = this.currentWorkflowStatus.duration || 0
+      const status = this.currentWorkflowStatus.status || 'unknown'
+
+      return {
+        totalTime,
+        successfulNodes,
+        totalNodes,
+        status
       }
     },
 
@@ -3490,6 +3458,59 @@ export default {
       this.showResultsViewer = false
       this.workflowResults = null
       this.selectedMessageType = 'all'
+      this.finalOutputData = null
+      this.finalOutputNode = null
+      this.focusOnFinalOutput = false
+      this.logsExpanded = false
+    },
+
+    // 切换日志展开状态
+    toggleLogsExpanded() {
+      this.logsExpanded = !this.logsExpanded
+    },
+
+    // 处理图片加载错误
+    handleImageError(event) {
+      console.error('图片加载失败:', event)
+      event.target.alt = '图片加载失败'
+      event.target.style.display = 'none'
+      
+      // 显示错误提示
+      const errorDiv = document.createElement('div')
+      errorDiv.className = 'media-error'
+      errorDiv.innerHTML = `
+        <div class="error-icon">🖼️</div>
+        <div class="error-text">图片加载失败</div>
+      `
+      event.target.parentNode.appendChild(errorDiv)
+    },
+
+    // 处理音频加载错误
+    handleAudioError(event) {
+      console.error('音频加载失败:', event)
+      
+      // 显示错误提示
+      const errorDiv = document.createElement('div')
+      errorDiv.className = 'media-error'
+      errorDiv.innerHTML = `
+        <div class="error-icon">🎵</div>
+        <div class="error-text">音频加载失败</div>
+      `
+      event.target.parentNode.appendChild(errorDiv)
+    },
+
+    // 处理视频加载错误
+    handleVideoError(event) {
+      console.error('视频加载失败:', event)
+      
+      // 显示错误提示
+      const errorDiv = document.createElement('div')
+      errorDiv.className = 'media-error'
+      errorDiv.innerHTML = `
+        <div class="error-icon">📹</div>
+        <div class="error-text">视频加载失败</div>
+      `
+      event.target.parentNode.appendChild(errorDiv)
     },
 
     // 刷新工作流结果
@@ -5349,26 +5370,93 @@ export default {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  padding: 1rem 1.5rem;
+  padding: 0.75rem 1rem;
   background: #2d2d2d;
   border-top: 1px solid #404040;
+  min-height: 60px;
+  flex-wrap: wrap;
+  gap: 1rem;
 }
 
 .canvas-stats {
   display: flex;
-  gap: 1rem;
-  font-size: 0.9rem;
+  gap: 1.5rem;
+  font-size: 0.8rem;
   color: #b0b0b0;
+  white-space: nowrap;
+  flex-shrink: 0;
+}
+
+.canvas-stats span {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.3rem;
+  font-weight: 500;
+  background: rgba(255, 255, 255, 0.05);
+  padding: 0.25rem 0.6rem;
+  border-radius: 12px;
+  border: 1px solid rgba(255, 255, 255, 0.1);
 }
 
 .canvas-controls {
   display: flex;
-  gap: 0.5rem;
+  gap: 0.4rem;
+  flex-wrap: wrap;
+}
+
+/* 响应式优化 */
+@media (max-width: 1024px) {
+  .canvas-footer {
+    flex-wrap: wrap;
+    padding: 0.5rem 0.75rem;
+    gap: 0.75rem;
+  }
+  
+  .canvas-stats {
+    gap: 1rem;
+    font-size: 0.75rem;
+  }
+  
+  .canvas-controls {
+    gap: 0.3rem;
+  }
+  
+  .canvas-controls .btn {
+    padding: 0.4rem 0.6rem;
+    font-size: 0.75rem;
+  }
+}
+
+@media (max-width: 768px) {
+  .canvas-footer {
+    flex-direction: column;
+    align-items: stretch;
+    gap: 0.5rem;
+    padding: 0.5rem;
+  }
+  
+  .canvas-stats {
+    justify-content: center;
+    gap: 0.75rem;
+    font-size: 0.7rem;
+  }
+  
+  .canvas-controls {
+    justify-content: center;
+    gap: 0.25rem;
+  }
+  
+  .canvas-controls .btn {
+    flex: 1;
+    min-width: 0;
+    padding: 0.3rem 0.4rem;
+    font-size: 0.7rem;
+  }
 }
 
 /* 右侧配置面板 */
 .workflow-config-panel {
-  width: 300px;
+  width: 380px;
   background: #2d2d2d;
   border-left: 1px solid #404040;
   display: flex;
@@ -5380,7 +5468,7 @@ export default {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  padding: 1rem 1.5rem;
+  padding: 1.25rem 1.75rem;
   background: #404040;
   border-bottom: 1px solid #555555;
 }
@@ -5388,46 +5476,48 @@ export default {
 .config-header h4 {
   margin: 0;
   color: #e0e0e0;
-  font-size: 1.1rem;
+  font-size: 1.25rem;
   font-weight: 600;
 }
 
 .config-content {
   flex: 1;
-  padding: 1.5rem;
+  padding: 1.75rem;
   overflow-y: auto;
+  font-size: 1rem;
 }
 
 .config-section {
-  margin-bottom: 1.5rem;
+  margin-bottom: 1.75rem;
 }
 
 .config-section label {
   display: block;
-  margin-bottom: 0.5rem;
+  margin-bottom: 0.75rem;
   color: #e0e0e0;
-  font-weight: 500;
-  font-size: 0.9rem;
+  font-weight: 600;
+  font-size: 1rem;
 }
 
 .config-section .form-input,
 .config-section .form-textarea,
 .config-section .form-select {
   width: 100%;
-  padding: 0.75rem;
+  padding: 0.875rem;
   border: 1px solid #555555;
   border-radius: 6px;
-  font-size: 0.9rem;
+  font-size: 1rem;
   background: #404040;
   color: #e0e0e0;
+  line-height: 1.5;
 }
 
 .config-section .form-input:focus,
 .config-section .form-textarea:focus,
 .config-section .form-select:focus {
   outline: none;
-  border-color: #3b82f6;
-  box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.2);
+  border-color: #4ecdc4;
+  box-shadow: 0 0 0 3px rgba(78, 205, 196, 0.2);
 }
 
 /* 网格背景 */
@@ -5610,31 +5700,85 @@ export default {
 
 .config-actions .btn {
   flex: 1;
-  padding: 0.75rem;
+  padding: 0.7rem 1rem;
   border: none;
-  border-radius: 6px;
+  border-radius: 8px;
   font-weight: 500;
+  font-size: 0.875rem;
   cursor: pointer;
-  transition: all 0.2s;
+  transition: all 0.2s ease;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.4rem;
+  white-space: nowrap;
+  min-width: 0;
 }
 
-.config-actions .btn-primary {
-  background: #4ecdc4;
+.config-actions .btn-icon {
+  font-size: 1rem;
+  transition: transform 0.2s ease;
+  flex-shrink: 0;
+}
+
+.config-actions .btn:hover {
+  transform: translateY(-1px);
+}
+
+.config-actions .btn:hover .btn-icon {
+  transform: scale(1.1);
+}
+
+.config-actions .btn:active {
+  transform: translateY(0);
+}
+
+.config-actions .btn-save {
+  background: linear-gradient(135deg, #4ecdc4 0%, #26d0ce 100%);
   color: #1a1a1a;
 }
 
-.config-actions .btn-primary:hover {
-  background: #45b7b8;
+.config-actions .btn-save:hover {
+  background: linear-gradient(135deg, #45b7b8 0%, #21b8bc 100%);
+  box-shadow: 0 2px 8px rgba(78, 205, 196, 0.3);
 }
 
-.config-actions .btn-outline {
-  background: transparent;
-  color: #e0e0e0;
-  border: 1px solid #555;
+.config-actions .btn-validate {
+  background: linear-gradient(135deg, #6c5ce7 0%, #5a67d8 100%);
+  color: #ffffff;
 }
 
-.config-actions .btn-outline:hover {
-  background: #404040;
+.config-actions .btn-validate:hover {
+  background: linear-gradient(135deg, #5f4fd1 0%, #4c51bf 100%);
+  box-shadow: 0 2px 8px rgba(108, 92, 231, 0.3);
+}
+
+.config-actions .btn-danger {
+  background: linear-gradient(135deg, #ff6b6b 0%, #e53e3e 100%);
+  color: #ffffff;
+}
+
+.config-actions .btn-danger:hover {
+  background: linear-gradient(135deg, #ee5a52 0%, #c53030 100%);
+  box-shadow: 0 2px 8px rgba(255, 107, 107, 0.3);
+}
+
+/* 响应式设计 */
+@media (max-width: 768px) {
+  .config-actions {
+    padding: 0.75rem 1rem;
+    gap: 0.4rem;
+  }
+  
+  .config-actions .btn {
+    padding: 0.6rem 0.8rem;
+    font-size: 0.8rem;
+    gap: 0.3rem;
+  }
+  
+  .config-actions .btn-icon {
+    font-size: 0.9rem;
+  }
 }
 
 /* 节点端口可视化 */
@@ -5976,13 +6120,35 @@ export default {
 }
 
 /* 响应式设计 */
+@media (max-width: 1400px) {
+  .workflow-config-panel {
+    width: 320px;
+  }
+}
+
 @media (max-width: 1200px) {
   .workflow-sidebar {
     width: 200px;
   }
   
   .workflow-config-panel {
-    width: 250px;
+    width: 280px;
+  }
+  
+  .config-content {
+    padding: 1.5rem;
+    font-size: 0.95rem;
+  }
+  
+  .config-section label {
+    font-size: 0.95rem;
+  }
+  
+  .config-section .form-input,
+  .config-section .form-textarea,
+  .config-section .form-select {
+    font-size: 0.95rem;
+    padding: 0.75rem;
   }
 }
 
@@ -5993,29 +6159,72 @@ export default {
   
   .workflow-sidebar {
     width: 100%;
-    height: 120px;
+    height: 140px;
     border-right: none;
-    border-bottom: 1px solid #e0e0e0;
+    border-bottom: 1px solid #404040;
   }
   
   .palette-nodes {
     flex-direction: row;
     overflow-x: auto;
     gap: 0.5rem;
+    padding-bottom: 0.5rem;
   }
   
   .palette-node {
-    min-width: 100px;
+    min-width: 120px;
     flex-direction: column;
     text-align: center;
-    padding: 0.5rem;
+    padding: 0.75rem 0.5rem;
   }
   
   .workflow-config-panel {
     width: 100%;
-    height: 200px;
+    height: auto;
+    max-height: 300px;
     border-left: none;
-    border-top: 1px solid #e0e0e0;
+    border-top: 1px solid #404040;
+  }
+  
+  .config-header {
+    padding: 1rem 1.25rem;
+  }
+  
+  .config-header h4 {
+    font-size: 1.1rem;
+  }
+  
+  .config-content {
+    padding: 1.25rem;
+    font-size: 0.9rem;
+  }
+  
+  .empty-config-state {
+    padding: 1.5rem 1rem;
+  }
+  
+  .empty-config-icon {
+    font-size: 3.5rem;
+  }
+  
+  .empty-config-state h4 {
+    font-size: 1.25rem;
+  }
+  
+  .empty-config-state p {
+    font-size: 1rem;
+  }
+  
+  .config-steps {
+    padding: 1rem 1rem 1rem 2rem;
+  }
+  
+  .config-steps li {
+    font-size: 0.9rem;
+  }
+  
+  .tip-item span:last-child {
+    font-size: 0.9rem;
   }
  }
  
@@ -6260,17 +6469,7 @@ export default {
   transform: scale(1.1);
 }
 
-.config-actions {
-  display: flex;
-  gap: 0.5rem;
-  margin-top: 1.5rem;
-  padding-top: 1rem;
-  border-top: 1px solid #404040;
-}
 
-.config-actions .btn {
-  flex: 1;
-}
 
 /* 节点状态指示器 */
 .workflow-node.node-status-running {
@@ -7264,24 +7463,237 @@ export default {
   flex: 1;
 }
 
-/* 结果查看器样式 */
-.results-overview {
+/* ==================== 最终输出样式 ==================== */
+.final-output-section {
+  background: linear-gradient(135deg, #2a2a2a 0%, #323232 100%);
+  border-radius: 16px;
+  padding: 24px;
   margin-bottom: 24px;
+  border: 2px solid #404040;
+  transition: all 0.3s ease;
+  position: relative;
+  overflow: hidden;
 }
 
-.results-overview h4 {
+.final-output-section.focused {
+  border-color: #667eea;
+  box-shadow: 0 0 20px rgba(102, 126, 234, 0.3);
+  transform: scale(1.02);
+}
+
+.final-output-section.focused::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: linear-gradient(45deg, transparent 49%, rgba(102, 126, 234, 0.1) 50%, transparent 51%);
+  animation: shimmer 2s infinite;
+}
+
+@keyframes shimmer {
+  0% { transform: translateX(-100%); }
+  100% { transform: translateX(100%); }
+}
+
+.final-output-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 20px;
+}
+
+.final-output-header h4 {
+  color: #e0e0e0;
+  font-size: 20px;
+  font-weight: 600;
+  margin: 0;
+}
+
+.output-node-info {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  background: #404040;
+  padding: 8px 16px;
+  border-radius: 20px;
+  border: 1px solid #555555;
+}
+
+.node-type {
+  color: #667eea;
+  font-weight: 500;
+  font-size: 14px;
+}
+
+.node-name {
+  color: #b0b0b0;
+  font-size: 14px;
+}
+
+.final-output-content {
+  position: relative;
+  z-index: 1;
+}
+
+.no-final-output {
+  text-align: center;
+  padding: 40px 20px;
+  color: #b0b0b0;
+  background: #1a1a1a;
+  border-radius: 12px;
+  border: 1px dashed #404040;
+}
+
+.no-final-output .empty-icon {
+  font-size: 48px;
+  margin-bottom: 16px;
+}
+
+.no-final-output p {
+  font-size: 18px;
+  margin-bottom: 8px;
+  color: #e0e0e0;
+}
+
+.no-final-output small {
+  font-size: 14px;
+  color: #808080;
+}
+
+.final-output-display {
+  background: #1a1a1a;
+  border-radius: 12px;
+  padding: 20px;
+  border: 1px solid #404040;
+  margin-bottom: 20px;
+}
+
+.final-output-display.text pre,
+.final-output-display.json pre {
+  background: transparent;
+  color: #e0e0e0;
+  font-family: 'Consolas', 'Monaco', monospace;
+  font-size: 14px;
+  line-height: 1.6;
+  margin: 0;
+  white-space: pre-wrap;
+  word-wrap: break-word;
+}
+
+.final-output-display.json pre {
+  color: #98d982;
+}
+
+.final-output-display.image img {
+  max-width: 100%;
+  max-height: 400px;
+  border-radius: 8px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+  cursor: pointer;
+  transition: transform 0.2s ease;
+}
+
+.final-output-display.image img:hover {
+  transform: scale(1.05);
+}
+
+.final-output-display.audio audio {
+  width: 100%;
+  border-radius: 8px;
+}
+
+.final-output-display.video video {
+  width: 100%;
+  max-height: 400px;
+  border-radius: 8px;
+}
+
+.output-actions {
+  display: flex;
+  gap: 12px;
+  justify-content: center;
+  flex-wrap: wrap;
+}
+
+.action-btn {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 12px 20px;
+  border: none;
+  border-radius: 8px;
+  font-size: 14px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  text-decoration: none;
+  color: white;
+}
+
+.action-btn:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+}
+
+.action-btn.primary {
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+}
+
+.action-btn.primary:hover {
+  background: linear-gradient(135deg, #5a67d8 0%, #6b4190 100%);
+}
+
+.action-btn.secondary {
+  background: linear-gradient(135deg, #4a4a4a 0%, #5a5a5a 100%);
+}
+
+.action-btn.secondary:hover {
+  background: linear-gradient(135deg, #5a5a5a 0%, #6a6a6a 100%);
+}
+
+.action-btn .icon {
+  font-size: 16px;
+}
+
+.media-error {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 16px;
+  background: #4a2c2c;
+  border-radius: 8px;
+  border: 1px solid #8b4444;
+  color: #ff9999;
+}
+
+.media-error .error-icon {
+  font-size: 24px;
+}
+
+/* 📊 执行摘要样式 */
+.execution-summary-section {
+  background: #2a2a2a;
+  border-radius: 12px;
+  padding: 20px;
+  margin-bottom: 20px;
+  border: 1px solid #404040;
+}
+
+.execution-summary-section h4 {
   color: #e0e0e0;
   font-size: 16px;
   margin-bottom: 16px;
 }
 
-.overview-stats {
+.summary-stats {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
   gap: 16px;
 }
 
-.overview-item {
+.summary-item {
   text-align: center;
   padding: 16px;
   background: #323232;
@@ -7289,22 +7701,161 @@ export default {
   border: 1px solid #404040;
 }
 
-.overview-label {
+.summary-label {
   color: #b0b0b0;
   font-size: 14px;
   margin-bottom: 8px;
 }
 
-.overview-value {
+.summary-value {
   color: #e0e0e0;
-  font-size: 24px;
-  font-weight: bold;
+  font-size: 18px;
+  font-weight: 600;
 }
 
-.messages-section h4 {
+.summary-value.status-badge {
+  padding: 4px 12px;
+  border-radius: 12px;
+  font-size: 12px;
+  font-weight: 500;
+  text-transform: uppercase;
+  display: inline-block;
+}
+
+/* 🔄 节点执行详情样式 */
+.node-execution-details {
+  background: #2a2a2a;
+  border-radius: 12px;
+  padding: 20px;
+  margin-bottom: 20px;
+  border: 1px solid #404040;
+}
+
+.node-execution-details h4 {
   color: #e0e0e0;
   font-size: 16px;
   margin-bottom: 16px;
+}
+
+.execution-flow {
+  overflow-x: auto;
+  padding: 10px 0;
+}
+
+.nodes-flow {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  min-width: max-content;
+}
+
+.flow-node {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+  padding: 16px;
+  background: #323232;
+  border-radius: 12px;
+  border: 1px solid #404040;
+  min-width: 120px;
+  transition: all 0.2s ease;
+}
+
+.flow-node:hover {
+  background: #3a3a3a;
+  transform: translateY(-2px);
+}
+
+.flow-node.final-node {
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  color: white;
+  border-color: #667eea;
+}
+
+.flow-node .node-info {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 4px;
+}
+
+.flow-node .node-icon {
+  font-size: 24px;
+}
+
+.flow-node .node-details {
+  text-align: center;
+}
+
+.flow-node .node-name {
+  color: #e0e0e0;
+  font-size: 14px;
+  font-weight: 500;
+}
+
+.flow-node .node-type {
+  color: #b0b0b0;
+  font-size: 12px;
+}
+
+.flow-node .node-time {
+  color: #808080;
+  font-size: 11px;
+}
+
+.flow-arrow {
+  font-size: 20px;
+  color: #667eea;
+  align-self: center;
+}
+
+/* 📋 完整日志样式 */
+.full-logs-section {
+  background: #2a2a2a;
+  border-radius: 12px;
+  border: 1px solid #404040;
+  overflow: hidden;
+}
+
+.logs-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 16px 20px;
+  background: #323232;
+  border-bottom: 1px solid #404040;
+  cursor: pointer;
+  transition: background 0.2s ease;
+}
+
+.logs-header:hover {
+  background: #3a3a3a;
+}
+
+.logs-header h4 {
+  color: #e0e0e0;
+  font-size: 16px;
+  margin: 0;
+}
+
+.expand-btn {
+  background: #667eea;
+  color: white;
+  border: none;
+  padding: 6px 12px;
+  border-radius: 6px;
+  font-size: 12px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.expand-btn:hover {
+  background: #5a67d8;
+}
+
+.logs-content {
+  padding: 20px;
 }
 
 .messages-filters {
@@ -7401,6 +7952,98 @@ export default {
 .error-text {
   color: #ff9999;
   font-size: 14px;
+}
+
+/* 全屏输出模态窗口 */
+.fullscreen-output-modal {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(0, 0, 0, 0.95);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 2000;
+  backdrop-filter: blur(10px);
+}
+
+.fullscreen-content {
+  background: #2a2a2a;
+  border-radius: 16px;
+  width: 90%;
+  height: 90%;
+  max-width: 1200px;
+  max-height: 800px;
+  overflow: hidden;
+  box-shadow: 0 20px 40px rgba(0, 0, 0, 0.5);
+  border: 1px solid #404040;
+  display: flex;
+  flex-direction: column;
+}
+
+.fullscreen-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 20px 24px;
+  border-bottom: 1px solid #404040;
+  background: linear-gradient(135deg, #333333 0%, #2a2a2a 100%);
+}
+
+.fullscreen-header h3 {
+  color: #e0e0e0;
+  font-size: 20px;
+  font-weight: 600;
+  margin: 0;
+}
+
+.fullscreen-close {
+  background: none;
+  border: none;
+  color: #e0e0e0;
+  font-size: 24px;
+  cursor: pointer;
+  padding: 8px;
+  border-radius: 50%;
+  transition: all 0.2s ease;
+}
+
+.fullscreen-close:hover {
+  background: #404040;
+}
+
+.fullscreen-body {
+  flex: 1;
+  padding: 24px;
+  overflow: auto;
+}
+
+.fullscreen-body img,
+.fullscreen-body video {
+  max-width: 100%;
+  max-height: 100%;
+  border-radius: 12px;
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+}
+
+.fullscreen-body audio {
+  width: 100%;
+  border-radius: 12px;
+}
+
+.fullscreen-body pre {
+  background: #1a1a1a;
+  color: #e0e0e0;
+  padding: 24px;
+  border-radius: 12px;
+  border: 1px solid #404040;
+  overflow: auto;
+  font-family: 'Consolas', 'Monaco', monospace;
+  font-size: 16px;
+  line-height: 1.6;
+  margin: 0;
 }
 
 /* 响应式适配 */
@@ -7875,52 +8518,75 @@ export default {
 /* 空状态配置面板样式 */
 .empty-config-state {
   text-align: center;
-  padding: 2rem;
+  padding: 2.5rem 1.5rem;
   color: #ccc;
 }
 
 .empty-config-icon {
-  font-size: 4rem;
-  margin-bottom: 1rem;
+  font-size: 5rem;
+  margin-bottom: 1.5rem;
+  color: #4ecdc4;
 }
 
 .empty-config-state h4 {
   color: #e0e0e0;
-  margin-bottom: 1rem;
-  font-size: 1.25rem;
+  margin-bottom: 1.25rem;
+  font-size: 1.5rem;
+  font-weight: 600;
 }
 
 .empty-config-state p {
-  margin-bottom: 1.5rem;
-  color: #aaa;
+  margin-bottom: 2rem;
+  color: #b0b0b0;
+  font-size: 1.1rem;
+  line-height: 1.5;
 }
 
 .config-steps {
   text-align: left;
-  margin: 1.5rem 0;
+  margin: 2rem 0;
   padding-left: 1.5rem;
+  background: rgba(78, 205, 196, 0.05);
+  border-radius: 8px;
+  padding: 1.5rem 1.5rem 1.5rem 2.5rem;
+  border-left: 4px solid #4ecdc4;
 }
 
 .config-steps li {
-  margin-bottom: 0.75rem;
-  color: #ddd;
-  line-height: 1.5;
+  margin-bottom: 1rem;
+  color: #e0e0e0;
+  line-height: 1.6;
+  font-size: 1rem;
+}
+
+.config-steps li strong {
+  color: #4ecdc4;
+  font-weight: 600;
 }
 
 .config-tips {
   margin-top: 2rem;
-  padding: 1rem;
+  padding: 1.5rem;
   background: #3a3a3a;
-  border-radius: 8px;
+  border-radius: 12px;
   border: 1px solid #4a4a4a;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
 }
 
 .tip-item {
   display: flex;
-  align-items: center;
-  gap: 0.75rem;
-  margin-bottom: 0.75rem;
+  align-items: flex-start;
+  gap: 1rem;
+  margin-bottom: 1rem;
   text-align: left;
+  padding: 0.75rem;
+  background: rgba(255, 255, 255, 0.02);
+  border-radius: 6px;
+  transition: background 0.2s ease;
+}
+
+.tip-item:hover {
+  background: rgba(255, 255, 255, 0.05);
 }
 
 .tip-item:last-child {
@@ -7928,14 +8594,16 @@ export default {
 }
 
 .tip-icon {
-  font-size: 1.25rem;
+  font-size: 1.5rem;
   flex-shrink: 0;
+  margin-top: 0.1rem;
 }
 
 .tip-item span:last-child {
-  color: #ddd;
-  font-size: 0.9rem;
-  line-height: 1.4;
+  color: #e0e0e0;
+  font-size: 1rem;
+  line-height: 1.5;
+  font-weight: 500;
 }
 
 /* 响应式设计 */

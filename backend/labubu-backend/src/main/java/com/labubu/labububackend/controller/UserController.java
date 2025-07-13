@@ -18,14 +18,29 @@ public class UserController {
     @Autowired
     private JwtUtil jwtUtil;
 
+    // 发送邮箱验证码接口
+    @PostMapping("/sendCode")
+    public Map<String, Object> sendCode(@RequestBody Map<String, String> body) {
+        String email = body.get("email");
+        userService.sendEmailCode(email);
+        Map<String, Object> result = new HashMap<>();
+        result.put("msg", "验证码已发送");
+        return result;
+    }
+
     // 注册接口
     @PostMapping("/register")
     public Map<String, Object> register(@RequestBody Map<String, String> body) {
         String username = body.get("username");
         String email = body.get("email");
         String password = body.get("password");
-        User user = userService.register(username, email, password);
+        String code = body.get("code");
         Map<String, Object> result = new HashMap<>();
+        if (!userService.verifyEmailCode(email, code)) {
+            result.put("msg", "验证码错误");
+            return result;
+        }
+        User user = userService.register(username, email, password);
         result.put("msg", "注册成功");
         result.put("userId", user.getId());
         return result;

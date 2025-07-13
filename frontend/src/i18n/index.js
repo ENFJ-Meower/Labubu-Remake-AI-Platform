@@ -122,7 +122,7 @@ const translations = reactive({
         toolNodes: 'Tool Nodes',
 
         conditionDesc: 'Condition Logic',
-        llmDesc: 'Large Language Model',
+        llmDesc: 'Large Language Model Text Processing',
         sttDesc: 'Speech to Text',
         ttsDesc: 'Text to Speech',
         pic2textDesc: 'Image to Text',
@@ -142,6 +142,8 @@ const translations = reactive({
         pic2textService: 'Image to Text',
         text2picService: 'Text to Image',
         nodePrompt: 'Node Prompt',
+        nodePromptPlaceholder: 'Enter node prompt...',
+        promptTipsSimple: 'Prompt guides AI on how to process input data',
         llmModel: 'LLM Model',
         temperature: 'Temperature',
         conservative: 'Conservative',
@@ -157,8 +159,8 @@ const translations = reactive({
         outputPorts: 'Output Ports',
         addInput: 'Add Input',
         addOutput: 'Add Output',
-        saveConfig: 'Save Config',
-        validateConfig: 'Validate Config',
+        saveConfig: 'Save',
+        validateConfig: 'Validate',
         nameRequired: 'Node name is required',
         serviceRequired: 'Please select service type',
         promptRequired: 'Please configure node prompt',
@@ -170,6 +172,18 @@ const translations = reactive({
         testFailed: 'Failed to test workflow',
         deploySuccess: 'Workflow deployed successfully',
         deployFailed: 'Failed to deploy workflow',
+
+        // 默认提示词
+        defaultPrompts: {
+          condition: 'Evaluate the input content and return true or false based on the condition.',
+          llm: 'Please provide a helpful response based on the input content, keeping it accurate, concise, and useful.',
+          stt: 'Please accurately convert the audio to text, maintaining natural sentence structure and proper punctuation.',
+          tts: 'Please read the text in a natural, clear voice with appropriate speed and natural intonation.',
+          pic2text: 'Please recognize all text content in the image, maintaining the original layout structure and accurately extracting text information.',
+          text2pic: 'Generate a high-quality image based on the description with reasonable composition, harmonious colors, and rich details.',
+          process: 'Process and analyze the input data, extract useful information and organize the output.',
+          transform: 'Transform the input data to the specified format while maintaining data integrity and accuracy.'
+        },
 
         nodeConfigIncomplete: 'Node configuration incomplete',
         nodes: 'Nodes',
@@ -362,9 +376,12 @@ const translations = reactive({
         configInstructions: 'Please follow these steps:',
         step1: 'Drag nodes from left sidebar to canvas',
         step2: 'Click on a node to select it',
+        step2Detail: 'Click the node itself, not the connection points',
         step3: 'Configure node parameters here',
         step4: 'Set input data (text, images, etc.)',
-        tip1: 'LLM nodes support direct text input or image upload',
+        step4Detail: 'Input in the "Input Data Configuration" section below',
+        tipInputLocation: 'Input Text Location: After selecting a node, scroll down to find the "Input Data Configuration" section',
+        tip1: 'LLM nodes accept text input, can process other formats through workflow connections',
         tip2: 'Drag connection points to create data flows',
         tip3: 'Test and deploy workflow after configuration',
         testDeploy: {
@@ -557,9 +574,9 @@ const translations = reactive({
     // 登录
     login: {
       title: 'LABUBU AI',
-      username: 'Username',
+      username: 'Username/Email',
       password: 'Password',
-      usernamePlaceholder: 'Enter username',
+      usernamePlaceholder: 'Enter username or email',
       passwordPlaceholder: 'Enter password',
       rememberMe: 'Remember me',
       forgotPassword: 'Forgot password?',
@@ -593,7 +610,7 @@ const translations = reactive({
       passwordError: 'Password must be at least 8 characters with letters and special characters',
       confirmError: 'The two passwords do not match',
       codeError: 'Please enter verification code',
-      registerSuccess: 'Registration feature is pending backend integration, form validation passed!'
+      registerSuccess: 'Registration successful!'
     }
   },
   zh: {
@@ -696,7 +713,7 @@ const translations = reactive({
         toolNodes: '工具节点',
 
         conditionDesc: '条件判断',
-        llmDesc: '大语言模型',
+        llmDesc: '大语言模型文本处理',
         sttDesc: '语音转文字',
         ttsDesc: '文字转语音',
         pic2textDesc: '图片转文字',
@@ -716,6 +733,8 @@ const translations = reactive({
         pic2textService: '图片转文字',
         text2picService: '文字转图片',
         nodePrompt: '节点提示词',
+        nodePromptPlaceholder: '输入节点的提示词...',
+        promptTipsSimple: '提示词用于指导AI如何处理输入数据',
         llmModel: 'LLM模型',
         temperature: '温度值',
         conservative: '保守',
@@ -731,8 +750,8 @@ const translations = reactive({
         outputPorts: '输出端口',
         addInput: '添加输入',
         addOutput: '添加输出',
-        saveConfig: '保存配置',
-        validateConfig: '验证配置',
+        saveConfig: '保存',
+        validateConfig: '验证',
         nameRequired: '节点名称不能为空',
         serviceRequired: '请选择服务类型',
         promptRequired: '请配置节点提示词',
@@ -744,6 +763,18 @@ const translations = reactive({
         testFailed: '测试工作流失败',
         deploySuccess: '工作流部署成功',
         deployFailed: '部署工作流失败',
+
+        // 默认提示词
+        defaultPrompts: {
+          condition: '根据输入内容进行条件判断，返回true或false。',
+          llm: '请根据输入内容提供有用的回答，保持回答准确、简洁、有帮助。',
+          stt: '请将音频准确转换为文字，保持自然的句子结构和正确的标点符号。',
+          tts: '请以自然、清晰的语调朗读文字，注意语速适中，语音自然。',
+          pic2text: '请识别图片中的所有文字内容，保持原有的排版结构，准确提取文字信息。',
+          text2pic: '根据描述生成高质量图片，画面构图合理，色彩和谐，细节丰富。',
+          process: '对输入数据进行处理和分析，提取有用信息并整理输出。',
+          transform: '将输入数据转换为指定格式，保持数据的完整性和准确性。'
+        },
 
         nodeConfigIncomplete: '节点配置不完整',
         nodes: '节点',
@@ -936,9 +967,12 @@ const translations = reactive({
         configInstructions: '请按照以下步骤操作：',
         step1: '从左侧拖拽节点到画布',
         step2: '点击节点进行选择',
+        step2Detail: '点击节点本身，不是连接点',
         step3: '在此处配置节点参数',
         step4: '设置输入数据（文字、图片等）',
-        tip1: 'LLM节点支持直接输入文字或上传图片',
+        step4Detail: '在下方"输入数据配置"中输入',
+        tipInputLocation: '输入文字位置：选择节点后，向下滚动找到"输入数据配置"部分',
+        tip1: 'LLM节点接受文本输入，可通过工作流连接处理其他格式',
         tip2: '拖拽节点连接点可以创建数据流',
         tip3: '配置完成后可以测试和部署工作流',
         testDeploy: {
@@ -1131,9 +1165,9 @@ const translations = reactive({
     // 登录
     login: {
       title: 'LABUBU AI',
-      username: '用户名',
+      username: '用户名/邮箱',
       password: '密码',
-      usernamePlaceholder: '请输入用户名',
+      usernamePlaceholder: '请输入用户名或邮箱',
       passwordPlaceholder: '请输入密码',
       rememberMe: '记住我',
       forgotPassword: '忘记密码？',
@@ -1167,7 +1201,7 @@ const translations = reactive({
       passwordError: '密码需至少8位，且包含英文和特殊字符',
       confirmError: '两次输入的密码不一致',
       codeError: '请输入验证码',
-      registerSuccess: '注册功能待接入后端，表单校验通过！'
+      registerSuccess: '注册成功！'
     }
   }
 })
