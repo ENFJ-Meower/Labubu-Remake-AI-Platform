@@ -790,9 +790,9 @@ const translations = reactive({
         fitToScreen: '适合屏幕',
         // 节点名称
         conditionNode: '条件',
-        llmNode: 'LLM',
-        sttNode: 'STT',
-        ttsNode: 'TTS',
+        llmNode: '大语言模型',
+        sttNode: '语音转文字',
+        ttsNode: '文字转语音',
         pic2textNode: '图片转文字',
         text2picNode: '文字转图片',
         processNode: '处理',

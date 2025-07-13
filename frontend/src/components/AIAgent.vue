@@ -175,12 +175,7 @@
                         <path d="M2 1a1 1 0 0 0-1 1v12a1 1 0 0 0 1 1h12a1 1 0 0 0 1-1V2a1 1 0 0 0-1-1H9.5a1 1 0 0 0-1 1v7.293l2.646-2.647a.5.5 0 0 1 .708.708l-3.5 3.5a.5.5 0 0 1-.708 0l-3.5-3.5a.5.5 0 1 1 .708-.708L7.5 9.293V2a2 2 0 0 1 2-2H14a2 2 0 0 1 2 2v12a2 2 0 0 1-2 2H2a2 2 0 0 1-2-2V2a2 2 0 0 1 2-2h2.5a.5.5 0 0 1 0 1H2z"/>
                       </svg>
                     </button>
-                    <button class="action-btn-mini" @click="showKeyboardShortcuts" title="快捷键">
-                      <svg width="14" height="14" viewBox="0 0 16 16" fill="currentColor">
-                        <path d="M14 5a1 1 0 0 1 1 1v5a1 1 0 0 1-1 1H2a1 1 0 0 1-1-1V6a1 1 0 0 1 1-1h12zM2 4a2 2 0 0 0-2 2v5a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V6a2 2 0 0 0-2-2H2z"/>
-                        <path d="M13 10.25a.25.25 0 0 1 .25-.25h.5a.25.25 0 0 1 .25.25v.5a.25.25 0 0 1-.25.25h-.5a.25.25 0 0 1-.25-.25v-.5zm0-2a.25.25 0 0 1 .25-.25h.5a.25.25 0 0 1 .25.25v.5a.25.25 0 0 1-.25.25h-.5a.25.25 0 0 1-.25-.25v-.5zm-5 0A.25.25 0 0 1 8.25 8h.5a.25.25 0 0 1 .25.25v.5a.25.25 0 0 1-.25.25h-.5A.25.25 0 0 1 8 8.75v-.5zm2 0a.25.25 0 0 1 .25-.25A.25.25 0 0 1 10.5 8v.5a.25.25 0 0 1-.25.25.25.25 0 0 1-.25-.25v-.5zm1 0A.25.25 0 0 1 11.25 8h.5a.25.25 0 0 1 .25.25v.5a.25.25 0 0 1-.25.25h-.5a.25.25 0 0 1-.25-.25v-.5zm-5 2A.25.25 0 0 1 6.25 10h.5a.25.25 0 0 1 .25.25v.5a.25.25 0 0 1-.25.25h-.5a.25.25 0 0 1-.25-.25v-.5zm-2 0A.25.25 0 0 1 4.25 10h.5a.25.25 0 0 1 .25.25v.5a.25.25 0 0 1-.25.25h-.5a.25.25 0 0 1-.25-.25v-.5zm-2 0A.25.25 0 0 1 2.25 10h.5a.25.25 0 0 1 .25.25v.5a.25.25 0 0 1-.25.25h-.5a.25.25 0 0 1-.25-.25v-.5zm11-2A.25.25 0 0 1 12.25 8h.5a.25.25 0 0 1 .25.25v.5a.25.25 0 0 1-.25.25h-.5a.25.25 0 0 1-.25-.25v-.5zm-2 0A.25.25 0 0 1 10.25 8h.5a.25.25 0 0 1 .25.25v.5a.25.25 0 0 1-.25.25h-.5a.25.25 0 0 1-.25-.25v-.5zm-2 0A.25.25 0 0 1 8.25 8h.5a.25.25 0 0 1 .25.25v.5a.25.25 0 0 1-.25.25h-.5A.25.25 0 0 1 8 8.75v-.5zm-2 0A.25.25 0 0 1 6.25 8h.5a.25.25 0 0 1 .25.25v.5a.25.25 0 0 1-.25.25h-.5A.25.25 0 0 1 6 8.75v-.5zm-2 0A.25.25 0 0 1 4.25 8h.5a.25.25 0 0 1 .25.25v.5a.25.25 0 0 1-.25.25h-.5A.25.25 0 0 1 4 8.75v-.5zm-2 0A.25.25 0 0 1 2.25 8h.5a.25.25 0 0 1 .25.25v.5a.25.25 0 0 1-.25.25h-.5A.25.25 0 0 1 2 8.75v-.5z"/>
-                      </svg>
-                    </button>
+
                   </div>
                 </div>
               </div>
@@ -443,10 +438,6 @@
                 <!-- 端口数据配置 -->
                 <div class="config-section" v-if="selectedNodeData.inputs && selectedNodeData.inputs.length > 0">
                   <h5>{{ $t('aiAgent.workflow.inputData', '输入数据配置') }}</h5>
-                  <div class="input-data-hint">
-                    <span class="hint-icon">✨</span>
-                    <span><strong>在这里输入文字内容！</strong> 选择输入端口后，在下方文本框中输入您的内容</span>
-                  </div>
                   
                   <div class="input-data-config">
                     <div v-for="(input, index) in selectedNodeData.inputs" :key="`input-data-${index}`" class="input-data-item">
@@ -564,11 +555,11 @@
                 <div class="config-actions">
                   <button class="btn btn-save" @click="saveNodeConfig">
                     <span class="btn-icon">💾</span>
-                    {{ $t('aiAgent.workflow.saveConfig', '保存配置') }}
+                    {{ $t('aiAgent.workflow.saveConfig', 'Save') }}
                   </button>
                   <button class="btn btn-validate" @click="validateNodeConfig">
                     <span class="btn-icon">✅</span>
-                    {{ $t('aiAgent.workflow.validateConfig', '验证配置') }}
+                    {{ $t('aiAgent.workflow.validateConfig', 'Validate') }}
                   </button>
                 </div>
               </div>
@@ -812,70 +803,7 @@
 
 
 
-    <!-- 快捷键帮助弹窗 -->
-    <div v-if="showShortcutsHelp" class="shortcuts-overlay" @click.self="closeShortcutsHelp">
-      <div class="shortcuts-dialog">
-        <div class="shortcuts-header">
-          <h3>⌨️ {{ $t('aiAgent.workflow.shortcuts.keyboardGuide', '快捷键指南') }}</h3>
-          <button @click="closeShortcutsHelp" class="btn-close">×</button>
-        </div>
-        <div class="shortcuts-content">
-          <div class="shortcuts-section">
-            <h4>{{ $t('aiAgent.workflow.shortcuts.editOperations', '编辑操作') }}</h4>
-            <div class="shortcut-item">
-              <kbd>Ctrl</kbd> + <kbd>Z</kbd>
-              <span>{{ $t('aiAgent.workflow.shortcuts.undo', '撤销') }}</span>
-            </div>
-            <div class="shortcut-item">
-              <kbd>Ctrl</kbd> + <kbd>Y</kbd>
-              <span>{{ $t('aiAgent.workflow.shortcuts.redo', '重做') }}</span>
-            </div>
-            <div class="shortcut-item">
-              <kbd>Ctrl</kbd> + <kbd>C</kbd>
-              <span>{{ $t('aiAgent.workflow.shortcuts.copySelectedNode', '复制选中节点') }}</span>
-            </div>
-            <div class="shortcut-item">
-              <kbd>Ctrl</kbd> + <kbd>V</kbd>
-              <span>{{ $t('aiAgent.workflow.shortcuts.pasteNode', '粘贴节点') }}</span>
-            </div>
-            <div class="shortcut-item">
-              <kbd>Delete</kbd>
-              <span>{{ $t('aiAgent.workflow.shortcuts.deleteSelectedNode', '删除选中节点') }}</span>
-            </div>
-          </div>
-          <div class="shortcuts-section">
-            <h4>{{ $t('aiAgent.workflow.shortcuts.workflowOperations', '工作流操作') }}</h4>
-            <div class="shortcut-item">
-              <kbd>Ctrl</kbd> + <kbd>S</kbd>
-              <span>{{ $t('aiAgent.workflow.shortcuts.saveWorkflow', '保存工作流') }}</span>
-            </div>
-            <div class="shortcut-item">
-              <kbd>Ctrl</kbd> + <kbd>A</kbd>
-              <span>{{ $t('aiAgent.workflow.shortcuts.selectAllNodes', '选择所有节点') }}</span>
-            </div>
-          </div>
-          <div class="shortcuts-section">
-            <h4>{{ $t('aiAgent.workflow.shortcuts.canvasOperations', '画布操作') }}</h4>
-            <div class="shortcut-item">
-              <span class="mouse-action">鼠标滚轮</span>
-              <span>缩放画布</span>
-            </div>
-            <div class="shortcut-item">
-              <span class="mouse-action">拖拽空白区域</span>
-              <span>移动画布</span>
-            </div>
-            <div class="shortcut-item">
-              <span class="mouse-action">点击节点</span>
-              <span>选择节点</span>
-            </div>
-            <div class="shortcut-item">
-              <span class="mouse-action">拖拽节点</span>
-              <span>移动节点</span>
-            </div>
-          </div>
-        </div>
-      </div>
-    </div>
+
 
 
 
@@ -1258,19 +1186,7 @@ export default {
       workflowStatus: 'Ready', // 始终使用英文key，通过getTranslatedStatus方法进行翻译
       statusEventSource: null,
       
-      // 快捷键映射
-      keyboardShortcuts: {
-        'ctrl+z': 'undo',
-        'ctrl+y': 'redo',
-        'ctrl+c': 'copy',
-        'ctrl+v': 'paste',
-        'delete': 'delete',
-        'ctrl+s': 'save',
-        'ctrl+a': 'selectAll'
-      },
-      
       // UI状态
-      showShortcutsHelp: false,
       copiedNode: null,
 
       // 工作流管理相关
@@ -1364,7 +1280,7 @@ export default {
   
   mounted() {
     this.initializeCanvas()
-    this.setupKeyboardShortcuts()
+    
     this.saveToHistory()
     this.loadWorkflowList()
   },
@@ -1470,6 +1386,7 @@ export default {
       }
       return typeMap[type] || type
     },
+
     onDragStart(event, nodeType) {
       event.dataTransfer.setData('nodeType', nodeType)
       event.dataTransfer.effectAllowed = 'copy'
@@ -1502,8 +1419,8 @@ export default {
           service: ''
         },
         LLM: {
-          title: 'LLM',
-          description: this.$t('aiAgent.workflow.llmDesc', '大语言模型处理'),
+          title: this.$t('aiAgent.workflow.llmNode', 'LLM'),
+          description: this.$t('aiAgent.workflow.llmDesc', '大语言模型文本处理'),
           inputs: [{ name: this.$t('aiAgent.workflow.ports.prompt', '提示'), type: 'text', value: '' }],
           outputs: [{ name: this.$t('aiAgent.workflow.ports.response', '响应'), type: 'text' }],
           service: 'LLM',
@@ -1513,7 +1430,7 @@ export default {
           max_tokens: 2000
         },
         STT: {
-          title: 'STT',
+          title: this.$t('aiAgent.workflow.sttNode', 'STT'),
           description: this.$t('aiAgent.workflow.sttDesc', '语音转文字'),
           inputs: [{ name: this.$t('aiAgent.workflow.ports.audio', '音频'), type: 'audio', value: null }],
           outputs: [{ name: this.$t('aiAgent.workflow.ports.text', '文本'), type: 'text' }],
@@ -1523,7 +1440,7 @@ export default {
           model: 'whisper-1'
         },
         TTS: {
-          title: 'TTS',
+          title: this.$t('aiAgent.workflow.ttsNode', 'TTS'),
           description: this.$t('aiAgent.workflow.ttsDesc', '文字转语音'),
           inputs: [{ name: this.$t('aiAgent.workflow.ports.text', '文本'), type: 'text', value: '' }],
           outputs: [{ name: this.$t('aiAgent.workflow.ports.audio', '音频'), type: 'audio' }],
@@ -1785,7 +1702,7 @@ export default {
     // 初始化画布
     initializeCanvas() {
       // 添加键盘事件监听
-      document.addEventListener('keydown', this.handleKeyDown)
+
       document.addEventListener('keyup', this.handleKeyUp)
       
       // 添加画布事件监听
@@ -1794,55 +1711,7 @@ export default {
       }
     },
     
-    // 设置键盘快捷键
-    setupKeyboardShortcuts() {
-      document.addEventListener('keydown', (e) => {
-        const key = this.getKeyCombo(e)
-        const action = this.keyboardShortcuts[key]
-        
-        if (action) {
-          e.preventDefault()
-          this.executeShortcut(action)
-        }
-      })
-    },
-    
-    // 获取按键组合
-    getKeyCombo(e) {
-      const keys = []
-      if (e.ctrlKey) keys.push('ctrl')
-      if (e.shiftKey) keys.push('shift')
-      if (e.altKey) keys.push('alt')
-      keys.push(e.key.toLowerCase())
-      return keys.join('+')
-    },
-    
-    // 执行快捷键操作
-    executeShortcut(action) {
-      switch (action) {
-        case 'undo':
-          this.undo()
-          break
-        case 'redo':
-          this.redo()
-          break
-        case 'copy':
-          this.copySelectedNode()
-          break
-        case 'paste':
-          this.pasteNode()
-          break
-        case 'delete':
-          this.deleteSelectedNode()
-          break
-        case 'save':
-          this.saveWorkflow()
-          break
-        case 'selectAll':
-          this.selectAllNodes()
-          break
-      }
-    },
+
     
 
     
@@ -2279,7 +2148,7 @@ export default {
     
     // 清理资源
     cleanup() {
-      document.removeEventListener('keydown', this.handleKeyDown)
+
       document.removeEventListener('keyup', this.handleKeyUp)
       
       document.removeEventListener('click', this.cancelConnection)
@@ -2289,14 +2158,7 @@ export default {
       }
     },
     
-    // 快捷键帮助
-    showKeyboardShortcuts() {
-      this.showShortcutsHelp = true
-    },
-    
-    closeShortcutsHelp() {
-      this.showShortcutsHelp = false
-    },
+
     
     // 节点配置相关方法
     isAIServiceNode(nodeType) {
@@ -5212,6 +5074,11 @@ export default {
   border-radius: 10px 10px 0 0;
   background: #404040;
   border-bottom: 1px solid #555555;
+  margin: -2px -2px 0 -2px;
+  position: relative;
+  box-sizing: border-box;
+  width: calc(100% + 4px);
+  left: -2px;
 }
 
 .node-header .node-icon {
@@ -5702,65 +5569,126 @@ export default {
   flex: 1;
   padding: 0.7rem 1rem;
   border: none;
-  border-radius: 8px;
-  font-weight: 500;
+  border-radius: 12px;
+  font-weight: 600;
   font-size: 0.875rem;
   cursor: pointer;
-  transition: all 0.2s ease;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
   display: flex;
   align-items: center;
   justify-content: center;
   gap: 0.4rem;
   white-space: nowrap;
   min-width: 0;
+  position: relative;
+  overflow: hidden;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  backdrop-filter: blur(10px);
 }
 
 .config-actions .btn-icon {
   font-size: 1rem;
-  transition: transform 0.2s ease;
+  transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
   flex-shrink: 0;
+  display: inline-block;
 }
 
 .config-actions .btn:hover {
-  transform: translateY(-1px);
+  transform: translateY(-2px);
 }
 
 .config-actions .btn:hover .btn-icon {
-  transform: scale(1.1);
+  transform: scale(1.2) rotate(-5deg);
 }
 
 .config-actions .btn:active {
   transform: translateY(0);
+  transition: transform 0.1s ease;
 }
 
 .config-actions .btn-save {
-  background: linear-gradient(135deg, #4ecdc4 0%, #26d0ce 100%);
-  color: #1a1a1a;
+  background: linear-gradient(45deg, #ff6b6b, #4ecdc4);
+  color: white;
+  position: relative;
+  overflow: hidden;
+}
+
+.config-actions .btn-save::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: -100%;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(45deg, rgba(255, 255, 255, 0.1), transparent);
+  transition: left 0.5s ease;
+}
+
+.config-actions .btn-save:hover::before {
+  left: 100%;
 }
 
 .config-actions .btn-save:hover {
-  background: linear-gradient(135deg, #45b7b8 0%, #21b8bc 100%);
-  box-shadow: 0 2px 8px rgba(78, 205, 196, 0.3);
+  background: linear-gradient(45deg, #ff5252, #26d0ce);
+  box-shadow: 0 4px 12px rgba(255, 107, 107, 0.4);
+  transform: translateY(-2px);
 }
 
 .config-actions .btn-validate {
-  background: linear-gradient(135deg, #6c5ce7 0%, #5a67d8 100%);
-  color: #ffffff;
+  background: linear-gradient(45deg, #4ecdc4, #ff6b6b);
+  color: white;
+  position: relative;
+  overflow: hidden;
+}
+
+.config-actions .btn-validate::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: -100%;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(45deg, rgba(255, 255, 255, 0.1), transparent);
+  transition: left 0.5s ease;
+}
+
+.config-actions .btn-validate:hover::before {
+  left: 100%;
 }
 
 .config-actions .btn-validate:hover {
-  background: linear-gradient(135deg, #5f4fd1 0%, #4c51bf 100%);
-  box-shadow: 0 2px 8px rgba(108, 92, 231, 0.3);
+  background: linear-gradient(45deg, #26d0ce, #ff5252);
+  box-shadow: 0 4px 12px rgba(78, 205, 196, 0.4);
+  transform: translateY(-2px);
 }
 
 .config-actions .btn-danger {
-  background: linear-gradient(135deg, #ff6b6b 0%, #e53e3e 100%);
-  color: #ffffff;
+  background: linear-gradient(45deg, #ff6b6b, #e53e3e);
+  color: white;
+  position: relative;
+  overflow: hidden;
+}
+
+.config-actions .btn-danger::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: -100%;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(45deg, rgba(255, 255, 255, 0.1), transparent);
+  transition: left 0.5s ease;
+}
+
+.config-actions .btn-danger:hover::before {
+  left: 100%;
 }
 
 .config-actions .btn-danger:hover {
-  background: linear-gradient(135deg, #ee5a52 0%, #c53030 100%);
-  box-shadow: 0 2px 8px rgba(255, 107, 107, 0.3);
+  background: linear-gradient(45deg, #e53e3e, #c53030);
+  box-shadow: 0 4px 12px rgba(255, 107, 107, 0.4);
+  transform: translateY(-2px);
 }
 
 /* 响应式设计 */
@@ -5873,101 +5801,7 @@ export default {
   font-size: 0.8rem;
 }
 
-/* 快捷键帮助弹窗 */
-.shortcuts-overlay {
-  position: fixed;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 100%;
-  background: rgba(0, 0, 0, 0.8);
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  z-index: 1000;
-}
 
-.shortcuts-dialog {
-  background: #2d2d2d;
-  border-radius: 12px;
-  max-width: 600px;
-  width: 90%;
-  max-height: 80vh;
-  overflow-y: auto;
-  border: 1px solid #404040;
-  box-shadow: 0 20px 40px rgba(0, 0, 0, 0.6);
-}
-
-.shortcuts-header {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  padding: 1.5rem 2rem;
-  border-bottom: 1px solid #404040;
-}
-
-.shortcuts-header h3 {
-  margin: 0;
-  color: #e0e0e0;
-  font-size: 1.3rem;
-}
-
-.shortcuts-content {
-  padding: 2rem;
-}
-
-.shortcuts-section {
-  margin-bottom: 2rem;
-}
-
-.shortcuts-section:last-child {
-  margin-bottom: 0;
-}
-
-.shortcuts-section h4 {
-  margin: 0 0 1rem 0;
-  color: #4ecdc4;
-  font-size: 1.1rem;
-  border-bottom: 1px solid #404040;
-  padding-bottom: 0.5rem;
-}
-
-.shortcut-item {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  padding: 0.75rem 0;
-  border-bottom: 1px solid #333;
-}
-
-.shortcut-item:last-child {
-  border-bottom: none;
-}
-
-.shortcut-item kbd {
-  background: #404040;
-  border: 1px solid #555;
-  border-radius: 4px;
-  padding: 0.25rem 0.5rem;
-  font-size: 0.8rem;
-  color: #e0e0e0;
-  margin: 0 0.25rem;
-  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.3);
-}
-
-.shortcut-item .mouse-action {
-  background: #45b7b8;
-  color: #1a1a1a;
-  border-radius: 4px;
-  padding: 0.25rem 0.5rem;
-  font-size: 0.8rem;
-  font-weight: 500;
-}
-
-.shortcut-item span:last-child {
-  color: #b0b0b0;
-  font-size: 0.9rem;
-}
 
 /* 端口标签样式 */
 .port-label {
@@ -6030,35 +5864,7 @@ export default {
   line-height: 1.4;
 }
 
-/* 输入数据提示样式 */
-.input-data-hint {
-  background: linear-gradient(135deg, #ff6b6b, #ffa500);
-  color: white;
-  padding: 12px 16px;
-  border-radius: 8px;
-  margin-bottom: 16px;
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  font-weight: 500;
-  box-shadow: 0 2px 8px rgba(255, 107, 107, 0.3);
-  animation: pulse 2s infinite;
-}
 
-.input-data-hint .hint-icon {
-  font-size: 18px;
-  animation: bounce 1s infinite;
-}
-
-@keyframes pulse {
-  0%, 100% { transform: scale(1); }
-  50% { transform: scale(1.02); }
-}
-
-@keyframes bounce {
-  0%, 100% { transform: translateY(0); }
-  50% { transform: translateY(-3px); }
-}
 
 /* 子配置区域样式 */
 .config-subsection {
