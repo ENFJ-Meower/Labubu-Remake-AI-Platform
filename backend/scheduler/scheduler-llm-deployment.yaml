@@ -1,0 +1,50 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: scheduler-llm
+  namespace: dag-system
+spec:
+  replicas: 3
+  selector:
+    matchLabels:
+      app: scheduler-llm
+  template:
+    metadata:
+      labels:
+        app: scheduler-llm
+    spec:
+      containers:
+        - name: scheduler
+          image: weimengze/cloud-computing-scheduler:v2.0
+          envFrom:
+            - secretRef:
+                name: aws-secret
+          env:
+            - name: SERVICE_NAME
+              value: "LLM"
+            - name: REDIS_ADDR
+              value: "redis-cluster.dag-system.svc.cluster.local:6379"
+            - name: WORKER_SERVICE
+              value: "worker-llm.dag-system.svc.cluster.local:8080"
+            - name: WORKER_API
+              value: "/api/v1/llm"
+            - name: S3_BUCKET
+              value: "cloud-computing-ai-agent"
+            - name: AWS_REGION
+              value: "us-east-1"
+            - name: CONCURRENCY_LIMIT
+              value: "100"
+            - name: QPS_LIMIT
+              value: "500"
+            - name: HTTP_TIMEOUT_MS
+              value: "3000"
+          ports:
+            - containerPort: 9090
+          resources:
+            limits:
+              cpu: "1"
+              memory: "512Mi"
+            requests:
+              cpu: "100m"
+              memory: "128Mi"
+              

@@ -1,0 +1,12 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: ingress
+  namespace: dag-system
+spec:
+  type: ClusterIP
+  selector:
+    app: ingress
+  ports:
+    - port: 80
+      targetPort: 8080
