@@ -47,7 +47,33 @@ npm install
 npm run dev
 ```
 
-前端服务将在 `http://localhost:3001` 启动
+前端服务将在 `http://localhost:3000` 启动
+
+### 🐳 Docker部署
+
+#### 前端Docker镜像构建
+
+```bash
+# 进入前端目录
+cd frontend
+
+# 方法一：使用自动化脚本
+# Windows用户
+build-docker.bat
+
+# Linux/Mac用户
+chmod +x build-docker.sh
+./build-docker.sh
+
+# 方法二：手动构建
+npm run build
+docker build -t labubu-frontend:latest .
+
+# 测试镜像
+docker run -p 8080:80 labubu-frontend:latest
+```
+
+详细的Docker构建指南请参考：[frontend/DOCKER_BUILD_GUIDE.md](frontend/DOCKER_BUILD_GUIDE.md)
 
 ### 后端启动
 
