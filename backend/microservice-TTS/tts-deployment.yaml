@@ -1,0 +1,35 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: tts-deployment
+  namespace: dag-system
+spec:
+  replicas: 3 
+  selector:
+    matchLabels:
+      app: tts
+  template:
+    metadata:
+      labels:
+        app: tts
+    spec:
+      containers:
+        - name: tts
+          image: docker.io/liuyi585851/labubuai-tts:latest
+          ports:
+            - containerPort: 8000
+          env:
+            - name: AWS_REGION
+              value: "us-east-1"
+          envFrom:
+            - secretRef:
+              name: google-secret
+            - secretRef:
+              name: aws-secret        
+          resources:
+            requests:
+              cpu: "100m"
+              memory: "128Mi"
+            limits:
+              cpu: "500m"
+              memory: "256Mi"

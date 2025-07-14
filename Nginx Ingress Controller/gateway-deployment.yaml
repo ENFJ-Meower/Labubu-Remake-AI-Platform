@@ -1,0 +1,56 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: auth-gateway
+  namespace: dag-system
+  labels:
+    app: auth-gateway
+spec:
+  replicas: 3
+  selector:
+    matchLabels:
+      app: auth-gateway
+  template:
+    metadata:
+      labels:
+        app: auth-gateway
+    spec:
+      containers:
+        - name: auth-gateway
+          image: weimengze/cloud-computing-gateway:v1
+          ports:
+            - containerPort: 8080
+          envFrom:
+            - secretRef:
+                name: jwt-secret
+          env:
+            - name: NO_AUTH_PATHS
+              value: "/user,/frontend,/healthz"
+            - name: PROXY_ROUTES
+              value: >
+                {
+                  "/service1": "http://service1:80",
+                  "/service2": "http://service2:80",
+                  "/service3": "http://service3:80",
+                  "/user":     "http://user-service:80",
+                  "/frontend": "http://frontend:80"
+                }  
+          resources:
+            requests:
+              cpu: "100m"
+              memory: "128Mi"
+            limits:
+              cpu: "500m"
+              memory: "512Mi"
+          livenessProbe:
+            httpGet:
+              path: /healthz
+              port: 8080
+            initialDelaySeconds: 10
+            periodSeconds: 30
+          readinessProbe:
+            httpGet:
+              path: /healthz
+              port: 8080
+            initialDelaySeconds: 5
+            periodSeconds: 10
