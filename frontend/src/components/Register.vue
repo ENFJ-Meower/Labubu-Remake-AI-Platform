@@ -251,16 +251,45 @@ export default {
   background: rgba(30, 30, 30, 0.95);
   border-radius: 20px;
   box-shadow: 
-    0 8px 32px 0 rgba(255, 107, 107, 0.15),
-    0 4px 16px 0 rgba(78, 205, 196, 0.15),
-    0 0 40px 0 rgba(255, 107, 107, 0.1),
-    0 0 80px 0 rgba(78, 205, 196, 0.1);
+    0 12px 48px 0 rgba(255, 107, 107, 0.25),
+    0 8px 32px 0 rgba(78, 205, 196, 0.25),
+    0 0 60px 0 rgba(255, 107, 107, 0.2),
+    0 0 120px 0 rgba(78, 205, 196, 0.2),
+    inset 0 1px 0 rgba(255, 107, 107, 0.1),
+    inset 0 -1px 0 rgba(78, 205, 196, 0.1);
   padding: 48px 36px 32px 36px;
   width: 380px;
   display: flex;
   flex-direction: column;
   align-items: center;
-  border: 1px solid rgba(255, 107, 107, 0.1);
+  border: 1px solid rgba(255, 107, 107, 0.2);
+  position: relative;
+}
+
+.register-container::before {
+  content: '';
+  position: absolute;
+  top: -2px;
+  left: -2px;
+  right: -2px;
+  bottom: -2px;
+  background: linear-gradient(45deg, #ff6b6b, #4ecdc4, #ff6b6b, #4ecdc4);
+  border-radius: 22px;
+  z-index: -1;
+  opacity: 0.6;
+  filter: blur(8px);
+  animation: glow-pulse 3s ease-in-out infinite alternate;
+}
+
+@keyframes glow-pulse {
+  0% {
+    opacity: 0.4;
+    transform: scale(0.98);
+  }
+  100% {
+    opacity: 0.8;
+    transform: scale(1.02);
+  }
 }
 .register-logo {
   display: flex;
@@ -285,6 +314,22 @@ export default {
   background-clip: text;
   text-fill-color: transparent;
   letter-spacing: 2px;
+  text-align: center;
+  position: relative;
+  filter: drop-shadow(0 0 20px rgba(255, 107, 107, 0.5)) 
+          drop-shadow(0 0 40px rgba(78, 205, 196, 0.3));
+  animation: text-glow 4s ease-in-out infinite alternate;
+}
+
+@keyframes text-glow {
+  0% {
+    filter: drop-shadow(0 0 15px rgba(255, 107, 107, 0.4)) 
+            drop-shadow(0 0 30px rgba(78, 205, 196, 0.2));
+  }
+  100% {
+    filter: drop-shadow(0 0 25px rgba(255, 107, 107, 0.6)) 
+            drop-shadow(0 0 50px rgba(78, 205, 196, 0.4));
+  }
 }
 .register-form {
   width: 100%;
