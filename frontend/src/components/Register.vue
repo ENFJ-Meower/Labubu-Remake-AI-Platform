@@ -22,19 +22,21 @@
           <label for="confirmPassword">{{ $t('register.confirmPassword', '确认密码') }}</label>
           <input type="password" id="confirmPassword" v-model="confirmPassword" required :placeholder="$t('register.confirmPasswordPlaceholder', '请再次输入密码')" />
         </div>
-        <div class="form-group form-group-inline">
+        <div class="form-group">
           <label for="code">{{ $t('register.verificationCode', '验证码') }}</label>
-          <input type="text" id="code" v-model="code" :placeholder="$t('register.codePlaceholder', '请输入验证码')" style="width: 120px;" />
-          <button 
-            type="button" 
-            class="code-btn" 
-            :class="{ 'loading': isLoadingCode }"
-            :disabled="codeBtnDisabled || isLoadingCode" 
-            @click="sendCode"
-          >
-            <span v-if="isLoadingCode" class="loading-spinner"></span>
-            <span>{{ codeBtnText }}</span>
-          </button>
+          <div class="code-input-group">
+            <input type="text" id="code" v-model="code" :placeholder="$t('register.codePlaceholder', '请输入验证码')" class="code-input" />
+            <button 
+              type="button" 
+              class="code-btn" 
+              :class="{ 'loading': isLoadingCode }"
+              :disabled="codeBtnDisabled || isLoadingCode" 
+              @click="sendCode"
+            >
+              <span v-if="isLoadingCode" class="loading-spinner"></span>
+              <span>{{ codeBtnText }}</span>
+            </button>
+          </div>
         </div>
         <!-- 加载状态提示 -->
         <div v-if="isLoadingCode" class="loading-message">
@@ -67,14 +69,30 @@ export default {
       password: '',
       confirmPassword: '',
       code: '',
-      codeBtnText: this.$t('register.getCode', '获取验证码'),
+      codeBtnText: '获取验证码', // 临时占位，会在mounted中更新
       codeBtnDisabled: false,
       isLoadingCode: false, // 新增：验证码发送加载状态
       codeTimer: null,
       codeCountdown: 60
     };
   },
+  mounted() {
+    // 组件挂载后正确设置国际化文字
+    this.updateButtonText();
+  },
+  watch: {
+    // 监听语言变化，更新按钮文字
+    '$i18n.locale'() {
+      this.updateButtonText();
+    }
+  },
   methods: {
+    updateButtonText() {
+      // 更新按钮文字，除非正在倒计时
+      if (!this.codeBtnDisabled && !this.isLoadingCode) {
+        this.codeBtnText = this.$t('register.getCode', '获取验证码');
+      }
+    },
     async sendCode() {
       // Validate email format验证邮箱格式
       const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
@@ -226,12 +244,17 @@ export default {
 .register-container {
   background: rgba(30, 30, 30, 0.95);
   border-radius: 20px;
-  box-shadow: 0 8px 32px 0 rgba(31, 38, 135, 0.37);
+  box-shadow: 
+    0 8px 32px 0 rgba(255, 107, 107, 0.15),
+    0 4px 16px 0 rgba(78, 205, 196, 0.15),
+    0 0 40px 0 rgba(255, 107, 107, 0.1),
+    0 0 80px 0 rgba(78, 205, 196, 0.1);
   padding: 48px 36px 32px 36px;
   width: 380px;
   display: flex;
   flex-direction: column;
   align-items: center;
+  border: 1px solid rgba(255, 107, 107, 0.1);
 }
 .register-logo {
   display: flex;
@@ -286,32 +309,43 @@ export default {
 .form-group input:focus {
   box-shadow: 0 0 0 2px #4ecdc4;
 }
-.form-group-inline {
+/* 验证码输入组合样式 */
+.code-input-group {
   display: flex;
-  align-items: center;
-  gap: 0.5rem;
-  flex-wrap: nowrap;
+  gap: 0.75rem;
+  align-items: stretch;
+  margin-top: 4px;
 }
-.form-group-inline label {
-  white-space: nowrap;
-  min-width: fit-content;
-  flex-shrink: 0;
+.code-input {
+  flex: 1;
+  padding: 10px 12px;
+  border-radius: 8px;
+  border: none;
+  background: #232526;
+  color: #fff;
+  font-size: 1rem;
+  outline: none;
+  transition: box-shadow 0.2s;
+}
+.code-input:focus {
+  box-shadow: 0 0 0 2px #4ecdc4;
 }
 .code-btn {
   background: linear-gradient(90deg, #ff6b6b 0%, #4ecdc4 100%);
   color: #fff;
   border: none;
   border-radius: 8px;
-  padding: 0.4rem 1rem;
+  padding: 10px 16px;
   font-weight: 600;
   cursor: pointer;
-  margin-left: 0.5rem;
   transition: all 0.2s;
   display: flex;
   align-items: center;
   gap: 0.5rem;
-  min-width: 120px;
+  min-width: 110px;
   justify-content: center;
+  white-space: nowrap;
+  font-size: 0.9rem;
 }
 .code-btn:disabled {
   cursor: not-allowed;
