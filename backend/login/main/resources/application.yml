@@ -1,0 +1,29 @@
+spring:
+  data:
+    redis:
+      cluster:
+        nodes:
+          - redis-cluster.dag-system.svc.cluster.local:6379
+        max-redirects: 3
+      timeout: 5000ms
+  mail:
+    host: smtp.gmail.com
+    port: 465
+    username: labubuai.technology@gmail.com
+    password: wbuwjfvnqttdowxi
+    protocol: smtps
+    properties:
+      mail.smtp.auth: true
+      mail.smtp.ssl.enable: true
+  datasource:
+    driver-class-name: org.postgresql.Driver
+    name: cloud
+    username:
+    password:
+    url: jdbc:postgresql://postgres.dag-system.svc.cluster.local:5432/cloud?useUnicode=true&useSSL=false&characterEncoding=utf8&serverTimezone=Asia/Shanghai
+mybatis-plus:
+  mapper-locations: classpath*:/mapper/**Mapper.xml
+  configuration:
+    log-impl: org.apache.ibatis.logging.stdout.StdOutImpl
+jwt:
+  secret: 81c47e73efc74c029ffedab8fae84b90f7cae7aefb394c0b9a38b06bc374c3fe
