@@ -23,7 +23,7 @@ import message from './utils/message.js'
 
 // Route configuration - defines all application routes路由配置 - 定义所有应用路由
 const routes = [
-  { path: '/frontend/', name: 'Home', component: Home }, // Home page route首页路由
+  { path: '/', name: 'Home', component: Home }, // Home page route首页路由
   { path: '/frontend/ai-agent', name: 'AIAgent', component: AIAgent }, // AI Agent page route AI智能体页面路由
   { path: '/frontend/community', name: 'Community', component: Community }, // Community page route社区页面路由
   { path: '/frontend/marketplace', name: 'Marketplace', component: Marketplace }, // Marketplace page route市场页面路由

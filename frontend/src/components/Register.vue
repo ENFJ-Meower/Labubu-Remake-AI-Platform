@@ -25,9 +25,30 @@
         <div class="form-group form-group-inline">
           <label for="code">{{ $t('register.verificationCode', '验证码') }}</label>
           <input type="text" id="code" v-model="code" :placeholder="$t('register.codePlaceholder', '请输入验证码')" style="width: 120px;" />
-          <button type="button" class="code-btn" :disabled="codeBtnDisabled" @click="getCode">{{ codeBtnText }}</button>
+          <button 
+            type="button" 
+            class="code-btn" 
+            :class="{ 'loading': isLoadingCode }"
+            :disabled="codeBtnDisabled || isLoadingCode" 
+            @click="sendCode"
+          >
+            <span v-if="isLoadingCode" class="loading-spinner"></span>
+            <span>{{ codeBtnText }}</span>
+          </button>
         </div>
-        <button class="register-btn" type="submit">{{ $t('register.registerButton', '注册') }}</button>
+        <!-- 加载状态提示 -->
+        <div v-if="isLoadingCode" class="loading-message">
+          <div class="loading-dots">
+            <span>{{ $t('register.sendingCode', '正在发送验证码') }}</span>
+            <span class="dots">
+              <span class="dot"></span>
+              <span class="dot"></span>
+              <span class="dot"></span>
+            </span>
+          </div>
+          <p class="loading-tip">{{ $t('register.loadingTip', '邮箱验证码发送需要一些时间，请耐心等待...') }}</p>
+        </div>
+        <button class="register-btn" type="submit" :disabled="isLoadingCode">{{ $t('register.registerButton', '注册') }}</button>
         <div class="login-link">
           {{ $t('register.hasAccount', '已有账号？') }}<router-link to="/frontend/login">{{ $t('register.goLogin', '去登录') }}</router-link>
         </div>
@@ -46,42 +67,48 @@ export default {
       password: '',
       confirmPassword: '',
       code: '',
-      codeBtnText: '获取验证码',
+      codeBtnText: this.$t('register.getCode', '获取验证码'),
       codeBtnDisabled: false,
+      isLoadingCode: false, // 新增：验证码发送加载状态
       codeTimer: null,
       codeCountdown: 60
     };
   },
   methods: {
-    async getCode() {
+    async sendCode() {
       // Validate email format验证邮箱格式
-      const emailRegex = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,6}$/;
+      const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
       if (!emailRegex.test(this.email)) {
-        alert(this.$t('register.emailError', '请输入有效的邮箱地址'));
+        alert(this.$t('register.emailFormatError', '邮箱格式不正确'));
         return;
       }
       
+      // 开始加载状态
+      this.isLoadingCode = true;
       this.codeBtnDisabled = true;
-      this.codeBtnText = '发送中...';
+      this.codeBtnText = this.$t('register.sending', '发送中...');
       
       try {
-        const res = await fetch('/backend/user/sendCode', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ email: this.email })
-        });
-        const data = await res.json();
+        // Import userAuthAPI for authentication导入userAuthAPI进行认证
+        const { userAuthAPI } = await import('@/config/api.js')
+        
+        // Call send verification code API调用发送验证码API
+        const data = await userAuthAPI.sendVerificationCode(this.email)
         
         // Handle response based on API documentation根据API文档处理响应
         if (data.code === 200) {
-          this.codeBtnText = '已发送(180s)'; // 3 minutes as per API doc按API文档3分钟
+          // 成功发送后显示成功提示
+          alert(this.$t('register.codeSuccess', '验证码已发送到您的邮箱，请查收！'));
+          
+          this.codeBtnText = this.$t('register.sentCountdown', '已发送(180s)'); // 3 minutes as per API doc按API文档3分钟
           this.codeCountdown = 180;
           this.codeTimer = setInterval(() => {
             this.codeCountdown--;
-            this.codeBtnText = `已发送(${this.codeCountdown}s)`;
+            const sentText = this.$t('register.sentTime', `已发送({time}s)`);
+            this.codeBtnText = sentText.replace('{time}', this.codeCountdown);
             if (this.codeCountdown <= 0) {
               clearInterval(this.codeTimer);
-              this.codeBtnText = '获取验证码';
+              this.codeBtnText = this.$t('register.getCode', '获取验证码');
               this.codeBtnDisabled = false;
             }
           }, 1000);
@@ -96,82 +123,72 @@ export default {
       } catch (e) {
         console.error('Send verification code error发送验证码错误:', e);
         alert('验证码发送失败：' + e.message);
-        this.codeBtnText = '获取验证码';
+        this.codeBtnText = this.$t('register.getCode', '获取验证码');
         this.codeBtnDisabled = false;
+      } finally {
+        // 结束加载状态
+        this.isLoadingCode = false;
       }
     },
     async handleRegister() {
-      // Frontend validation前端验证
-      if (!this.username.trim() || !this.email.trim() || !this.password.trim() || !this.confirmPassword.trim()) {
-        alert(this.$t('register.completeInfo', '请填写完整信息'));
+      // Validate all input fields验证所有输入字段
+      if (!this.username.trim()) {
+        alert(this.$t('register.usernameRequired', '请输入用户名'));
         return;
       }
       
-      // Username validation (2+ characters as per API doc)用户名验证（按API文档2位以上）
-      if (this.username.length < 2) {
-        alert(this.$t('register.usernameError', '用户名长度必须大于2位'));
+      // Username length validation用户名长度验证
+      if (this.username.length < 3 || this.username.length > 20) {
+        alert(this.$t('register.usernameLength', '用户名长度应为3-20个字符'));
         return;
       }
       
-      // Email validation (use API doc regex)邮箱验证（使用API文档正则）
-      const emailRegex = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,6}$/;
+      // Email format validation邮箱格式验证
+      const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
       if (!emailRegex.test(this.email)) {
         alert(this.$t('register.emailError', '请输入有效的邮箱地址'));
         return;
       }
       
-      // Password validation (8-16 chars, at least 2 types: uppercase, lowercase, digits)密码验证（8-16位，至少包含大写字母、小写字母、数字中的两类）
-      if (this.password.length < 8 || this.password.length > 16) {
-        alert(this.$t('register.passwordLengthError', '密码长度必须在8-16位之间'));
+      // Password validation密码验证
+      if (this.password.length < 8) {
+        alert(this.$t('register.passwordLength', '密码长度不能少于8位'));
         return;
       }
       
-      const hasUpper = /[A-Z]/.test(this.password);
-      const hasLower = /[a-z]/.test(this.password);
-      const hasDigit = /\d/.test(this.password);
-      const typeCount = [hasUpper, hasLower, hasDigit].filter(Boolean).length;
-      
-      if (typeCount < 2) {
-        alert(this.$t('register.passwordError', '密码必须包含大写字母、小写字母、数字中的至少两类'));
-        return;
-      }
-      
+      // Password confirmation验证密码确认
       if (this.password !== this.confirmPassword) {
-        alert(this.$t('register.confirmError', '两次输入的密码不一致'));
+        alert(this.$t('register.passwordMismatch', '两次输入的密码不一致'));
         return;
       }
       
-      // Verification code validation (6 digits)验证码验证（6位数字）
+      // Verification code validation验证码验证
       if (!this.code || this.code.length !== 6) {
         alert(this.$t('register.codeError', '请输入6位验证码'));
         return;
       }
       
-      // Call backend register API调用后端注册API
+      // Call backend register API using userAuthAPI调用后端注册API使用userAuthAPI
       try {
-        const res = await fetch('/backend/user/register', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({
-            username: this.username,
-            email: this.email,
-            password: this.password, // Send password as plain text按后端要求发送明文密码
-            verificationCode: this.code // Use correct field name使用正确的字段名
-          })
-        });
-        const data = await res.json();
+        // Import userAuthAPI for authentication导入userAuthAPI进行认证
+        const { userAuthAPI } = await import('@/config/api.js')
+        
+        // Call register API调用注册API
+        const data = await userAuthAPI.register(this.username, this.email, this.password, this.code)
         
         // Handle response based on API documentation根据API文档处理响应
         if (data.code === 200) {
-          // Save token and user info保存token和用户信息
+          // Save JWT token and user info保存JWT令牌和用户信息
           localStorage.setItem('labubu_token', data.data.token);
           localStorage.setItem('labubu_user', JSON.stringify({
             username: data.data.username,
             email: data.data.email
           }));
           
+          console.log('Registration successful, JWT token saved注册成功，JWT令牌已保存:', data.data.token.substring(0, 20) + '...')
+          
           alert(this.$t('register.registerSuccess', '注册成功！'));
-          this.$router.push('/frontend/');
+          this.$router.push('/');
         } else {
           // Handle different error codes处理不同的错误代码
           let errorMessage = data.msg || '注册失败';
@@ -185,8 +202,8 @@ export default {
           alert(errorMessage);
         }
       } catch (error) {
-        console.error('Register error注册错误:', error);
-        alert(this.$t('register.networkError', '网络错误，请稍后重试'));
+        console.error('Registration error注册错误:', error);
+        alert('注册失败：' + error.message);
       }
     }
   },
@@ -273,6 +290,12 @@ export default {
   display: flex;
   align-items: center;
   gap: 0.5rem;
+  flex-wrap: nowrap;
+}
+.form-group-inline label {
+  white-space: nowrap;
+  min-width: fit-content;
+  flex-shrink: 0;
 }
 .code-btn {
   background: linear-gradient(90deg, #ff6b6b 0%, #4ecdc4 100%);
@@ -284,6 +307,11 @@ export default {
   cursor: pointer;
   margin-left: 0.5rem;
   transition: all 0.2s;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  min-width: 120px;
+  justify-content: center;
 }
 .code-btn:disabled {
   cursor: not-allowed;
@@ -292,6 +320,81 @@ export default {
 .code-btn:not(:disabled):hover {
   background: linear-gradient(90deg, #4ecdc4 0%, #ff6b6b 100%);
 }
+
+/* 加载动画样式 */
+.code-btn.loading {
+  background: linear-gradient(90deg, #4ecdc4 0%, #4ecdc4 100%);
+  opacity: 0.8;
+}
+
+.loading-spinner {
+  width: 16px;
+  height: 16px;
+  border: 2px solid rgba(255, 255, 255, 0.3);
+  border-radius: 50%;
+  border-top-color: #fff;
+  animation: spin 1s ease-in-out infinite;
+}
+
+@keyframes spin {
+  to { transform: rotate(360deg); }
+}
+
+/* 加载状态提示消息 */
+.loading-message {
+  background: rgba(78, 205, 196, 0.1);
+  border: 1px solid rgba(78, 205, 196, 0.3);
+  border-radius: 8px;
+  padding: 12px 16px;
+  margin-bottom: 16px;
+  color: #4ecdc4;
+  text-align: center;
+}
+
+.loading-dots {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  font-weight: 600;
+  margin-bottom: 8px;
+}
+
+.dots {
+  display: flex;
+  gap: 4px;
+}
+
+.dot {
+  width: 4px;
+  height: 4px;
+  background-color: #4ecdc4;
+  border-radius: 50%;
+  animation: bounce 1.5s ease-in-out infinite;
+}
+
+.dot:nth-child(1) { animation-delay: -0.3s; }
+.dot:nth-child(2) { animation-delay: -0.15s; }
+.dot:nth-child(3) { animation-delay: 0s; }
+
+@keyframes bounce {
+  0%, 80%, 100% {
+    transform: scale(0);
+    opacity: 0.5;
+  }
+  40% {
+    transform: scale(1);
+    opacity: 1;
+  }
+}
+
+.loading-tip {
+  font-size: 0.85rem;
+  opacity: 0.8;
+  margin: 0;
+  line-height: 1.4;
+}
+
 .register-btn {
   width: 100%;
   padding: 12px 0;
@@ -305,8 +408,12 @@ export default {
   margin-bottom: 12px;
   transition: background 0.2s;
 }
-.register-btn:hover {
+.register-btn:hover:not(:disabled) {
   background: linear-gradient(90deg, #4ecdc4 0%, #ff6b6b 100%);
+}
+.register-btn:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
 }
 .login-link {
   text-align: center;

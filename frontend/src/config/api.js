@@ -1,7 +1,7 @@
 // API configuration file - Backend DAG management system integration API配置文件 - 后端DAG管理系统接入
 const API_CONFIG = {
   // Basic API configuration基础API配置
-  baseURL: 'http://localhost:8081/backend/api/v1', // Adjust according to actual backend address根据实际后端地址调整
+  baseURL: 'http://localhost:8081/backend/ai-agent', // Adjust according to actual backend address根据实际后端地址调整
   timeout: 30000, // Request timeout in milliseconds请求超时时间（毫秒）
   
   // Request headers configuration请求头配置
@@ -41,10 +41,7 @@ const API_CONFIG = {
     getResult: '/message',
     
     // Get all user DAGs获取用户所有DAG
-    getAllDAGs: '/AllDag/{tenantID}',
-    
-    // SSE status push SSE状态推送
-    statusStream: '/status/stream/{dag_id}'
+    getAllDAGs: '/AllDag/{tenantID}'
   }
 }
 
@@ -90,8 +87,16 @@ class WorkflowAPI {
 
   // Get authentication headers获取认证头
   getAuthHeaders() {
-    const token = localStorage.getItem('authToken') // Get auth token from localStorage从本地存储获取认证令牌
-    return token ? { 'Authorization': `Bearer ${token}` } : {} // Return Bearer token or empty object返回Bearer令牌或空对象
+    // Get JWT token from localStorage (saved during login)从localStorage获取JWT令牌（登录时保存的）
+    const token = localStorage.getItem('labubu_token')
+    
+    if (token) {
+      console.log('Using JWT token for API authentication使用JWT令牌进行API认证')
+      return { 'Authorization': `Bearer ${token}` } // Return Bearer token format返回Bearer令牌格式
+    } else {
+      console.warn('No JWT token found, API request may fail没有找到JWT令牌，API请求可能失败')
+      return {} // Return empty object if no token如果没有令牌返回空对象
+    }
   }
 
   // Submit DAG workflow to backend提交DAG工作流到后端
@@ -141,32 +146,6 @@ class WorkflowAPI {
     return await this.request(url, { method: 'GET' })
   }
 
-  // Create SSE connection to monitor status changes创建SSE连接监听状态变化
-  createStatusStream(dagId, onMessage, onError) {
-    const tenantId = this.config.getTenantId() // Get current tenant ID获取当前租户ID
-    const url = `${this.config.baseURL}${this.config.endpoints.statusStream.replace('{dag_id}', dagId)}?tenant_id=${tenantId}` // Construct SSE URL构造SSE URL
-    
-    const eventSource = new EventSource(url) // Create EventSource instance创建EventSource实例
-    
-    // Handle incoming messages处理传入消息
-    eventSource.onmessage = (event) => {
-      try {
-        const data = JSON.parse(event.data) // Parse JSON message解析JSON消息
-        onMessage(data) // Call message handler调用消息处理器
-      } catch (error) {
-        console.error('Failed to parse SSE message解析SSE消息失败:', error)
-      }
-    }
-    
-    // Handle connection errors处理连接错误
-    eventSource.onerror = (error) => {
-      console.error('SSE connection error SSE连接错误:', error)
-      if (onError) onError(error) // Call error handler if provided如果提供了错误处理器则调用
-    }
-    
-    return eventSource // Return EventSource instance返回EventSource实例
-  }
-
   // Upload file to S3 using pre-signed URL使用预签名URL上传文件到S3
   async uploadFile(file, preSignedUrl) {
     try {
@@ -200,6 +179,80 @@ class WorkflowAPI {
 // Export API instance导出API实例
 export const workflowAPI = new WorkflowAPI()
 export default workflowAPI
+
+// 用户认证API类 - 不需要JWT认证的API
+class UserAuthAPI {
+  constructor() {
+    this.baseURL = 'http://localhost:8081/backend/user' // User authentication API base URL用户认证API基础URL
+  }
+
+  // Generic request method for user auth APIs用户认证API的通用请求方法
+  async request(endpoint, options = {}) {
+    const fullUrl = `${this.baseURL}${endpoint}` // Construct full URL构造完整URL
+    const defaultOptions = {
+      headers: {
+        'Content-Type': 'application/json', // Default content type默认内容类型
+        // Note: No Authorization header for auth APIs注意：认证API不需要Authorization头
+      },
+      timeout: 30000 // Request timeout请求超时时间
+    }
+    
+    try {
+      const response = await fetch(fullUrl, { ...defaultOptions, ...options })
+      
+      if (!response.ok) {
+        throw new Error(`HTTP ${response.status}: ${response.statusText}`)
+      }
+      
+      const contentType = response.headers.get('content-type')
+      if (contentType && contentType.includes('application/json')) {
+        return await response.json()
+      }
+      
+      return await response.text()
+    } catch (error) {
+      console.error('User auth API request failed用户认证API请求失败:', error)
+      throw error
+    }
+  }
+
+  // User login API用户登录API
+  async login(username, password) {
+    return await this.request('/login', {
+      method: 'POST',
+      body: JSON.stringify({
+        username: username,
+        password: password
+      })
+    })
+  }
+
+  // User registration API用户注册API
+  async register(username, email, password, verificationCode) {
+    return await this.request('/register', {
+      method: 'POST',
+      body: JSON.stringify({
+        username: username,
+        email: email,
+        password: password,
+        verificationCode: verificationCode
+      })
+    })
+  }
+
+  // Send verification code API发送验证码API
+  async sendVerificationCode(email) {
+    return await this.request('/sendCode', {
+      method: 'POST',
+      body: JSON.stringify({
+        email: email
+      })
+    })
+  }
+}
+
+// Export user auth API instance导出用户认证API实例
+export const userAuthAPI = new UserAuthAPI()
 
 // 导出配置供其他模块使用
 export { API_CONFIG } 

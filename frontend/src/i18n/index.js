@@ -600,7 +600,22 @@ const translations = reactive({
       passwordError: 'Password must be at least 8 characters with letters and special characters',
       confirmError: 'The two passwords do not match',
       codeError: 'Please enter verification code',
-      registerSuccess: 'Registration successful!'
+      registerSuccess: 'Registration successful!',
+      getCode: 'Get Code',
+      sending: 'Sending...',
+      sentCountdown: 'Sent (180s)',
+      sentTime: 'Sent ({time}s)',
+      sendingCode: 'Sending verification code',
+      loadingTip: 'Email verification may take some time, please wait patiently...',
+      codeSuccess: 'Verification code has been sent to your email, please check!',
+      emailFormatError: 'Invalid email format',
+      usernameRequired: 'Please enter username',
+      usernameLength: 'Username should be 3-20 characters',
+      passwordLength: 'Password should be at least 8 characters',
+      passwordMismatch: 'The two passwords do not match',
+      invalidCode: 'Verification code is invalid or expired',
+      serverError: 'Server error, please try again later',
+      sendCodeError: 'Failed to send verification code'
     }
   },
   zh: {
@@ -1181,7 +1196,22 @@ const translations = reactive({
       passwordError: '密码需至少8位，且包含英文和特殊字符',
       confirmError: '两次输入的密码不一致',
       codeError: '请输入验证码',
-      registerSuccess: '注册成功！'
+      registerSuccess: '注册成功！',
+      getCode: '获取验证码',
+      sending: '发送中...',
+      sentCountdown: '已发送(180s)',
+      sentTime: '已发送({time}s)',
+      sendingCode: '正在发送验证码',
+      loadingTip: '邮箱验证码发送需要一些时间，请耐心等待...',
+      codeSuccess: '验证码已发送到您的邮箱，请查收！',
+      emailFormatError: '邮箱格式不正确',
+      usernameRequired: '请输入用户名',
+      usernameLength: '用户名长度应为3-20个字符',
+      passwordLength: '密码长度不能少于8位',
+      passwordMismatch: '两次输入的密码不一致',
+      invalidCode: '验证码错误或已过期',
+      serverError: '服务器错误，请稍后重试',
+      sendCodeError: '验证码发送失败'
     }
   }
 })
@@ -1199,13 +1229,10 @@ class LanguageManager {
     if (savedLanguage && LANGUAGES[savedLanguage]) {
       currentLanguage.value = savedLanguage
     } else {
-      // 检测浏览器语言
-      const browserLanguage = navigator.language || navigator.userLanguage
-      if (browserLanguage.startsWith('zh')) {
-        currentLanguage.value = 'zh'
-      } else {
-        currentLanguage.value = 'en'
-      }
+      // 首次访问默认使用英语，不检测浏览器语言
+      currentLanguage.value = DEFAULT_LANGUAGE
+      // 保存默认语言到本地存储
+      localStorage.setItem('language', DEFAULT_LANGUAGE)
     }
   }
 

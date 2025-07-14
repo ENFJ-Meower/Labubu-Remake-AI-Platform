@@ -787,9 +787,9 @@
         <div class="modal-header">
           <h3>📊 工作流状态监控</h3>
           <div class="connection-status">
-            <div class="connection-indicator" :class="sseConnectionStatus">
+            <div class="connection-indicator" :class="pollingStatus">
               <div class="indicator-dot"></div>
-              <span class="indicator-text">{{ getConnectionStatusText(sseConnectionStatus) }}</span>
+              <span class="indicator-text">{{ getConnectionStatusText(pollingStatus) }}</span>
             </div>
           </div>
           <button class="close-btn" @click="closeStatusMonitor">×</button>
@@ -1195,13 +1195,12 @@ export default {
       focusOnFinalOutput: false,
       logsExpanded: false,
       
-      // SSE连接状态
-      sseConnectionStatus: 'disconnected', // disconnected, connecting, connected, error
-      sseReconnectAttempts: 0,
-      sseMaxReconnectAttempts: 5,
-      sseReconnectDelay: 1000,
-      sseHeartbeatInterval: null,
-      sseLastHeartbeat: null,
+      // 轮询监控状态
+      pollingInterval: null,
+      pollingDelay: 2000, // 2秒轮询一次
+      maxPollingAttempts: 300, // 最大轮询次数（10分钟）
+      currentPollingAttempts: 0,
+      pollingStatus: 'stopped', // stopped, running, error
       
       // UI响应优化
       statusUpdateQueue: [],
@@ -1258,7 +1257,7 @@ export default {
   
   beforeUnmount() {
     this.cleanup()
-    this.stopStatusMonitoring()
+    this.stopPollingMonitoring()
   },
   
   methods: {
@@ -2389,37 +2388,8 @@ export default {
       return dagData
     },
     async monitorWorkflowExecution(dagId) {
-      const workflowAPI = (await import('@/config/api.js')).default
-      
-      const eventSource = workflowAPI.createStatusStream(
-        dagId,
-        (statusData) => {
-          console.log('工作流状态更新:', statusData)
-          this.workflowStatus = statusData.status || 'Running'
-          
-          // 更新节点状态
-          if (statusData.node_id && statusData.node_status) {
-            const node = this.workflowNodes.find(n => n.id === statusData.node_id)
-            if (node) {
-              node.status = statusData.node_status
-            }
-          }
-          
-          // 如果工作流完成，自动显示结果
-          if (statusData.status === 'completed') {
-            setTimeout(() => {
-              this.onWorkflowCompleted(dagId)
-            }, 1000) // 延迟1秒确保结果已保存
-          }
-        },
-        (error) => {
-          console.error('监听工作流状态失败:', error)
-          this.$message?.error?.('监听工作流状态失败')
-        }
-      )
-      
-      // 保存EventSource引用用于清理
-      this.statusEventSource = eventSource
+      console.log('开始轮询监控工作流:', dagId)
+      this.startPollingMonitoring(dagId)
     },
     clearCanvas() {
       this.workflowNodes = []
@@ -2631,7 +2601,7 @@ export default {
         this.showStatusMonitor = true
         
         // 开始实时监控
-        this.startStatusMonitoring(workflow.dag_id)
+        this.startPollingMonitoring(workflow.dag_id)
         
       } catch (error) {
         console.error('获取工作流状态失败:', error)
@@ -3063,160 +3033,114 @@ export default {
       }
     },
 
-    // 开始状态监控（优化版）
-    startStatusMonitoring(dagId) {
-      this.stopStatusMonitoring()
-      this.sseReconnectAttempts = 0
-      this.connectSSE(dagId)
+    // 开始轮询监控
+    startPollingMonitoring(dagId) {
+      this.stopPollingMonitoring()
+      this.monitoringWorkflowId = dagId
+      this.currentPollingAttempts = 0
+      this.pollingStatus = 'running'
+      
+      console.log(`开始轮询监控工作流 ${dagId}，每${this.pollingDelay}ms检查一次状态`)
+      
+      // 立即执行一次
+      this.pollWorkflowStatus()
+      
+      // 设置定时轮询
+      this.pollingInterval = setInterval(() => {
+        this.pollWorkflowStatus()
+      }, this.pollingDelay)
     },
 
-    // SSE连接处理
-    async connectSSE(dagId) {
+    // 轮询工作流状态
+    async pollWorkflowStatus() {
+      if (!this.monitoringWorkflowId || this.pollingStatus !== 'running') {
+        return
+      }
+      
       try {
-        this.sseConnectionStatus = 'connecting'
+        this.currentPollingAttempts++
         
         const workflowAPI = (await import('@/config/api.js')).default
+        const statusData = await workflowAPI.getDAGStatus(this.monitoringWorkflowId)
         
-        // 创建SSE连接
-        this.statusEventSource = workflowAPI.createStatusStream(
-          dagId,
-          (statusData) => {
-            this.onSSEMessage(statusData)
-          },
-          (error) => {
-            this.onSSEError(error)
-          }
-        )
-
-        // 设置连接超时
-        const connectionTimeout = setTimeout(() => {
-          if (this.sseConnectionStatus === 'connecting') {
-            this.onSSEError(new Error('连接超时'))
-          }
-        }, 10000)
-
-        // 模拟连接成功（实际应该通过第一个消息或连接事件确认）
-        setTimeout(() => {
-          if (this.sseConnectionStatus === 'connecting') {
-            this.sseConnectionStatus = 'connected'
-            this.sseReconnectAttempts = 0
-            this.sseLastHeartbeat = Date.now()
-            this.startHeartbeatMonitoring()
-            clearTimeout(connectionTimeout)
-          }
-        }, 2000)
-
-      } catch (error) {
-        console.error('创建SSE连接失败:', error)
-        this.onSSEError(error)
-      }
-    },
-
-    // SSE消息处理
-    onSSEMessage(statusData) {
-      this.sseConnectionStatus = 'connected'
-      this.sseLastHeartbeat = Date.now()
-      
-      // 将状态更新加入队列以批量处理
-      this.statusUpdateQueue.push(statusData)
-      
-      // 启动批量更新定时器
-      if (!this.statusUpdateTimer) {
-        this.statusUpdateTimer = setTimeout(() => {
-          this.processBatchStatusUpdates()
-        }, this.batchUpdateInterval)
-      }
-    },
-
-    // SSE错误处理
-    onSSEError(error) {
-      console.error('SSE连接错误:', error)
-      this.sseConnectionStatus = 'error'
-      
-      // 自动重连机制
-      if (this.sseReconnectAttempts < this.sseMaxReconnectAttempts) {
-        this.sseReconnectAttempts++
-        const delay = this.sseReconnectDelay * Math.pow(2, this.sseReconnectAttempts - 1)
+        console.log(`轮询状态 #${this.currentPollingAttempts}:`, statusData)
         
-        console.log(`尝试重连... (${this.sseReconnectAttempts}/${this.sseMaxReconnectAttempts})`)
+        // 更新状态
+        this.updateWorkflowStatus(statusData)
         
-        setTimeout(() => {
-          if (this.monitoringWorkflowId) {
-            this.connectSSE(this.monitoringWorkflowId)
+        // 检查是否完成
+        if (statusData.status === 'completed' || statusData.status === 'failed') {
+          console.log('工作流执行完成，停止轮询')
+          this.stopPollingMonitoring()
+          
+          // 如果工作流完成，自动显示结果
+          if (statusData.status === 'completed') {
+            setTimeout(() => {
+              this.onWorkflowCompleted(this.monitoringWorkflowId)
+            }, 1000)
           }
-        }, delay)
-      } else {
-        this.$message?.error?.('连接失败，已达到最大重连次数')
-      }
-    },
-
-    // 批量处理状态更新
-    processBatchStatusUpdates() {
-      if (this.statusUpdateQueue.length === 0) return
-      
-      // 处理所有队列中的状态更新
-      const updates = [...this.statusUpdateQueue]
-      this.statusUpdateQueue = []
-      
-      // 合并更新，只保留最新的状态
-      const latestUpdate = updates[updates.length - 1]
-      this.currentWorkflowStatus = latestUpdate
-      
-      // 更新UI显示
-      this.updateStatusDisplay(latestUpdate)
-      
-      // 清理定时器
-      if (this.statusUpdateTimer) {
-        clearTimeout(this.statusUpdateTimer)
-        this.statusUpdateTimer = null
-      }
-    },
-
-    // 停止状态监控
-    stopStatusMonitoring() {
-      if (this.statusEventSource) {
-        this.statusEventSource.close()
-        this.statusEventSource = null
-      }
-      
-      if (this.sseHeartbeatInterval) {
-        clearInterval(this.sseHeartbeatInterval)
-        this.sseHeartbeatInterval = null
-      }
-      
-      if (this.statusUpdateTimer) {
-        clearTimeout(this.statusUpdateTimer)
-        this.statusUpdateTimer = null
-      }
-      
-      this.sseConnectionStatus = 'disconnected'
-      this.statusUpdateQueue = []
-    },
-
-    // 心跳监控
-    startHeartbeatMonitoring() {
-      if (this.sseHeartbeatInterval) {
-        clearInterval(this.sseHeartbeatInterval)
-      }
-      
-      this.sseHeartbeatInterval = setInterval(() => {
-        const now = Date.now()
-        const timeSinceLastHeartbeat = now - (this.sseLastHeartbeat || 0)
-        
-        // 如果超过30秒没有收到消息，认为连接异常
-        if (timeSinceLastHeartbeat > 30000) {
-          console.warn('心跳超时，尝试重连...')
-          this.onSSEError(new Error('心跳超时'))
         }
-      }, 5000)
+        
+        // 检查是否超过最大轮询次数
+        if (this.currentPollingAttempts >= this.maxPollingAttempts) {
+          console.warn('达到最大轮询次数，停止监控')
+          this.stopPollingMonitoring()
+          this.$message?.warning?.('监控超时，请手动刷新查看状态')
+        }
+        
+      } catch (error) {
+        console.error('轮询状态失败:', error)
+        this.pollingStatus = 'error'
+        
+        // 连续失败5次后停止轮询
+        if (this.currentPollingAttempts % 5 === 0) {
+          this.$message?.error?.('状态查询失败，请检查网络连接')
+        }
+        
+        // 如果连续失败太多次，停止轮询
+        if (this.currentPollingAttempts >= 20) {
+          this.stopPollingMonitoring()
+          this.$message?.error?.('无法获取工作流状态，已停止监控')
+        }
+      }
+    },
+
+    // 更新工作流状态
+    updateWorkflowStatus(statusData) {
+      // 更新当前监控的工作流状态
+      this.currentWorkflowStatus = statusData
+      this.workflowStatus = statusData.status || 'Running'
+      
+      // 更新节点状态
+      if (statusData.nodes && Array.isArray(statusData.nodes)) {
+        statusData.nodes.forEach(nodeStatus => {
+          const node = this.workflowNodes.find(n => n.id === nodeStatus.node_id)
+          if (node) {
+            node.status = nodeStatus.status
+          }
+        })
+      }
+      
+      // 更新工作流列表中的状态
+      this.updateStatusDisplay(statusData)
+    },
+
+    // 停止轮询监控
+    stopPollingMonitoring() {
+      if (this.pollingInterval) {
+        clearInterval(this.pollingInterval)
+        this.pollingInterval = null
+      }
+      
+      this.pollingStatus = 'stopped'
+      console.log('轮询监控已停止')
     },
 
     // 获取连接状态文本
     getConnectionStatusText(status) {
       const statusMap = {
-        'disconnected': '未连接',
-        'connecting': '连接中...',
-        'connected': '已连接',
+        'stopped': '未连接',
+        'running': '监控中...',
         'error': '连接错误'
       }
       return statusMap[status] || '未知状态'
@@ -3272,7 +3196,7 @@ export default {
     // 关闭状态监控弹窗
     closeStatusMonitor() {
       this.showStatusMonitor = false
-      this.stopStatusMonitoring()
+      this.stopPollingMonitoring()
       this.monitoringWorkflowId = null
       this.currentWorkflowStatus = null
     },

@@ -5,7 +5,7 @@
       <div class="nav-container">
         <!-- Logo -->
         <div class="nav-logo">
-          <router-link to="/frontend/" class="logo-link">
+          <router-link to="/" class="logo-link">
             <img src="./assets/images/logo.png" alt="Labubu AI" class="logo-img" />
             <span class="logo-text">Labubu AI</span>
           </router-link>
@@ -13,7 +13,7 @@
         
         <!-- 导航菜单 -->
         <div class="nav-menu">
-          <router-link to="/frontend/" class="nav-link">
+          <router-link to="/" class="nav-link">
             <i class="icon-home"></i>
             <span>{{ $t('nav.home') || '首页' }}</span>
           </router-link>

@@ -52,17 +52,13 @@ export default {
         return;
       }
       
-      // Call backend login API调用后端登录API
+      // Call backend login API using userAuthAPI调用后端登录API使用userAuthAPI
       try {
-        const res = await fetch('/backend/user/login', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({
-            username: this.usernameOrEmail, // Use username field as per API doc按照API文档使用username字段
-            password: this.password // Send password as plain text按后端要求发送明文密码
-          })
-        });
-        const data = await res.json();
+        // Import userAuthAPI for authentication导入userAuthAPI进行认证
+        const { userAuthAPI } = await import('@/config/api.js')
+        
+        // Call login API调用登录API
+        const data = await userAuthAPI.login(this.usernameOrEmail, this.password)
         
         // Handle response based on API documentation根据API文档处理响应
         if (data.code === 200) {
@@ -73,18 +69,20 @@ export default {
             localStorage.removeItem('labubu_remember');
           }
           
-          // Save token and user info保存token和用户信息
+          // Save JWT token and user info保存JWT令牌和用户信息
           localStorage.setItem('labubu_token', data.data.token);
           localStorage.setItem('labubu_user', JSON.stringify({
             username: data.data.username,
             email: data.data.email
           }));
           
+          console.log('Login successful, JWT token saved登录成功，JWT令牌已保存:', data.data.token.substring(0, 20) + '...')
+          
           // Show success message显示成功消息
           alert(this.$t('login.loginSuccess', '登录成功'));
           
           // Redirect to home page跳转到首页
-          this.$router.push('/frontend/');
+          this.$router.push('/');
         } else {
           // Handle different error codes处理不同的错误代码
           let errorMessage = data.msg || '登录失败';
@@ -97,7 +95,7 @@ export default {
         }
       } catch (error) {
         console.error('Login error登录错误:', error);
-        alert(this.$t('login.networkError', '网络错误，请稍后重试'));
+        alert('登录失败：' + error.message);
       }
     },
     onForgot() {
