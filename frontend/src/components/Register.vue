@@ -60,6 +60,8 @@
 </template>
 
 <script>
+import { currentLanguage } from '../i18n/index.js'
+
 export default {
   name: 'Register',
   data() {
@@ -73,7 +75,8 @@ export default {
       codeBtnDisabled: false,
       isLoadingCode: false, // 新增：验证码发送加载状态
       codeTimer: null,
-      codeCountdown: 60
+      codeCountdown: 60,
+      currentLanguage // 引入全局语言状态
     };
   },
   mounted() {
@@ -81,9 +84,12 @@ export default {
     this.updateButtonText();
   },
   watch: {
-    // 监听语言变化，更新按钮文字
-    '$i18n.locale'() {
-      this.updateButtonText();
+    // 监听全局语言变化，更新按钮文字
+    currentLanguage: {
+      handler() {
+        this.updateButtonText();
+      },
+      immediate: false
     }
   },
   methods: {
