@@ -22,7 +22,7 @@
         </div>
         <button class="login-btn" type="submit">{{ $t('login.loginButton', '登录') }}</button>
         <div class="register-link">
-          {{ $t('login.noAccount', '还没有账号？') }}<router-link to="/register">{{ $t('login.registerNow', '注册新账号') }}</router-link>
+          {{ $t('login.noAccount', '还没有账号？') }}<router-link to="/frontend/register">{{ $t('login.registerNow', '注册新账号') }}</router-link>
         </div>
       </form>
     </div>
@@ -54,7 +54,7 @@ export default {
       
       // Call backend login API调用后端登录API
       try {
-        const res = await fetch('/user/login', {
+        const res = await fetch('/backend/user/login', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({
@@ -84,7 +84,7 @@ export default {
           alert(this.$t('login.loginSuccess', '登录成功'));
           
           // Redirect to home page跳转到首页
-          this.$router.push('/');
+          this.$router.push('/frontend/');
         } else {
           // Handle different error codes处理不同的错误代码
           let errorMessage = data.msg || '登录失败';

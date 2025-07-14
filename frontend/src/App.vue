@@ -5,7 +5,7 @@
       <div class="nav-container">
         <!-- Logo -->
         <div class="nav-logo">
-          <router-link to="/" class="logo-link">
+          <router-link to="/frontend/" class="logo-link">
             <img src="./assets/images/logo.png" alt="Labubu AI" class="logo-img" />
             <span class="logo-text">Labubu AI</span>
           </router-link>
@@ -13,19 +13,19 @@
         
         <!-- 导航菜单 -->
         <div class="nav-menu">
-          <router-link to="/" class="nav-link">
+          <router-link to="/frontend/" class="nav-link">
             <i class="icon-home"></i>
             <span>{{ $t('nav.home') || '首页' }}</span>
           </router-link>
-          <router-link to="/ai-agent" class="nav-link">
+          <router-link to="/frontend/ai-agent" class="nav-link">
             <i class="icon-robot"></i>
             <span>{{ $t('nav.aiAgent') || 'AI智能体' }}</span>
           </router-link>
-          <router-link to="/community" class="nav-link">
+          <router-link to="/frontend/community" class="nav-link">
             <i class="icon-community"></i>
             <span>{{ $t('nav.community') || '社区' }}</span>
           </router-link>
-          <router-link to="/marketplace" class="nav-link">
+          <router-link to="/frontend/marketplace" class="nav-link">
             <i class="icon-marketplace"></i>
             <span>{{ $t('nav.marketplace') || '市场' }}</span>
           </router-link>
@@ -41,11 +41,11 @@
             </div>
           </div>
           
-          <router-link to="/login" class="login-btn">
+          <router-link to="/frontend/login" class="login-btn">
             <i class="icon-login"></i>
             <span>{{ $t('nav.login') || '登录' }}</span>
           </router-link>
-          <router-link to="/register" class="register-btn">
+          <router-link to="/frontend/register" class="register-btn">
             <i class="icon-register"></i>
             <span>{{ $t('nav.register') || '注册' }}</span>
           </router-link>

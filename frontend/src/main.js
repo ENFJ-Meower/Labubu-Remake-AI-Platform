@@ -23,13 +23,13 @@ import message from './utils/message.js'
 
 // Route configuration - defines all application routes路由配置 - 定义所有应用路由
 const routes = [
-  { path: '/', name: 'Home', component: Home }, // Home page route首页路由
-  { path: '/ai-agent', name: 'AIAgent', component: AIAgent }, // AI Agent page route AI智能体页面路由
-  { path: '/community', name: 'Community', component: Community }, // Community page route社区页面路由
-  { path: '/marketplace', name: 'Marketplace', component: Marketplace }, // Marketplace page route市场页面路由
-  { path: '/about', name: 'About', component: About }, // About page route关于页面路由
-  { path: '/login', name: 'Login', component: Login }, // Login page route登录页面路由
-  { path: '/register', name: 'Register', component: Register } // Register page route注册页面路由
+  { path: '/frontend/', name: 'Home', component: Home }, // Home page route首页路由
+  { path: '/frontend/ai-agent', name: 'AIAgent', component: AIAgent }, // AI Agent page route AI智能体页面路由
+  { path: '/frontend/community', name: 'Community', component: Community }, // Community page route社区页面路由
+  { path: '/frontend/marketplace', name: 'Marketplace', component: Marketplace }, // Marketplace page route市场页面路由
+  { path: '/frontend/about', name: 'About', component: About }, // About page route关于页面路由
+  { path: '/frontend/login', name: 'Login', component: Login }, // Login page route登录页面路由
+  { path: '/frontend/register', name: 'Register', component: Register } // Register page route注册页面路由
 ]
 
 // Create router instance with HTML5 history mode创建路由实例并使用HTML5历史模式

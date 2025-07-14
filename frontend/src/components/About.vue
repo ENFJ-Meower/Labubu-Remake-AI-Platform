@@ -207,10 +207,10 @@
             </div>
           </div>
           <div class="contact-actions">
-            <router-link to="/community" class="btn btn-primary btn-large">
+            <router-link to="/frontend/community" class="btn btn-primary btn-large">
               Join Our Community
             </router-link>
-            <router-link to="/ai-agent" class="btn btn-secondary btn-large">
+            <router-link to="/frontend/ai-agent" class="btn btn-secondary btn-large">
               Start Creating
             </router-link>
           </div>

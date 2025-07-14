@@ -29,7 +29,7 @@
         </div>
         <button class="register-btn" type="submit">{{ $t('register.registerButton', '注册') }}</button>
         <div class="login-link">
-          {{ $t('register.hasAccount', '已有账号？') }}<router-link to="/login">{{ $t('register.goLogin', '去登录') }}</router-link>
+          {{ $t('register.hasAccount', '已有账号？') }}<router-link to="/frontend/login">{{ $t('register.goLogin', '去登录') }}</router-link>
         </div>
       </form>
     </div>
@@ -65,7 +65,7 @@ export default {
       this.codeBtnText = '发送中...';
       
       try {
-        const res = await fetch('/user/sendCode', {
+        const res = await fetch('/backend/user/sendCode', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({ email: this.email })
@@ -149,7 +149,7 @@ export default {
       
       // Call backend register API调用后端注册API
       try {
-        const res = await fetch('/user/register', {
+        const res = await fetch('/backend/user/register', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({
@@ -171,7 +171,7 @@ export default {
           }));
           
           alert(this.$t('register.registerSuccess', '注册成功！'));
-          this.$router.push('/');
+          this.$router.push('/frontend/');
         } else {
           // Handle different error codes处理不同的错误代码
           let errorMessage = data.msg || '注册失败';

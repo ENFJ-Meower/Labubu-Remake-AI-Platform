@@ -1,7 +1,7 @@
 // API configuration file - Backend DAG management system integration API配置文件 - 后端DAG管理系统接入
 const API_CONFIG = {
   // Basic API configuration基础API配置
-  baseURL: 'http://localhost:8081/api/v1', // Adjust according to actual backend address根据实际后端地址调整
+  baseURL: 'http://localhost:8081/backend/api/v1', // Adjust according to actual backend address根据实际后端地址调整
   timeout: 30000, // Request timeout in milliseconds请求超时时间（毫秒）
   
   // Request headers configuration请求头配置

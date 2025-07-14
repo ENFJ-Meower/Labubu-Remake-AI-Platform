@@ -32,10 +32,10 @@
               {{ $t('home.subtitle', 'Create, Share, and Explore AI-Generated Content') }}
             </p>
             <div class="hero-buttons">
-              <router-link to="/ai-agent" class="btn btn-primary btn-large ripple-effect">
+              <router-link to="/frontend/ai-agent" class="btn btn-primary btn-large ripple-effect">
                 {{ $t('home.buildAgent', 'Build Agent') }}
               </router-link>
-              <router-link to="/community" class="btn btn-secondary btn-large ripple-effect">
+              <router-link to="/frontend/community" class="btn btn-secondary btn-large ripple-effect">
                 {{ $t('home.learnMore', 'Learn More') }}
               </router-link>
             </div>
