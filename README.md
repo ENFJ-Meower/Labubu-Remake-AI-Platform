@@ -1,5 +1,6 @@
 # Labubu Remake AI Platform
 
+**Read this in other languages: [English](README.md), [中文](README_zh.md)
 ## 项目概述
 
 Labubu Remake AI Platform 是一个基于AI的智能体平台，提供可视化的工作流设计、管理和执行功能。该平台采用前后端分离架构，支持拖拽式节点编辑、实时预览、多语言支持等功能。
