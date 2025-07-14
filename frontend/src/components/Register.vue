@@ -54,22 +54,28 @@ export default {
   },
   methods: {
     async getCode() {
-      if (!/^\S+@\S+\.\S+$/.test(this.email)) {
+      // Validate email format验证邮箱格式
+      const emailRegex = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,6}$/;
+      if (!emailRegex.test(this.email)) {
         alert(this.$t('register.emailError', '请输入有效的邮箱地址'));
         return;
       }
+      
       this.codeBtnDisabled = true;
       this.codeBtnText = '发送中...';
+      
       try {
-        const res = await fetch('/api/sendCode', {
+        const res = await fetch('/user/sendCode', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({ email: this.email })
         });
         const data = await res.json();
-        if (res.ok) {
-          this.codeBtnText = '已发送(60s)';
-          this.codeCountdown = 60;
+        
+        // Handle response based on API documentation根据API文档处理响应
+        if (data.code === 200) {
+          this.codeBtnText = '已发送(180s)'; // 3 minutes as per API doc按API文档3分钟
+          this.codeCountdown = 180;
           this.codeTimer = setInterval(() => {
             this.codeCountdown--;
             this.codeBtnText = `已发送(${this.codeCountdown}s)`;
@@ -80,63 +86,107 @@ export default {
             }
           }, 1000);
         } else {
-          throw new Error(data.msg || '验证码发送失败');
+          // Handle error response处理错误响应
+          let errorMessage = data.msg || '验证码发送失败';
+          if (data.code === 500) {
+            errorMessage = data.msg || this.$t('register.sendCodeError', '验证码发送失败');
+          }
+          throw new Error(errorMessage);
         }
       } catch (e) {
-        console.error('发送验证码错误:', e);
+        console.error('Send verification code error发送验证码错误:', e);
         alert('验证码发送失败：' + e.message);
         this.codeBtnText = '获取验证码';
         this.codeBtnDisabled = false;
       }
     },
     async handleRegister() {
-      // 简单前端校验
-      if (!this.username || !this.email || !this.password || !this.confirmPassword) {
+      // Frontend validation前端验证
+      if (!this.username.trim() || !this.email.trim() || !this.password.trim() || !this.confirmPassword.trim()) {
         alert(this.$t('register.completeInfo', '请填写完整信息'));
         return;
       }
-      if (!/^\w{4,20}$/.test(this.username)) {
-        alert(this.$t('register.usernameError', '用户名需为4-20位字母、数字或下划线'));
+      
+      // Username validation (2+ characters as per API doc)用户名验证（按API文档2位以上）
+      if (this.username.length < 2) {
+        alert(this.$t('register.usernameError', '用户名长度必须大于2位'));
         return;
       }
-      if (!/^\S+@\S+\.\S+$/.test(this.email)) {
+      
+      // Email validation (use API doc regex)邮箱验证（使用API文档正则）
+      const emailRegex = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,6}$/;
+      if (!emailRegex.test(this.email)) {
         alert(this.$t('register.emailError', '请输入有效的邮箱地址'));
         return;
       }
-      if (!/^(?=.*[A-Za-z])(?=.*[!@#$%^&*()_+\-=[\]{};':"\\|,.<>/?]).{8,}$/.test(this.password)) {
-        alert(this.$t('register.passwordError', '密码需至少8位，且包含英文和特殊字符'));
+      
+      // Password validation (8-16 chars, at least 2 types: uppercase, lowercase, digits)密码验证（8-16位，至少包含大写字母、小写字母、数字中的两类）
+      if (this.password.length < 8 || this.password.length > 16) {
+        alert(this.$t('register.passwordLengthError', '密码长度必须在8-16位之间'));
         return;
       }
+      
+      const hasUpper = /[A-Z]/.test(this.password);
+      const hasLower = /[a-z]/.test(this.password);
+      const hasDigit = /\d/.test(this.password);
+      const typeCount = [hasUpper, hasLower, hasDigit].filter(Boolean).length;
+      
+      if (typeCount < 2) {
+        alert(this.$t('register.passwordError', '密码必须包含大写字母、小写字母、数字中的至少两类'));
+        return;
+      }
+      
       if (this.password !== this.confirmPassword) {
         alert(this.$t('register.confirmError', '两次输入的密码不一致'));
         return;
       }
-      if (!this.code) {
-        alert(this.$t('register.codeError', '请输入验证码'));
+      
+      // Verification code validation (6 digits)验证码验证（6位数字）
+      if (!this.code || this.code.length !== 6) {
+        alert(this.$t('register.codeError', '请输入6位验证码'));
         return;
       }
-      // 调用后端注册API
+      
+      // Call backend register API调用后端注册API
       try {
-        const res = await fetch('/api/register', {
+        const res = await fetch('/user/register', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({
             username: this.username,
             email: this.email,
-            password: this.password,
-            code: this.code
+            password: this.password, // Send password as plain text按后端要求发送明文密码
+            verificationCode: this.code // Use correct field name使用正确的字段名
           })
         });
         const data = await res.json();
-        if (data.msg === '注册成功') {
+        
+        // Handle response based on API documentation根据API文档处理响应
+        if (data.code === 200) {
+          // Save token and user info保存token和用户信息
+          localStorage.setItem('labubu_token', data.data.token);
+          localStorage.setItem('labubu_user', JSON.stringify({
+            username: data.data.username,
+            email: data.data.email
+          }));
+          
           alert(this.$t('register.registerSuccess', '注册成功！'));
-          this.$router.push('/login');
+          this.$router.push('/');
         } else {
-          alert(data.msg || '注册失败');
+          // Handle different error codes处理不同的错误代码
+          let errorMessage = data.msg || '注册失败';
+          if (data.code === 409) {
+            errorMessage = data.msg; // Username/email already exists
+          } else if (data.code === 400) {
+            errorMessage = this.$t('register.invalidCode', '验证码错误或已过期');
+          } else if (data.code === 500) {
+            errorMessage = data.msg || this.$t('register.serverError', '服务器错误，请稍后重试');
+          }
+          alert(errorMessage);
         }
       } catch (error) {
-        console.error('注册错误:', error);
-        alert('网络错误，请稍后重试');
+        console.error('Register error注册错误:', error);
+        alert(this.$t('register.networkError', '网络错误，请稍后重试'));
       }
     }
   },

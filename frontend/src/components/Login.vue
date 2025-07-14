@@ -30,8 +30,7 @@
 </template>
 
 <script>
-import CryptoJS from 'crypto-js';
-
+// User login component用户登录组件
 export default {
   name: 'Login',
   data() {
@@ -43,41 +42,62 @@ export default {
   },
   methods: {
     async handleLogin() {
-      // 密码校验：8位以上，包含英文和特殊字符
-      const pwd = this.password;
-      const valid = /^(?=.*[A-Za-z])(?=.*[!@#$%^&*()_+\-=[\]{};':"\\|,.<>/?]).{8,}$/.test(pwd);
-      if (!valid) {
-        alert(this.$t('login.passwordError', '密码需至少8位，且包含英文和特殊字符'));
+      // Validate input fields验证输入字段
+      if (!this.usernameOrEmail.trim()) {
+        alert(this.$t('login.usernameRequired', '请输入用户名或邮箱'));
         return;
       }
-      // 调用后端登录API
+      if (!this.password.trim()) {
+        alert(this.$t('login.passwordRequired', '请输入密码'));
+        return;
+      }
+      
+      // Call backend login API调用后端登录API
       try {
-        const res = await fetch('/api/login', {
+        const res = await fetch('/user/login', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({
-            usernameOrEmail: this.usernameOrEmail,
-            password: this.password
+            username: this.usernameOrEmail, // Use username field as per API doc按照API文档使用username字段
+            password: this.password // Send password as plain text按后端要求发送明文密码
           })
         });
         const data = await res.json();
-        if (data.msg === '登录成功') {
-          // 记住我逻辑
+        
+        // Handle response based on API documentation根据API文档处理响应
+        if (data.code === 200) {
+          // Remember me logic记住我逻辑
           if (this.rememberMe) {
             localStorage.setItem('labubu_remember', this.usernameOrEmail);
           } else {
             localStorage.removeItem('labubu_remember');
           }
-          // 保存token
-          localStorage.setItem('labubu_token', data.token);
-          // 跳转到首页
+          
+          // Save token and user info保存token和用户信息
+          localStorage.setItem('labubu_token', data.data.token);
+          localStorage.setItem('labubu_user', JSON.stringify({
+            username: data.data.username,
+            email: data.data.email
+          }));
+          
+          // Show success message显示成功消息
+          alert(this.$t('login.loginSuccess', '登录成功'));
+          
+          // Redirect to home page跳转到首页
           this.$router.push('/');
         } else {
-          alert(data.msg || '登录失败');
+          // Handle different error codes处理不同的错误代码
+          let errorMessage = data.msg || '登录失败';
+          if (data.code === 401) {
+            errorMessage = this.$t('login.invalidCredentials', '用户名或密码错误');
+          } else if (data.code === 500) {
+            errorMessage = data.msg || this.$t('login.serverError', '服务器错误，请稍后重试');
+          }
+          alert(errorMessage);
         }
       } catch (error) {
-        console.error('登录错误:', error);
-        alert('网络错误，请稍后重试');
+        console.error('Login error登录错误:', error);
+        alert(this.$t('login.networkError', '网络错误，请稍后重试'));
       }
     },
     onForgot() {

@@ -1,8 +1,10 @@
 <template>
+  <!-- Main AI Agent Builder Container AI智能体构建器主容器 -->
   <div class="ai-agent-builder">
-    <!-- Top toolbar -->
+    <!-- Top toolbar with workflow actions顶部工具栏包含工作流操作 -->
     <div class="top-toolbar">
       <div class="toolbar-left">
+        <!-- Workflow information display工作流信息显示 -->
         <div class="agent-info">
           <div class="agent-meta">
             <h2 class="agent-name">{{ currentWorkflow.name || $t('aiAgent.workflow.statusValues.unnamed', 'Unnamed Workflow') }}</h2>
@@ -11,23 +13,27 @@
         </div>
       </div>
       <div class="toolbar-right">
+        <!-- Save workflow button保存工作流按钮 -->
         <button class="btn btn-secondary" @click="saveWorkflow">
           <i class="icon">💾</i> {{ $t('aiAgent.workflow.toolbar.saveWorkflow', 'Save Workflow') }}
         </button>
-                  <button class="btn btn-primary" @click="testWorkflow">
-            <i class="icon">🧪</i> {{ $t('aiAgent.workflow.toolbar.testWorkflow', 'Test Workflow') }}
-          </button>
-          <button class="btn btn-success" @click="deployWorkflow">
-            <i class="icon">🚀</i> {{ $t('aiAgent.workflow.toolbar.deployWorkflow', 'Deploy Workflow') }}
+        <!-- Test workflow button测试工作流按钮 -->
+        <button class="btn btn-primary" @click="testWorkflow">
+          <i class="icon">🧪</i> {{ $t('aiAgent.workflow.toolbar.testWorkflow', 'Test Workflow') }}
+        </button>
+        <!-- Deploy workflow button部署工作流按钮 -->
+        <button class="btn btn-success" @click="deployWorkflow">
+          <i class="icon">🚀</i> {{ $t('aiAgent.workflow.toolbar.deployWorkflow', 'Deploy Workflow') }}
         </button>
       </div>
     </div>
 
-    <!-- Main content area -->
+    <!-- Main content area主内容区域 -->
     <div class="main-container">
-      <!-- Left navigation panel -->
+      <!-- Left navigation panel左侧导航面板 -->
       <div class="sidebar">
         <div class="nav-tabs">
+          <!-- Navigation tabs循环渲染导航标签 -->
           <div 
             v-for="tab in navigationTabs" 
             :key="tab.id"
@@ -46,7 +52,7 @@
         </div>
       </div>
 
-      <!-- Right editing area -->
+      <!-- Right editing area右侧编辑区域 -->
       <div class="editor-area">
         <!-- DAG workflow editing -->
         <div v-if="activeTab === 'workflow'" class="editor-content workflow-container">
@@ -415,7 +421,7 @@
                   <label>{{ $t('aiAgent.workflow.nodeName', '节点名称') }}</label>
                   <input v-model="selectedNodeData.title" type="text" class="form-input" :placeholder="$t('aiAgent.workflow.nodeNamePlaceholder', '输入节点名称')">
                 </div>
-
+                
                 <!-- Prompt配置（核心配置） -->
                 <div class="config-section">
                   <label>{{ $t('aiAgent.workflow.nodePrompt', '节点提示词') }}</label>
@@ -429,7 +435,7 @@
                     <small>{{ $t('aiAgent.workflow.promptTipsSimple', '提示词用于指导AI如何处理输入数据') }}</small>
                   </div>
                 </div>
-
+                
 
 
 
@@ -765,42 +771,10 @@
           </div>
         </div>
 
-        <!-- Testing and deployment -->
-        <div v-else-if="activeTab === 'deploy'" class="editor-content">
-          <div class="section-header">
-            <h3>{{ $t('aiAgent.workflow.testDeploy.title', 'Test & Deploy') }}</h3>
-            <p>{{ $t('aiAgent.workflow.testDeploy.description', 'Test workflow functionality and deploy to production') }}</p>
-          </div>
-          
-          <div class="deploy-sections">
-            <div class="deploy-section">
-                              <h4>🧪 {{ $t('aiAgent.workflow.testDeploy.workflowTesting', 'Workflow Testing') }}</h4>
-                <div class="test-area">
-                  <button class="btn btn-primary" @click="testWorkflow">{{ $t('aiAgent.workflow.testDeploy.testWorkflow', 'Test Workflow') }}</button>
-                  <button class="btn btn-outline" @click="validateWorkflow">{{ $t('aiAgent.workflow.testDeploy.validateDAG', 'Validate DAG') }}</button>
-                  <button class="btn btn-outline">{{ $t('aiAgent.workflow.testDeploy.performanceTest', 'Performance Test') }}</button>
+
               </div>
             </div>
             
-            <div class="deploy-section">
-                              <h4>🚀 {{ $t('aiAgent.workflow.testDeploy.deployment', 'Deployment') }}</h4>
-                <div class="deploy-config">
-                  <div class="form-group">
-                    <label>{{ $t('aiAgent.workflow.testDeploy.deploymentEnvironment', 'Deployment Environment') }}</label>
-                    <select class="form-select">
-                      <option>{{ $t('aiAgent.workflow.environments.development', 'Development') }}</option>
-                      <option>{{ $t('aiAgent.workflow.environments.testing', 'Testing') }}</option>
-                      <option>{{ $t('aiAgent.workflow.environments.production', 'Production') }}</option>
-                    </select>
-                  </div>
-                  <button class="btn btn-success" @click="deployWorkflow">{{ $t('aiAgent.workflow.testDeploy.deployWorkflow', 'Deploy Workflow') }}</button>
-              </div>
-            </div>
-          </div>
-        </div>
-      </div>
-    </div>
-
 
 
 
@@ -935,7 +909,7 @@
                 <span class="node-type">{{ finalOutputNode.service || finalOutputNode.type }}</span>
                 <span class="node-name">{{ finalOutputNode.name || finalOutputNode.id }}</span>
               </div>
-            </div>
+              </div>
             
             <div class="final-output-content">
               <div v-if="!finalOutputData" class="no-final-output">
@@ -948,13 +922,13 @@
                 <!-- 文本输出 -->
                 <div v-if="finalOutputData.type === 'text'" class="output-text">
                   <pre>{{ finalOutputData.displayContent }}</pre>
-                </div>
+            </div>
                 
                 <!-- JSON输出 -->
                 <div v-else-if="finalOutputData.type === 'json'" class="output-json">
                   <pre>{{ finalOutputData.displayContent }}</pre>
-                </div>
-                
+          </div>
+
                 <!-- 图片输出 -->
                 <div v-else-if="finalOutputData.type === 'image'" class="output-image">
                   <img :src="finalOutputData.content" alt="输出图片" @error="handleImageError" />
@@ -1069,37 +1043,37 @@
             
             <div v-if="logsExpanded" class="logs-content">
               <!-- 消息筛选 -->
-              <div class="messages-filters">
-                <select v-model="selectedMessageType" class="filter-select">
-                  <option value="all">所有消息</option>
-                  <option value="input">输入消息</option>
-                  <option value="output">输出消息</option>
-                  <option value="error">错误消息</option>
-                </select>
+            <div class="messages-filters">
+              <select v-model="selectedMessageType" class="filter-select">
+                <option value="all">所有消息</option>
+                <option value="input">输入消息</option>
+                <option value="output">输出消息</option>
+                <option value="error">错误消息</option>
+              </select>
                 <button class="btn btn-sm" @click="exportResults">导出日志</button>
-              </div>
+            </div>
               
               <!-- 消息列表 -->
-              <div class="messages-list">
-                <div v-if="!filteredMessages || filteredMessages.length === 0" 
-                     class="empty-messages">
-                  <div class="empty-icon">💬</div>
-                  <p>暂无消息记录</p>
-                </div>
-                <div v-else class="messages-grid">
-                  <div v-for="message in filteredMessages" 
-                       :key="message.id"
-                       class="message-item"
-                       :class="message.type">
-                    <div class="message-header">
-                      <div class="message-type">{{ message.type }}</div>
-                      <div class="message-time">{{ formatTime(message.timestamp) }}</div>
-                    </div>
-                    <div class="message-content">
-                      <pre v-if="message.content">{{ formatMessageContent(message.content) }}</pre>
-                      <div v-if="message.error" class="message-error">
-                        <div class="error-icon">❌</div>
-                        <div class="error-text">{{ message.error }}</div>
+            <div class="messages-list">
+              <div v-if="!filteredMessages || filteredMessages.length === 0" 
+                   class="empty-messages">
+                <div class="empty-icon">💬</div>
+                <p>暂无消息记录</p>
+              </div>
+              <div v-else class="messages-grid">
+                <div v-for="message in filteredMessages" 
+                     :key="message.id"
+                     class="message-item"
+                     :class="message.type">
+                  <div class="message-header">
+                    <div class="message-type">{{ message.type }}</div>
+                    <div class="message-time">{{ formatTime(message.timestamp) }}</div>
+                  </div>
+                  <div class="message-content">
+                    <pre v-if="message.content">{{ formatMessageContent(message.content) }}</pre>
+                    <div v-if="message.error" class="message-error">
+                      <div class="error-icon">❌</div>
+                      <div class="error-text">{{ message.error }}</div>
                       </div>
                     </div>
                   </div>
@@ -1119,15 +1093,19 @@
 </template>
 
 <script>
+// AI Agent Builder Component - Main workflow design interface AI智能体构建器组件 - 主要工作流设计界面
 export default {
-  name: 'AIAgent',
+  name: 'AIAgent', // Component name组件名称
   data() {
     return {
+      // Active tab state当前激活的标签页状态
       activeTab: 'workflow',
+      // Current workflow data当前工作流数据
       currentWorkflow: {
-        name: '',
-        description: ''
+        name: '', // Workflow name工作流名称
+        description: '' // Workflow description工作流描述
       },
+      // Navigation tabs configuration导航标签页配置
       navigationTabs: [
         {
           id: 'workflow',
@@ -1142,44 +1120,37 @@ export default {
           title: 'Workflow Management',
           description: 'View and manage all DAG workflows',
           hasContent: true
-        },
-        {
-          id: 'deploy',
-          icon: '🚀',
-          title: 'Test & Deploy',
-          description: 'Testing and deployment',
-          hasContent: false
         }
       ],
-      // 工作流相关数据
-      workflowNodes: [],
-      connections: [],
-      selectedNode: null,
+      // Workflow related data工作流相关数据
+      workflowNodes: [], // Array of workflow nodes工作流节点数组
+      connections: [], // Array of node connections节点连接数组
+      selectedNode: null, // Currently selected node当前选中的节点
       
-      // 选中连接
+      // Selected connection选中的连接
       selectedConnection: null,
       
-      // 画布相关
-      canvasScale: 1,
-      canvasOffsetX: 0,
-      canvasOffsetY: 0,
-      virtualCanvasWidth: 2000,
-      virtualCanvasHeight: 1500,
+      // Canvas related data画布相关数据
+      canvasScale: 1, // Canvas zoom scale画布缩放比例
+      canvasOffsetX: 0, // Canvas X offset画布X偏移量
+      canvasOffsetY: 0, // Canvas Y offset画布Y偏移量
+      virtualCanvasWidth: 2000, // Virtual canvas width虚拟画布宽度
+      virtualCanvasHeight: 1500, // Virtual canvas height虚拟画布高度
       
-      // 连接相关
-      isConnecting: false,
-      connectionStart: null,
-      tempConnection: null,
+      // Connection related data连接相关数据
+      isConnecting: false, // Whether user is connecting nodes是否正在连接节点
+      connectionStart: null, // Connection start point连接起始点
+      tempConnection: null, // Temporary connection for preview临时连接用于预览
       
-      // 交互相关
-      draggedNode: null,
-      dragOffset: { x: 0, y: 0 },
-      isPanning: false,
-      panStart: { x: 0, y: 0 },
+      // Interaction related data交互相关数据
+      draggedNode: null, // Currently dragged node当前拖拽的节点
+      dragOffset: { x: 0, y: 0 }, // Drag offset拖拽偏移量
+      isPanning: false, // Whether user is panning canvas是否正在平移画布
+      panStart: { x: 0, y: 0 }, // Pan start position平移起始位置
       
-      // 编辑历史
-      history: [],
-      historyIndex: -1,
+      // Edit history编辑历史
+      history: [], // History stack历史堆栈
+      historyIndex: -1, // Current history index当前历史索引
       
       // 其他状态
       nodeIdCounter: 0,
@@ -1297,16 +1268,14 @@ export default {
     getTabTitle(tabId) {
       const titleMap = {
         'workflow': this.$t('aiAgent.tabs.workflowDesign', 'Workflow Design'),
-        'workflows': this.$t('aiAgent.tabs.workflowManagement', 'Workflow Management'),
-        'deploy': this.$t('aiAgent.tabs.testDeploy', 'Test & Deploy')
+        'workflows': this.$t('aiAgent.tabs.workflowManagement', 'Workflow Management')
       }
       return titleMap[tabId] || tabId
     },
     getTabDescription(tabId) {
       const descriptionMap = {
         'workflow': this.$t('aiAgent.tabs.workflowDesignDesc', 'Visual DAG workflow editor - Core feature'),
-        'workflows': this.$t('aiAgent.tabs.workflowManagementDesc', 'View and manage all DAG workflows'),
-        'deploy': this.$t('aiAgent.tabs.testDeployDesc', 'Testing and deployment')
+        'workflows': this.$t('aiAgent.tabs.workflowManagementDesc', 'View and manage all DAG workflows')
       }
       return descriptionMap[tabId] || ''
     },
@@ -2158,7 +2127,7 @@ export default {
       }
     },
     
-
+    
     
     // 节点配置相关方法
     isAIServiceNode(nodeType) {
@@ -2222,7 +2191,11 @@ export default {
       this.$message?.success?.(this.$t('aiAgent.workflow.configSaved', '节点配置已保存'))
     },
     validateNodeConfig() {
-      if (!this.selectedNode) return false
+      if (!this.selectedNode) {
+        this.$message?.warning?.(this.$t('aiAgent.workflow.noNodeSelected', '请先选择一个节点'))
+        return false
+      }
+      
       const node = this.selectedNodeData
       
       // 基础验证
@@ -2250,57 +2223,62 @@ export default {
         return false
       }
       
+      // Validation passed验证通过
+      this.$message?.success?.(this.$t('aiAgent.workflow.configValid', '节点配置验证通过！'))
       return true
     },
-    // 工作流操作方法
+    // Workflow operation methods工作流操作方法
+    // Save workflow to backend保存工作流到后端
     async saveWorkflow() {
       try {
-        // 验证工作流
+        // Validate workflow before saving保存前验证工作流
         if (!this.validateWorkflow()) {
           return
         }
         
-        // 生成DAG数据
+        // Generate DAG data生成DAG数据
         const dagData = this.generateDAGData()
         
-        // 调用API保存
+        // Call API to save调用API保存
         const workflowAPI = (await import('@/config/api.js')).default
         await workflowAPI.submitDAG(dagData)
         
         this.$message?.success?.(this.$t('aiAgent.workflow.workflowSaved', '工作流已保存'))
       } catch (error) {
-        console.error('保存工作流失败:', error)
+        console.error('Failed to save workflow保存工作流失败:', error)
         this.$message?.error?.(this.$t('aiAgent.workflow.saveFailed', '保存工作流失败') + ': ' + error.message)
       }
     },
+    // Test workflow execution测试工作流执行
     async testWorkflow() {
       try {
-        // 验证工作流
+        // Validate workflow before testing测试前验证工作流
         if (!this.validateWorkflow()) {
           return
         }
         
-        // 生成DAG数据并提交测试
+        // Generate DAG data and submit for testing生成DAG数据并提交测试
         const dagData = this.generateDAGData()
         
         const workflowAPI = (await import('@/config/api.js')).default
         const result = await workflowAPI.submitDAG(dagData)
         
-        // 通知就绪
+        // Notify backend that workflow is ready通知后端工作流就绪
         await workflowAPI.notifyReady(dagData.dag_id)
         
-        // 监听状态变化
+        // Monitor workflow execution监听工作流执行状态
         await this.monitorWorkflowExecution(dagData.dag_id)
         
         this.$message?.success?.(this.$t('aiAgent.workflow.testStarted', '工作流测试已启动'))
       } catch (error) {
-        console.error('测试工作流失败:', error)
+        console.error('Failed to test workflow测试工作流失败:', error)
         this.$message?.error?.(this.$t('aiAgent.workflow.testFailed', '测试工作流失败') + ': ' + error.message)
       }
     },
+    // Deploy workflow to production部署工作流到生产环境
     async deployWorkflow() {
       try {
-        // 验证工作流
+        // Validate workflow before deployment部署前验证工作流
         if (!this.validateWorkflow()) {
           return
         }
@@ -5298,7 +5276,7 @@ export default {
   .canvas-footer {
     flex-direction: column;
     align-items: stretch;
-    gap: 0.5rem;
+  gap: 0.5rem;
     padding: 0.5rem;
   }
   

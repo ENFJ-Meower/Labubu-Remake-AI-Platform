@@ -100,9 +100,7 @@ const translations = reactive({
         workflowDesign: 'Workflow Design',
         workflowDesignDesc: 'Visual DAG workflow editor - Core feature',
         workflowManagement: 'Workflow Management',
-        workflowManagementDesc: 'View and manage all DAG workflows',
-        testDeploy: 'Test & Deploy',
-        testDeployDesc: 'Testing and deployment'
+        workflowManagementDesc: 'View and manage all DAG workflows'
       },
       actions: {
         saveAgent: 'Save Agent',
@@ -166,6 +164,8 @@ const translations = reactive({
         promptRequired: 'Please configure node prompt',
         conditionRequired: 'Please configure condition expression',
         configSaved: 'Node configuration saved',
+        configValid: 'Configuration validation passed!',
+        noNodeSelected: 'Please select a node first',
         workflowSaved: 'Workflow saved',
         saveFailed: 'Failed to save workflow',
         testStarted: 'Workflow test started',
@@ -384,17 +384,7 @@ const translations = reactive({
         tip1: 'LLM nodes accept text input, can process other formats through workflow connections',
         tip2: 'Drag connection points to create data flows',
         tip3: 'Test and deploy workflow after configuration',
-        testDeploy: {
-          title: 'Test & Deploy',
-          description: 'Test workflow functionality and deploy to production',
-          workflowTesting: 'Workflow Testing',
-          testWorkflow: 'Test Workflow',
-          validateDAG: 'Validate DAG',
-          performanceTest: 'Performance Test',
-          deployment: 'Deployment',
-          deploymentEnvironment: 'Deployment Environment',
-          deployWorkflow: 'Deploy Workflow'
-        },
+
         // 快捷键
         shortcuts: {
           keyboardGuide: 'Keyboard Shortcuts Guide',
@@ -691,9 +681,7 @@ const translations = reactive({
         workflowDesign: '工作流设计',
         workflowDesignDesc: '可视化DAG工作流编辑器 - 核心功能',
         workflowManagement: '工作流管理',
-        workflowManagementDesc: '查看和管理您的所有DAG工作流',
-        testDeploy: '测试与部署',
-        testDeployDesc: '测试和部署功能'
+        workflowManagementDesc: '查看和管理您的所有DAG工作流'
       },
       actions: {
         saveAgent: '保存智能体',
@@ -757,6 +745,8 @@ const translations = reactive({
         promptRequired: '请配置节点提示词',
         conditionRequired: '请配置条件表达式',
         configSaved: '节点配置已保存',
+        configValid: '节点配置验证通过！',
+        noNodeSelected: '请先选择一个节点',
         workflowSaved: '工作流已保存',
         saveFailed: '保存工作流失败',
         testStarted: '工作流测试已启动',
@@ -975,17 +965,7 @@ const translations = reactive({
         tip1: 'LLM节点接受文本输入，可通过工作流连接处理其他格式',
         tip2: '拖拽节点连接点可以创建数据流',
         tip3: '配置完成后可以测试和部署工作流',
-        testDeploy: {
-          title: '测试与部署',
-          description: '测试工作流功能并部署到生产环境',
-          workflowTesting: '工作流测试',
-          testWorkflow: '测试工作流',
-          validateDAG: '验证DAG',
-          performanceTest: '性能测试',
-          deployment: '部署',
-          deploymentEnvironment: '部署环境',
-          deployWorkflow: '部署工作流'
-        },
+
         // 快捷键
         shortcuts: {
           keyboardGuide: '快捷键指南',
