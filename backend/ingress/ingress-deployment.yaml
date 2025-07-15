@@ -19,7 +19,7 @@ spec:
     spec:
       containers:
       - name: ingress
-        image: weimengze/cloud-computing-ingress:v1
+        image: docker.io/weimengze/cloud-computing-ingress:v1
         envFrom:
           - secretRef:
               name: aws-secret

@@ -7,8 +7,10 @@ const app = express();
 const tokenCache = new NodeCache({ stdTTL: 300 });
 
 const defaultNoAuthPaths = [
-    '/user',
-    '/healthz'
+    '/healthz',
+    '/frontend',
+    '/backend/user',
+    '/'
 ];
 
 const noAuthPaths = process.env.NO_AUTH_PATHS
