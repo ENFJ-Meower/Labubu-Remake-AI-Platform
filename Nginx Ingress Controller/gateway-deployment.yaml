@@ -17,7 +17,7 @@ spec:
     spec:
       containers:
         - name: auth-gateway
-          image: docker.io/weimengze/cloud-computing-gateway:v1
+          image: docker.io/weimengze/cloud-computing-gateway:v3
           ports:
             - containerPort: 8080
           envFrom:
@@ -25,7 +25,7 @@ spec:
                 name: jwt-secret
           env:
             - name: NO_AUTH_PATHS
-              value: "/healthz,/frontend,/backend/user"
+              value: "/healthz,/frontend,/backend/user,/"
             - name: PROXY_ROUTES
               value: >
                 {

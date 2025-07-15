@@ -343,6 +343,7 @@ metadata:
     app.kubernetes.io/part-of: ingress-nginx
     app.kubernetes.io/version: 1.8.1
   name: ingress-nginx-controller
+  namespace: ingress-nginx
   annotations:
     service.beta.kubernetes.io/aws-load-balancer-ssl-cert: arn:aws:acm:us-east-1:958863312104:certificate/75d73104-812f-4b55-94e2-05083e32d86e
     service.beta.kubernetes.io/aws-load-balancer-ssl-ports: "443"
