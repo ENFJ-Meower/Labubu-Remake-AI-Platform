@@ -1,7 +1,14 @@
 // API configuration file - Backend DAG management system integration API配置文件 - 后端DAG管理系统接入
+
+// 从环境变量获取API基础URL，如果没有设置则使用默认值
+const getApiBaseUrl = () => {
+  // 在Vite中，环境变量必须以VITE_开头才能在前端使用
+  return import.meta.env.VITE_API_BASE_URL || 'http://localhost:8081'
+}
+
 const API_CONFIG = {
   // Basic API configuration基础API配置
-  baseURL: 'http://localhost:8081/backend/ai-agent', // Adjust according to actual backend address根据实际后端地址调整
+  baseURL: `${getApiBaseUrl()}/backend/ai-agent`, // 使用环境变量获取后端地址
   timeout: 30000, // Request timeout in milliseconds请求超时时间（毫秒）
   
   // Request headers configuration请求头配置
@@ -183,7 +190,7 @@ export default workflowAPI
 // 用户认证API类 - 不需要JWT认证的API
 class UserAuthAPI {
   constructor() {
-    this.baseURL = 'http://localhost:8081/backend/user' // User authentication API base URL用户认证API基础URL
+    this.baseURL = `${getApiBaseUrl()}/backend/user` // 使用环境变量获取用户认证API基础URL
   }
 
   // Generic request method for user auth APIs用户认证API的通用请求方法
