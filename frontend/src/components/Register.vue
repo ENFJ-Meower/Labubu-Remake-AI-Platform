@@ -212,7 +212,11 @@ export default {
           console.log('Registration successful, JWT token saved注册成功，JWT令牌已保存:', data.data.token.substring(0, 20) + '...')
           
           alert(this.$t('register.registerSuccess', '注册成功！'));
-          this.$router.push('/');
+          
+          // Redirect to original page or home page跳转到原始页面或首页
+          const redirectPath = localStorage.getItem('redirect_after_login') || '/'
+          localStorage.removeItem('redirect_after_login')
+          this.$router.push(redirectPath);
         } else {
           // Handle different error codes处理不同的错误代码
           let errorMessage = data.msg || '注册失败';

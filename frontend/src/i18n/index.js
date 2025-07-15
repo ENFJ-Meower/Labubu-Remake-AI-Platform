@@ -31,7 +31,10 @@ const translations = reactive({
       marketplace: 'Marketplace',
       about: 'About',
       login: 'Login',
-      register: 'Register'
+      register: 'Register',
+      logout: 'Logout',
+      logoutConfirm: 'Are you sure you want to logout?',
+      logoutSuccess: 'Successfully logged out'
     },
     // 通用
     common: {
@@ -627,7 +630,10 @@ const translations = reactive({
       marketplace: '市场',
       about: '关于',
       login: '登录',
-      register: '注册'
+      register: '注册',
+      logout: '登出',
+      logoutConfirm: '确定要登出吗？',
+      logoutSuccess: '已成功登出'
     },
     // 通用
     common: {

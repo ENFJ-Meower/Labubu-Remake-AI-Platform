@@ -41,14 +41,28 @@
             </div>
           </div>
           
-          <router-link to="/frontend/login" class="login-btn">
-            <i class="icon-login"></i>
-            <span>{{ $t('nav.login') || '登录' }}</span>
-          </router-link>
-          <router-link to="/frontend/register" class="register-btn">
-            <i class="icon-register"></i>
-            <span>{{ $t('nav.register') || '注册' }}</span>
-          </router-link>
+          <!-- 未登录状态显示登录/注册按钮 -->
+          <template v-if="!isUserAuthenticated">
+            <router-link to="/frontend/login" class="login-btn">
+              <i class="icon-login"></i>
+              <span>{{ $t('nav.login') || '登录' }}</span>
+            </router-link>
+            <router-link to="/frontend/register" class="register-btn">
+              <i class="icon-register"></i>
+              <span>{{ $t('nav.register') || '注册' }}</span>
+            </router-link>
+          </template>
+          
+          <!-- 已登录状态显示用户信息和登出按钮 -->
+          <template v-else>
+            <div class="user-info">
+              <span class="user-name">{{ currentUser?.username || '用户' }}</span>
+              <button class="logout-btn" @click="handleLogout">
+                <i class="icon-logout"></i>
+                <span>{{ $t('nav.logout') || '登出' }}</span>
+              </button>
+            </div>
+          </template>
         </div>
         
 
@@ -67,13 +81,16 @@
 
 <script>
 import languageManager, { currentLanguage } from './i18n/index.js'
+import { isAuthenticated, getCurrentUser, logout } from './utils/auth.js'
 
 export default {
   name: 'App',
   data() {
     return {
       isScrolled: false,
-      showScrollTop: false
+      showScrollTop: false,
+      isUserAuthenticated: false,
+      currentUser: null
     }
   },
   computed: {
@@ -93,6 +110,14 @@ export default {
     
     // 初始化语言系统
     languageManager.init()
+    
+    // 检查用户认证状态
+    this.checkAuthStatus()
+    
+    // 监听路由变化以更新认证状态
+    this.$router.afterEach(() => {
+      this.checkAuthStatus()
+    })
   },
   beforeUnmount() {
     window.removeEventListener('scroll', this.handleScroll)
@@ -176,6 +201,26 @@ export default {
           }
         }, 300)
       }, 2000)
+    },
+    
+    // 检查用户认证状态
+    checkAuthStatus() {
+      this.isUserAuthenticated = isAuthenticated()
+      this.currentUser = getCurrentUser()
+    },
+    
+    // 处理用户登出
+    handleLogout() {
+      if (confirm(this.$t('nav.logoutConfirm') || '确定要登出吗？')) {
+        logout()
+        this.checkAuthStatus()
+        // 如果当前在需要认证的页面，跳转到首页
+        if (this.$route.meta.requiresAuth) {
+          this.$router.push('/')
+        }
+        // 显示登出成功提示
+        this.showLanguageToast(this.$t('nav.logoutSuccess') || '已成功登出')
+      }
     }
   }
 }
@@ -287,6 +332,7 @@ export default {
 .icon-marketplace::before { content: "🛍️"; }
 .icon-login::before { content: "🔑"; }
 .icon-register::before { content: "📝"; }
+.icon-logout::before { content: "🚪"; }
 
 /* 用户操作区域 */
 .nav-actions {
@@ -372,6 +418,48 @@ export default {
 .register-btn:hover {
   transform: translateY(-2px);
   box-shadow: 0 4px 12px rgba(255, 107, 107, 0.4);
+}
+
+/* 用户信息区域 */
+.user-info {
+  display: flex;
+  align-items: center;
+  gap: 0.8rem;
+}
+
+.user-name {
+  color: #4ecdc4;
+  font-weight: 600;
+  font-size: 0.9rem;
+  padding: 0.5rem 0.8rem;
+  background: rgba(78, 205, 196, 0.1);
+  border-radius: 15px;
+  border: 1px solid rgba(78, 205, 196, 0.3);
+}
+
+.logout-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.4rem;
+  background: linear-gradient(45deg, #ff6b6b, #ee5a52);
+  color: #ffffff;
+  font-weight: 500;
+  padding: 0.5rem 1rem;
+  border-radius: 20px;
+  border: none;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  box-shadow: 0 2px 8px rgba(255, 107, 107, 0.3);
+  min-width: 85px;
+  white-space: nowrap;
+  font-size: 0.9rem;
+}
+
+.logout-btn:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(255, 107, 107, 0.4);
+  background: linear-gradient(45deg, #ee5a52, #ff6b6b);
 }
 
 

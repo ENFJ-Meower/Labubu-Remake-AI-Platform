@@ -81,8 +81,10 @@ export default {
           // Show success message显示成功消息
           alert(this.$t('login.loginSuccess', '登录成功'));
           
-          // Redirect to home page跳转到首页
-          this.$router.push('/');
+          // Redirect to original page or home page跳转到原始页面或首页
+          const redirectPath = localStorage.getItem('redirect_after_login') || '/'
+          localStorage.removeItem('redirect_after_login')
+          this.$router.push(redirectPath);
         } else {
           // Handle different error codes处理不同的错误代码
           let errorMessage = data.msg || '登录失败';
