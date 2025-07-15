@@ -20,13 +20,15 @@ import './assets/css/global.css'
 import i18nMixin from './utils/i18nMixin.js'
 // Import message utility for notifications导入消息提示工具
 import message from './utils/message.js'
+// Import authentication utilities导入认证工具
+import { isAuthenticated, requiresAuth, redirectToLogin } from './utils/auth.js'
 
 // Route configuration - defines all application routes路由配置 - 定义所有应用路由
 const routes = [
   { path: '/', name: 'Home', component: Home }, // Home page route首页路由
-  { path: '/frontend/ai-agent', name: 'AIAgent', component: AIAgent }, // AI Agent page route AI智能体页面路由
-  { path: '/frontend/community', name: 'Community', component: Community }, // Community page route社区页面路由
-  { path: '/frontend/marketplace', name: 'Marketplace', component: Marketplace }, // Marketplace page route市场页面路由
+  { path: '/frontend/ai-agent', name: 'AIAgent', component: AIAgent, meta: { requiresAuth: true } }, // AI Agent page route AI智能体页面路由
+  { path: '/frontend/community', name: 'Community', component: Community, meta: { requiresAuth: true } }, // Community page route社区页面路由
+  { path: '/frontend/marketplace', name: 'Marketplace', component: Marketplace, meta: { requiresAuth: true } }, // Marketplace page route市场页面路由
   { path: '/frontend/about', name: 'About', component: About }, // About page route关于页面路由
   { path: '/frontend/login', name: 'Login', component: Login }, // Login page route登录页面路由
   { path: '/frontend/register', name: 'Register', component: Register } // Register page route注册页面路由
@@ -44,6 +46,33 @@ const router = createRouter({
       return { top: 0 } // Scroll to top for new routes新路由滚动到顶部
     }
   }
+})
+
+// Add navigation guard for authentication添加导航守卫进行认证检查
+router.beforeEach((to, from, next) => {
+  // Check if route requires authentication检查路由是否需要认证
+  if (to.meta.requiresAuth) {
+    // Check if user is authenticated检查用户是否已认证
+    if (!isAuthenticated()) {
+      console.log('用户未登录，重定向到登录页面')
+      // Save the original path for redirect after login保存原始路径以便登录后重定向
+      localStorage.setItem('redirect_after_login', to.fullPath)
+      // Redirect to login page重定向到登录页面
+      next('/frontend/login')
+      return
+    }
+  }
+  
+  // If user is authenticated and trying to access login/register page
+  // 如果用户已登录且试图访问登录/注册页面
+  if (isAuthenticated() && (to.path === '/frontend/login' || to.path === '/frontend/register')) {
+    console.log('用户已登录，重定向到首页')
+    next('/')
+    return
+  }
+  
+  // Allow navigation继续导航
+  next()
 })
 
 // Create Vue application instance创建Vue应用实例
