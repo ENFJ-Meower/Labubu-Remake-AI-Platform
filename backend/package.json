@@ -1,0 +1,17 @@
+{
+  "name": "labubu-mock-backend",
+  "version": "1.0.0",
+  "description": "Mock backend server for Labubu AI Platform testing",
+  "main": "mock-server.js",
+  "scripts": {
+    "start": "node mock-server.js",
+    "dev": "node mock-server.js"
+  },
+  "dependencies": {
+    "express": "^4.18.2",
+    "cors": "^2.8.5"
+  },
+  "keywords": ["mock", "backend", "labubu", "ai", "platform"],
+  "author": "Labubu Team",
+  "license": "MIT"
+} 
