@@ -15,7 +15,7 @@ spec:
     spec:
       containers:
         - name: springboot-login
-          image: weimengze/cloud-computing-login:v1
+          image: docker.io/weimengze/cloud-computing-login:v1
           ports:
             - containerPort: 9000
           resources:

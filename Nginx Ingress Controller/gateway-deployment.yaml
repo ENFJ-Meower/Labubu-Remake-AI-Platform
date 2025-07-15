@@ -17,7 +17,7 @@ spec:
     spec:
       containers:
         - name: auth-gateway
-          image: weimengze/cloud-computing-gateway:v1
+          image: docker.io/weimengze/cloud-computing-gateway:v1
           ports:
             - containerPort: 8080
           envFrom:
@@ -25,15 +25,14 @@ spec:
                 name: jwt-secret
           env:
             - name: NO_AUTH_PATHS
-              value: "/user,/frontend,/healthz"
+              value: "/healthz,/frontend,/backend/user"
             - name: PROXY_ROUTES
               value: >
                 {
-                  "/service1": "http://service1:80",
-                  "/service2": "http://service2:80",
-                  "/service3": "http://service3:80",
-                  "/user":     "http://user-service:80",
-                  "/frontend": "http://frontend:80"
+                  "/frontend": "http://frontend.dag-system.svc.cluster.local:80",
+                  "/backend/user":     "http://login.dag-system.svc.cluster.local:9000",
+                  "/backend/ai-agent": "http://ingress.dag-system.svc.cluster.local:80",
+                  "/" : "http://frontend.dag-system.svc.cluster.local:80"
                 }  
           resources:
             requests:
