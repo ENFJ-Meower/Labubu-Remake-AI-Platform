@@ -35,7 +35,7 @@ fi
 
 echo
 echo "5. 构建Docker镜像..."
-docker build --platform=linux/amd64 -t weimengze/cloud-computing-frontend:v1 .
+docker build --platform=linux/amd64 -t weimengze/cloud-computing-frontend:v2 .
 if [ $? -ne 0 ]; then
     echo "ERROR: Docker镜像构建失败"
     exit 1

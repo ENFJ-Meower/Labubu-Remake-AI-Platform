@@ -20,9 +20,9 @@ spec:
             - containerPort: 8000
           envFrom:
             - secretRef:
-              name: google-secret
+                name: google-secret
             - secretRef:
-              name: aws-secret
+                name: aws-secret
           env:
             - name: AWS_REGION
               value: "us-east-1"
