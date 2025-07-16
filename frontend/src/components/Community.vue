@@ -4,20 +4,20 @@
     <section class="hero-section">
       <div class="container">
         <div class="hero-content">
-          <h1 class="hero-title">{{ $t('community.title', 'Creative Community') }}</h1>
-          <p class="hero-subtitle">{{ $t('community.subtitle', 'Share your creativity with the world') }}</p>
+          <h1 class="hero-title">{{ $t('community.heroTitle', 'Creative Community') }}</h1>
+          <p class="hero-subtitle">{{ $t('community.heroSubtitle', 'Share your creativity with the world') }}</p>
           <div class="community-stats">
             <div class="stat-item">
               <span class="stat-number">15K+</span>
-              <span class="stat-label">Active Creators</span>
+              <span class="stat-label">{{ $t('community.activeCreators', 'Active Creators') }}</span>
             </div>
             <div class="stat-item">
               <span class="stat-number">50K+</span>
-              <span class="stat-label">Artworks</span>
+              <span class="stat-label">{{ $t('community.artworks', 'Artworks') }}</span>
             </div>
             <div class="stat-item">
               <span class="stat-number">2K+</span>
-              <span class="stat-label">Daily Posts</span>
+              <span class="stat-label">{{ $t('community.dailyPosts', 'Daily Posts') }}</span>
             </div>
           </div>
         </div>
@@ -59,19 +59,19 @@
                   <div class="masonry-item creative-card">
                     <div class="card-header">
                       <span class="card-icon">✨</span>
-                      <h3>Share Your Creation</h3>
+                      <h3>{{ $t('community.shareCreation', 'Share Your Creation') }}</h3>
                     </div>
                     <div class="card-content">
                       <textarea 
                         v-model="newPost"
-                        placeholder="What's on your creative mind?"
+                        :placeholder="$t('community.whatsOnCreativeMind', 'What\'s on your creative mind?')"
                         rows="3"
                       ></textarea>
                       <div class="quick-actions">
-                        <button class="quick-btn">📷</button>
-                        <button class="quick-btn">🎨</button>
-                        <button class="quick-btn">🎵</button>
-                        <button class="share-btn" @click="publishPost">Share</button>
+                        <button class="quick-btn">{{ $t('community.photo', '📷') }}</button>
+                        <button class="quick-btn">{{ $t('community.art', '🎨') }}</button>
+                        <button class="quick-btn">{{ $t('community.music', '🎵') }}</button>
+                        <button class="share-btn" @click="publishPost">{{ $t('community.share', 'Share') }}</button>
                       </div>
                     </div>
                   </div>
@@ -80,13 +80,13 @@
                   <div class="masonry-item trending-card">
                     <div class="card-header">
                       <span class="card-icon">🔥</span>
-                      <h3>Trending Topics</h3>
+                      <h3>{{ $t('community.trendingTopics', 'Trending Topics') }}</h3>
                     </div>
                     <div class="card-content">
                       <div class="trending-list">
                         <div v-for="(tag, index) in trendingTags" :key="tag" class="trending-item">
                           <span class="trend-rank">#{{ index + 1 }}</span>
-                          <span class="trend-tag">{{ tag }}</span>
+                          <span class="trend-tag">{{ $t('community.trendingTag.' + tag, tag) }}</span>
                         </div>
                       </div>
                     </div>
@@ -104,7 +104,7 @@
                           <span class="post-time">{{ post.timestamp }}</span>
                         </div>
                       </div>
-                      <button class="post-menu">⋯</button>
+                      <button class="post-menu">{{ $t('community.moreOptions', '⋯') }}</button>
                     </div>
                     
                     <div class="card-content">
@@ -148,7 +148,7 @@
                   <div class="masonry-item users-card">
                     <div class="card-header">
                       <span class="card-icon">👥</span>
-                      <h3>Suggested Creators</h3>
+                      <h3>{{ $t('community.suggestedCreators', 'Suggested Creators') }}</h3>
                     </div>
                     <div class="card-content">
                       <div v-for="user in suggestedUsers" :key="user.id" class="user-suggestion">
@@ -159,7 +159,7 @@
                           <h4 class="user-name">{{ user.name }}</h4>
                           <p class="user-specialty">{{ user.specialty }}</p>
                         </div>
-                        <button class="follow-btn">Follow</button>
+                        <button class="follow-btn">{{ $t('community.follow', 'Follow') }}</button>
                       </div>
                     </div>
                   </div>
@@ -168,7 +168,7 @@
                   <div class="masonry-item events-card">
                     <div class="card-header">
                       <span class="card-icon">📅</span>
-                      <h3>Upcoming Events</h3>
+                      <h3>{{ $t('community.upcomingEvents', 'Upcoming Events') }}</h3>
                     </div>
                     <div class="card-content">
                       <div v-for="event in recentEvents" :key="event.id" class="event-preview">
@@ -187,13 +187,13 @@
                     <div class="artwork-image">
                       <img :src="artwork.image" :alt="artwork.title" />
                       <div class="artwork-overlay">
-                        <button class="overlay-btn">👁️ View</button>
+                        <button class="overlay-btn">{{ $t('community.view', '👁️ View') }}</button>
                         <button class="overlay-btn">❤️ {{ artwork.likes }}</button>
                       </div>
                     </div>
                     <div class="artwork-info">
                       <h3 class="artwork-title">{{ artwork.title }}</h3>
-                      <p class="artwork-artist">by {{ artwork.artist }}</p>
+                      <p class="artwork-artist">{{ $t('community.by', 'by') }} {{ artwork.artist }}</p>
                       <div class="artwork-stats">
                         <span class="stat-item">❤️ {{ artwork.likes }}</span>
                         <span class="stat-item">👁️ {{ artwork.views || Math.floor(artwork.likes * 5) }}</span>
@@ -218,7 +218,7 @@
                         <span class="event-time">🕐 {{ event.time }}</span>
                         <span class="event-participants">👥 {{ event.participants }}</span>
                       </div>
-                      <button class="event-join-btn">Join Event</button>
+                      <button class="event-join-btn">{{ $t('community.joinEvent', 'Join Event') }}</button>
                     </div>
                   </div>
                 </div>
@@ -232,13 +232,13 @@
                       <div class="group-icon">{{ group.icon }}</div>
                       <div class="group-info">
                         <h3 class="group-name">{{ group.name }}</h3>
-                        <p class="group-members">{{ group.members }} members</p>
+                        <p class="group-members">{{ group.members }} {{ $t('community.members', 'members') }}</p>
                       </div>
                     </div>
                     <p class="group-description">{{ group.description }}</p>
                     <div class="group-actions">
                       <button class="group-btn" :class="{ joined: group.joined }" @click="toggleGroupJoin(group)">
-                        {{ group.joined ? 'Joined' : 'Join Group' }}
+                        {{ group.joined ? $t('community.joined', 'Joined') : $t('community.joinGroup', 'Join Group') }}
                       </button>
                     </div>
                   </div>
@@ -251,7 +251,7 @@
           <div class="sidebar">
             <!-- 热门标签 -->
             <div class="sidebar-widget">
-              <h3 class="widget-title">Trending Topics</h3>
+              <h3 class="widget-title">{{ $t('community.trendingTopics', 'Trending Topics') }}</h3>
               <div class="trending-tags">
                 <span v-for="tag in trendingTags" :key="tag" class="trending-tag">#{{ tag }}</span>
               </div>
@@ -259,7 +259,7 @@
 
             <!-- 推荐用户 -->
             <div class="sidebar-widget">
-              <h3 class="widget-title">Suggested Creators</h3>
+              <h3 class="widget-title">{{ $t('community.suggestedCreators', 'Suggested Creators') }}</h3>
               <div class="suggested-users">
                 <div v-for="user in suggestedUsers" :key="user.id" class="suggested-user">
                   <div class="user-avatar">
@@ -269,14 +269,14 @@
                     <h4 class="user-name">{{ user.name }}</h4>
                     <p class="user-specialty">{{ user.specialty }}</p>
                   </div>
-                  <button class="follow-btn">Follow</button>
+                  <button class="follow-btn">{{ $t('community.follow', 'Follow') }}</button>
                 </div>
               </div>
             </div>
 
             <!-- 最新活动 -->
             <div class="sidebar-widget">
-              <h3 class="widget-title">Latest Events</h3>
+              <h3 class="widget-title">{{ $t('community.latestEvents', 'Latest Events') }}</h3>
               <div class="latest-events">
                 <div v-for="event in recentEvents" :key="event.id" class="event-item">
                   <div class="event-info">
@@ -301,20 +301,20 @@ export default {
       activeTab: 'feed',
       newPost: '',
       navTabs: [
-        { id: 'feed', icon: '🏠', title: 'Feed' },
-        { id: 'gallery', icon: '🎨', title: 'Gallery' },
-        { id: 'events', icon: '📅', title: 'Events' },
-        { id: 'groups', icon: '👥', title: 'Groups' }
+        { id: 'feed', icon: '📰', title: this.$t('community.feed', 'Feed') },
+        { id: 'gallery', icon: '🎨', title: this.$t('community.gallery', 'Gallery') },
+        { id: 'events', icon: '📅', title: this.$t('community.events', 'Events') },
+        { id: 'groups', icon: '👥', title: this.$t('community.groups', 'Groups') }
       ],
       communityPosts: [
         {
           id: 1,
-          userName: 'CreativeArtist',
+          userName: this.$t('community.posts.creativeArtist', 'CreativeArtist'),
           userAvatar: '/src/assets/images/logo.png',
-          timestamp: '2 hours ago',
-          content: 'Just finished my latest Labubu AI artwork! The new generation tools are incredible 🎨',
+          timestamp: this.$t('community.posts.twoHoursAgo', '2 hours ago'),
+          content: this.$t('community.posts.content1', 'Just finished my latest Labubu AI artwork! The new generation tools are incredible 🎨'),
           image: '/src/assets/images/home1.jpg',
-          imageAlt: 'AI Generated Artwork',
+          imageAlt: this.$t('community.posts.imageAlt1', 'AI Generated Artwork'),
           likes: 24,
           liked: false,
           shares: 5,
@@ -322,19 +322,19 @@ export default {
           comments: [
             {
               id: 1,
-              userName: 'ArtLover',
+              userName: this.$t('community.posts.artLover', 'ArtLover'),
               userAvatar: '/src/assets/images/logo.png',
-              text: 'Amazing work! The colors are so vibrant.',
-              timestamp: '1 hour ago'
+              text: this.$t('community.posts.comment1', 'Amazing work! The colors are so vibrant.'),
+              timestamp: this.$t('community.posts.oneHourAgo', '1 hour ago')
             }
           ]
         },
         {
           id: 2,
-          userName: 'AIEnthusiast',
+          userName: this.$t('community.posts.aiEnthusiast', 'AIEnthusiast'),
           userAvatar: '/src/assets/images/logo.png',
-          timestamp: '4 hours ago',
-          content: 'New tutorial series on advanced AI agent configuration is now live! Check it out 📚',
+          timestamp: this.$t('community.posts.fourHoursAgo', '4 hours ago'),
+          content: this.$t('community.posts.content2', 'New tutorial series on advanced AI agent configuration is now live! Check it out 📚'),
           image: null,
           likes: 42,
           liked: true,
@@ -344,12 +344,12 @@ export default {
         },
         {
           id: 3,
-          userName: 'DesignMaster',
+          userName: this.$t('community.posts.designMaster', 'DesignMaster'),
           userAvatar: '/src/assets/images/logo.png',
-          timestamp: '6 hours ago',
-          content: 'Hosting a live design session tomorrow at 3 PM! Join us for some creative inspiration ✨',
+          timestamp: this.$t('community.posts.sixHoursAgo', '6 hours ago'),
+          content: this.$t('community.posts.content3', 'Hosting a live design session tomorrow at 3 PM! Join us for some creative inspiration ✨'),
           image: '/src/assets/images/home2.png',
-          imageAlt: 'Design Session Preview',
+          imageAlt: this.$t('community.posts.imageAlt2', 'Design Session Preview'),
           likes: 67,
           liked: false,
           shares: 18,
@@ -358,89 +358,89 @@ export default {
         }
       ],
       artworks: [
-        { id: 1, title: 'Digital Dreams', artist: 'CreativeAI', image: '/src/assets/images/home1.jpg', likes: 156, size: 'large' },
-        { id: 2, title: 'Neon Fantasy', artist: 'PixelMaster', image: '/src/assets/images/home2.png', likes: 203, size: 'medium' },
-        { id: 3, title: 'Abstract Reality', artist: 'VisionArt', image: '/src/assets/images/home3.png', likes: 89, size: 'small' },
-        { id: 4, title: 'FutureScape', artist: 'TechArtist', image: '/src/assets/images/home1.jpg', likes: 134, size: 'medium' },
-        { id: 5, title: 'Color Burst', artist: 'ChromaCreator', image: '/src/assets/images/home2.png', likes: 267, size: 'large' },
-        { id: 6, title: 'Digital Nature', artist: 'EcoDesigner', image: '/src/assets/images/home3.png', likes: 98, size: 'small' },
-        { id: 7, title: 'Cyber Punk', artist: 'NeonArtist', image: '/src/assets/images/home1.jpg', likes: 178, size: 'medium' },
-        { id: 8, title: 'Minimal Flow', artist: 'SimpleDesign', image: '/src/assets/images/home2.png', likes: 145, size: 'small' },
-        { id: 9, title: 'Ocean Waves', artist: 'WaterPainter', image: '/src/assets/images/home3.png', likes: 189, size: 'large' }
+        { id: 1, title: this.$t('community.artworks.digitalDreams', 'Digital Dreams'), artist: this.$t('community.artists.creativeAI', 'CreativeAI'), image: '/src/assets/images/home1.jpg', likes: 156, size: 'large' },
+        { id: 2, title: this.$t('community.artworks.neonFantasy', 'Neon Fantasy'), artist: this.$t('community.artists.pixelMaster', 'PixelMaster'), image: '/src/assets/images/home2.png', likes: 203, size: 'medium' },
+        { id: 3, title: this.$t('community.artworks.abstractReality', 'Abstract Reality'), artist: this.$t('community.artists.visionArt', 'VisionArt'), image: '/src/assets/images/home3.png', likes: 89, size: 'small' },
+        { id: 4, title: this.$t('community.artworks.futureScape', 'FutureScape'), artist: this.$t('community.artists.techArtist', 'TechArtist'), image: '/src/assets/images/home1.jpg', likes: 134, size: 'medium' },
+        { id: 5, title: this.$t('community.artworks.colorBurst', 'Color Burst'), artist: this.$t('community.artists.chromaCreator', 'ChromaCreator'), image: '/src/assets/images/home2.png', likes: 267, size: 'large' },
+        { id: 6, title: this.$t('community.artworks.digitalNature', 'Digital Nature'), artist: this.$t('community.artists.ecoDesigner', 'EcoDesigner'), image: '/src/assets/images/home3.png', likes: 98, size: 'small' },
+        { id: 7, title: this.$t('community.artworks.cyberPunk', 'Cyber Punk'), artist: this.$t('community.artists.neonArtist', 'NeonArtist'), image: '/src/assets/images/home1.jpg', likes: 178, size: 'medium' },
+        { id: 8, title: this.$t('community.artworks.minimalFlow', 'Minimal Flow'), artist: this.$t('community.artists.simpleDesign', 'SimpleDesign'), image: '/src/assets/images/home2.png', likes: 145, size: 'small' },
+        { id: 9, title: this.$t('community.artworks.oceanWaves', 'Ocean Waves'), artist: this.$t('community.artists.waterPainter', 'WaterPainter'), image: '/src/assets/images/home3.png', likes: 189, size: 'large' }
       ],
       upcomingEvents: [
         {
           id: 1,
-          title: 'AI Art Workshop',
-          description: 'Learn advanced techniques for creating stunning AI artwork',
+          title: this.$t('community.events.aiArtWorkshop', 'AI Art Workshop'),
+          description: this.$t('community.events.aiArtWorkshopDesc', 'Learn advanced techniques for creating stunning AI artwork'),
           day: '15',
-          month: 'DEC',
-          time: '2:00 PM',
-          participants: '50 slots'
+          month: this.$t('community.events.dec', 'DEC'),
+          time: this.$t('community.events.twoPM', '2:00 PM'),
+          participants: this.$t('community.events.fiftySlots', '50 slots')
         },
         {
           id: 2,
-          title: 'Creative Challenge',
-          description: 'Monthly theme-based creative challenge with amazing prizes',
+          title: this.$t('community.events.creativeChallenge', 'Creative Challenge'),
+          description: this.$t('community.events.creativeChallengeDesc', 'Monthly theme-based creative challenge with amazing prizes'),
           day: '20',
-          month: 'DEC',
-          time: 'All Day',
-          participants: 'Open'
+          month: this.$t('community.events.dec', 'DEC'),
+          time: this.$t('community.events.allDay', 'All Day'),
+          participants: this.$t('community.events.open', 'Open')
         },
         {
           id: 3,
-          title: 'Community Meetup',
-          description: 'Virtual meetup for creators to share ideas and network',
+          title: this.$t('community.events.communityMeetup', 'Community Meetup'),
+          description: this.$t('community.events.communityMeetupDesc', 'Virtual meetup for creators to share ideas and network'),
           day: '25',
-          month: 'DEC',
-          time: '7:00 PM',
-          participants: 'Unlimited'
+          month: this.$t('community.events.dec', 'DEC'),
+          time: this.$t('community.events.sevenPM', '7:00 PM'),
+          participants: this.$t('community.events.unlimited', 'Unlimited')
         }
       ],
       communityGroups: [
         {
           id: 1,
-          name: 'AI Artists',
+          name: this.$t('community.groups.aiArtists', 'AI Artists'),
           icon: '🎨',
           members: '1.2K',
-          description: 'A community for artists exploring AI-generated art',
+          description: this.$t('community.groups.aiArtistsDesc', 'A community for artists exploring AI-generated art'),
           joined: false
         },
         {
           id: 2,
-          name: 'Labubu Fans',
+          name: this.$t('community.groups.labubuFans', 'Labubu Fans'),
           icon: '🌟',
           members: '2.5K',
-          description: 'Everything about Labubu culture and creativity',
+          description: this.$t('community.groups.labubuFansDesc', 'Everything about Labubu culture and creativity'),
           joined: true
         },
         {
           id: 3,
-          name: 'Creative Challenges',
+          name: this.$t('community.groups.creativeChallenges', 'Creative Challenges'),
           icon: '🔥',
           members: '800',
-          description: 'Weekly challenges to boost your creativity',
+          description: this.$t('community.groups.creativeChallengesDesc', 'Weekly challenges to boost your creativity'),
           joined: false
         },
         {
           id: 4,
-          name: 'Tech Innovators',
+          name: this.$t('community.groups.techInnovators', 'Tech Innovators'),
           icon: '⚡',
           members: '950',
-          description: 'Discussing the latest in AI and creative technology',
+          description: this.$t('community.groups.techInnovatorsDesc', 'Discussing the latest in AI and creative technology'),
           joined: false
         }
       ],
       trendingTags: ['LabubuArt', 'AIGenerated', 'Creative', 'Digital', 'Innovation', 'Community'],
       suggestedUsers: [
-        { id: 1, name: 'ArtMaster', specialty: 'Digital Artist', avatar: '/src/assets/images/logo.png' },
-        { id: 2, name: 'CreativeMind', specialty: 'AI Specialist', avatar: '/src/assets/images/logo.png' },
-        { id: 3, name: 'DesignGuru', specialty: 'UX Designer', avatar: '/src/assets/images/logo.png' }
+        { id: 1, name: this.$t('community.users.artMaster', 'ArtMaster'), specialty: this.$t('community.specialties.digitalArtist', 'Digital Artist'), avatar: '/src/assets/images/logo.png' },
+        { id: 2, name: this.$t('community.users.creativeMind', 'CreativeMind'), specialty: this.$t('community.specialties.aiSpecialist', 'AI Specialist'), avatar: '/src/assets/images/logo.png' },
+        { id: 3, name: this.$t('community.users.designGuru', 'DesignGuru'), specialty: this.$t('community.specialties.uxDesigner', 'UX Designer'), avatar: '/src/assets/images/logo.png' }
       ],
       recentEvents: [
-        { id: 1, name: 'Digital Art Expo', date: 'Dec 18' },
-        { id: 2, name: 'AI Workshop', date: 'Dec 22' },
-        { id: 3, name: 'Creator Meetup', date: 'Dec 28' }
+        { id: 1, name: this.$t('community.recentEvents.digitalArtExpo', 'Digital Art Expo'), date: this.$t('community.recentEvents.dec18', 'Dec 18') },
+        { id: 2, name: this.$t('community.recentEvents.aiWorkshop', 'AI Workshop'), date: this.$t('community.recentEvents.dec22', 'Dec 22') },
+        { id: 3, name: this.$t('community.recentEvents.creatorMeetup', 'Creator Meetup'), date: this.$t('community.recentEvents.dec28', 'Dec 28') }
       ]
     }
   },
@@ -453,9 +453,9 @@ export default {
       
       const newPost = {
         id: Date.now(),
-        userName: 'You',
+        userName: this.$t('community.posts.you', 'You'),
         userAvatar: '/src/assets/images/logo.png',
-        timestamp: 'Just now',
+        timestamp: this.$t('community.posts.justNow', 'Just now'),
         content: this.newPost,
         image: null,
         likes: 0,
@@ -481,10 +481,10 @@ export default {
       
       const newComment = {
         id: Date.now(),
-        userName: 'You',
+        userName: this.$t('community.posts.you', 'You'),
         userAvatar: '/src/assets/images/logo.png',
         text: commentText,
-        timestamp: 'Just now'
+        timestamp: this.$t('community.posts.justNow', 'Just now')
       }
       
       post.comments.push(newComment)
@@ -627,9 +627,9 @@ export default {
 /* 瀑布流布局 */
 .masonry-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
-  gap: 1.5rem;
-  padding: 1rem;
+  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+  gap: 1rem;
+  padding: 0.3rem;
 }
 
 .masonry-item {
@@ -1038,7 +1038,7 @@ export default {
 
 /* 画廊样式 - 瀑布流布局 */
 .gallery-section .masonry-grid {
-  grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+  grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
 }
 
 .artwork-card {
@@ -1164,7 +1164,7 @@ export default {
 .events-grid {
   display: grid;
   gap: 1rem;
-  padding: 1rem;
+  padding: 0.5rem;
 }
 
 .event-card {
@@ -1246,9 +1246,9 @@ export default {
 /* 群组样式 */
 .groups-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
-  gap: 1rem;
-  padding: 1rem;
+  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+  gap: 0.8rem;
+  padding: 0.3rem;
 }
 
 .group-card {
@@ -1443,12 +1443,12 @@ export default {
 /* 响应式设计 */
 @media (max-width: 1024px) {
   .masonry-grid {
-    grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
-    gap: 1rem;
+    grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+    gap: 0.8rem;
   }
   
   .gallery-section .masonry-grid {
-    grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+    grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
   }
 }
 
@@ -1482,17 +1482,18 @@ export default {
   }
   
   .masonry-grid {
-    grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
-    gap: 1rem;
-    padding: 0.5rem;
+    grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+    gap: 0.8rem;
+    padding: 0.2rem;
   }
   
   .gallery-section .masonry-grid {
-    grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+    grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
   }
   
   .groups-grid {
-    grid-template-columns: 1fr;
+    grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+    gap: 0.8rem;
   }
   
   .card-header {
@@ -1506,12 +1507,12 @@ export default {
 
 @media (max-width: 480px) {
   .masonry-grid {
-    grid-template-columns: 1fr;
-    gap: 1rem;
+    grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+    gap: 0.8rem;
   }
   
   .gallery-section .masonry-grid {
-    grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+    grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
   }
   
   .hero-title {

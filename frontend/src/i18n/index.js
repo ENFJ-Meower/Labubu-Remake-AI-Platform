@@ -1230,12 +1230,15 @@ class LanguageManager {
   }
 
   init() {
-    // 从本地存储加载语言设置
+    // 检查用户是否已经主动选择过语言
+    const userSelectedLanguage = localStorage.getItem('user_selected_language')
     const savedLanguage = localStorage.getItem('language')
-    if (savedLanguage && LANGUAGES[savedLanguage]) {
+    
+    if (userSelectedLanguage === 'true' && savedLanguage && LANGUAGES[savedLanguage]) {
+      // 如果用户已经选择过语言，使用保存的语言
       currentLanguage.value = savedLanguage
     } else {
-      // 首次访问默认使用英语，不检测浏览器语言
+      // 首次访问或用户未选择过语言，默认使用英语
       currentLanguage.value = DEFAULT_LANGUAGE
       // 保存默认语言到本地存储
       localStorage.setItem('language', DEFAULT_LANGUAGE)
@@ -1250,6 +1253,8 @@ class LanguageManager {
     if (LANGUAGES[lang]) {
       currentLanguage.value = lang
       localStorage.setItem('language', lang)
+      // 标记用户已经主动选择过语言
+      localStorage.setItem('user_selected_language', 'true')
       document.documentElement.lang = lang
     }
   }

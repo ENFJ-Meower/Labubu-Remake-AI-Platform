@@ -254,6 +254,7 @@ export default {
   justify-content: space-between;
   align-items: center;
   padding: 1rem 1.5rem;
+  min-width: 1000px;
 }
 
 .nav-logo {
@@ -295,6 +296,7 @@ export default {
   display: flex;
   align-items: center;
   gap: 1.5rem;
+  flex-shrink: 0;
 }
 
 .nav-link {
@@ -310,8 +312,10 @@ export default {
   transition: all 0.3s ease;
   position: relative;
   white-space: nowrap;
-  min-width: 90px;
+  min-width: 100px;
+  width: 100px;
   font-size: 0.95rem;
+  text-align: center;
 }
 
 .nav-link:hover {
@@ -339,6 +343,7 @@ export default {
   display: flex;
   align-items: center;
   gap: 0.6rem;
+  flex-shrink: 0;
 }
 
 /* 语言切换按钮 */
@@ -360,9 +365,10 @@ export default {
   transition: all 0.3s ease;
   border: 2px solid transparent;
   box-shadow: 0 2px 8px rgba(102, 126, 234, 0.3);
-  min-width: 75px;
-  width: 75px;
+  min-width: 80px;
+  width: 80px;
   font-size: 0.85rem;
+  text-align: center;
 }
 
 .language-btn:hover {
@@ -395,9 +401,11 @@ export default {
   border-radius: 20px;
   transition: all 0.3s ease;
   border: 2px solid transparent;
-  min-width: 95px;
+  min-width: 100px;
+  width: 100px;
   white-space: nowrap;
   font-size: 0.9rem;
+  text-align: center;
 }
 
 .login-btn {
@@ -451,9 +459,11 @@ export default {
   cursor: pointer;
   transition: all 0.3s ease;
   box-shadow: 0 2px 8px rgba(255, 107, 107, 0.3);
-  min-width: 85px;
+  min-width: 100px;
+  width: 100px;
   white-space: nowrap;
   font-size: 0.9rem;
+  text-align: center;
 }
 
 .logout-btn:hover {
@@ -463,6 +473,68 @@ export default {
 }
 
 
+
+/* 响应式设计 */
+@media (max-width: 1200px) {
+  .nav-container {
+    min-width: 900px;
+    padding: 1rem 1rem;
+  }
+  
+  .nav-link {
+    min-width: 90px;
+    width: 90px;
+    font-size: 0.9rem;
+  }
+  
+  .login-btn, .register-btn, .logout-btn {
+    min-width: 90px;
+    width: 90px;
+    font-size: 0.85rem;
+  }
+  
+  .language-btn {
+    min-width: 75px;
+    width: 75px;
+    font-size: 0.8rem;
+  }
+}
+
+@media (max-width: 1000px) {
+  .navbar {
+    min-width: 100%;
+  }
+  
+  .nav-container {
+    min-width: 100%;
+    padding: 1rem 0.5rem;
+  }
+  
+  .nav-menu {
+    gap: 1rem;
+  }
+  
+  .nav-link {
+    min-width: 80px;
+    width: 80px;
+    font-size: 0.85rem;
+    padding: 0.5rem 0.5rem;
+  }
+  
+  .login-btn, .register-btn, .logout-btn {
+    min-width: 80px;
+    width: 80px;
+    font-size: 0.8rem;
+    padding: 0.5rem 0.5rem;
+  }
+  
+  .language-btn {
+    min-width: 70px;
+    width: 70px;
+    font-size: 0.75rem;
+    padding: 0.5rem 0.5rem;
+  }
+}
 
 /* 返回顶部按钮 */
 .scroll-to-top {

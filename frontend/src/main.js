@@ -50,6 +50,12 @@ const router = createRouter({
 
 // Add navigation guard for authentication添加导航守卫进行认证检查
 router.beforeEach((to, from, next) => {
+  // 临时禁用认证检查，直接允许所有路由访问
+  console.log('开发模式：跳过认证检查，直接访问', to.path)
+  next()
+  
+  // 原始认证逻辑（已注释）
+  /*
   // Check if route requires authentication检查路由是否需要认证
   if (to.meta.requiresAuth) {
     // Check if user is authenticated检查用户是否已认证
@@ -73,6 +79,7 @@ router.beforeEach((to, from, next) => {
   
   // Allow navigation继续导航
   next()
+  */
 })
 
 // Create Vue application instance创建Vue应用实例
