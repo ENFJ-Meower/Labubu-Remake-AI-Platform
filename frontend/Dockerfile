@@ -1,5 +1,5 @@
 # 多阶段构建 - 第一阶段：构建应用
-FROM node:18-alpine AS builder
+FROM node:current-alpine3.22 AS builder
 
 # 设置工作目录
 WORKDIR /app
@@ -10,6 +10,8 @@ RUN npm ci --only=production
 
 # 复制源代码
 COPY . .
+
+RUN npm install
 
 # 构建应用
 RUN npm run build

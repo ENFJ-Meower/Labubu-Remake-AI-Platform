@@ -37,7 +37,7 @@ if %errorlevel% neq 0 (
 
 echo.
 echo 5. 构建Docker镜像...
-docker build -t labubu-frontend:latest .
+docker build --platform=linux/amd64 -t weimengze/cloud-computing-frontend:v1 .
 if %errorlevel% neq 0 (
     echo ERROR: Docker镜像构建失败
     pause
@@ -46,14 +46,14 @@ if %errorlevel% neq 0 (
 
 echo.
 echo 6. 显示构建的镜像...
-docker images labubu-frontend
+docker images weimengze/cloud-computing-frontend
 
 echo.
 echo ===================================
 echo     构建完成！
 echo ===================================
 echo.
-echo 镜像名称: labubu-frontend:latest
-echo 测试命令: docker run -p 8080:80 labubu-frontend:latest
+echo 镜像名称: weimengze/cloud-computing-frontend:v1
+echo 测试命令: docker run -p 8080:80 weimengze/cloud-computing-frontend:v1
 echo.
 pause 

@@ -19,6 +19,8 @@ const noAuthPaths = process.env.NO_AUTH_PATHS
 
 console.log(`No-auth paths: ${noAuthPaths.join(', ')}`);
 
+app.set('trust proxy', 'loopback, linklocal, uniquelocal');
+
 app.get('/healthz', (req, res) => {
     res.status(200).send('OK');
 });

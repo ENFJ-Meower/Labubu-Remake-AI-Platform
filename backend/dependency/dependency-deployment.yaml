@@ -18,7 +18,7 @@ spec:
     spec:
       containers:
         - name: controller
-          image: docker.io/weimengze/cloud-computing-dependency:v1
+          image: docker.io/weimengze/cloud-computing-dependency:v2
           env:
             - name: REDIS_ADDR
               value: "redis-cluster.dag-system.svc.cluster.local:6379"

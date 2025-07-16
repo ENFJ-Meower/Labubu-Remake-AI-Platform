@@ -8,6 +8,7 @@ data:
     cluster-enabled yes
     cluster-node-timeout 5000
     appendonly yes
+    dir /data
 ---
 apiVersion: apps/v1
 kind: StatefulSet
@@ -16,7 +17,7 @@ metadata:
   namespace: dag-system
 spec:
   serviceName: redis-cluster
-  replicas: 6
+  replicas: 4
   selector:
     matchLabels:
       app: redis-cluster
@@ -25,10 +26,31 @@ spec:
       labels:
         app: redis-cluster
     spec:
+      affinity:
+        podAntiAffinity:
+          preferredDuringSchedulingIgnoredDuringExecution:
+          - weight: 100
+            podAffinityTerm:
+              labelSelector:
+                matchExpressions:
+                - key: app
+                  operator: In
+                  values: ["redis-cluster"]
+              topologyKey: "kubernetes.io/hostname"
       containers:
         - name: redis
           image: redis:alpine
-          command: ["redis-server", "/etc/redis/redis.conf"]
+          command: 
+            - sh
+            - -c
+            - |
+              mkdir -p /data/$(hostname)
+              exec redis-server /etc/redis/redis.conf --dir /data/$(hostname)
+          env:
+            - name: HOSTNAME
+              valueFrom:
+                fieldRef:
+                  fieldPath: metadata.name
           ports:
             - containerPort: 6379
               name: client
@@ -71,15 +93,10 @@ spec:
             items:
               - key: redis.conf
                 path: redis.conf
-  volumeClaimTemplates:
-    - metadata:
-        name: redis-data
-      spec:
-        accessModes: ["ReadWriteOnce"]
-        storageClassName: "gp2"
-        resources:
-          requests:
-            storage: 1Gi
+        - name: redis-data
+          hostPath:
+            path: /tmp/redis-data
+            type: DirectoryOrCreate
 ---
 apiVersion: v1
 kind: Service

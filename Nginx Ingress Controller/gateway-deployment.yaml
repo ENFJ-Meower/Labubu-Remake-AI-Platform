@@ -17,7 +17,7 @@ spec:
     spec:
       containers:
         - name: auth-gateway
-          image: docker.io/weimengze/cloud-computing-gateway:v3
+          image: docker.io/weimengze/cloud-computing-gateway:v4
           ports:
             - containerPort: 8080
           envFrom:
