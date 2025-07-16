@@ -1,6 +1,16 @@
 <template>
   <!-- Main AI Agent Builder Container AI智能体构建器主容器 -->
   <div class="ai-agent-builder">
+    <!-- Global tooltip container 全局tooltip容器 -->
+    <div 
+      ref="globalTooltip"
+      class="global-tooltip"
+      :class="{ active: tooltipData.visible }"
+      :style="{ left: tooltipData.x + 'px', top: tooltipData.y + 'px' }"
+    >
+      <div class="tooltip-title">{{ tooltipData.title }}</div>
+      <div class="tooltip-description">{{ tooltipData.description }}</div>
+    </div>
     <!-- Top toolbar with workflow actions顶部工具栏包含工作流操作 -->
     <div class="top-toolbar">
       <div class="toolbar-left">
@@ -41,12 +51,11 @@
             :class="{ active: activeTab === tab.id }"
             :data-tab="tab.id"
             @click="setActiveTab(tab.id)"
+            @mouseenter="showTooltip(tab.id, $event)"
+            @mouseleave="hideTooltip"
+            :title="getTabTitle(tab.id) + ' - ' + getTabDescription(tab.id)"
           >
             <div class="tab-icon">{{ tab.icon }}</div>
-            <div class="tab-content">
-              <div class="tab-title">{{ getTabTitle(tab.id) }}</div>
-              <div class="tab-description">{{ getTabDescription(tab.id) }}</div>
-            </div>
             <div class="tab-indicator" v-if="tab.hasContent"></div>
           </div>
         </div>
@@ -69,7 +78,7 @@
                       <div class="palette-node" draggable="true" @dragstart="onDragStart($event, 'condition')">
                         <div class="node-icon">❓</div>
                         <div class="node-info">
-                          <span class="node-name">{{ $t('aiAgent.workflow.conditionNode', 'Condition') }}</span>
+                          <span class="node-name">Condition</span>
                           <span class="node-desc">{{ $t('aiAgent.workflow.conditionDesc', '条件判断') }}</span>
                         </div>
                       </div>
@@ -83,35 +92,35 @@
                       <div class="palette-node" draggable="true" @dragstart="onDragStart($event, 'LLM')">
                         <div class="node-icon">🧠</div>
                         <div class="node-info">
-                          <span class="node-name">{{ $t('aiAgent.workflow.llmNode', 'LLM') }}</span>
+                          <span class="node-name">LLM</span>
                           <span class="node-desc">{{ $t('aiAgent.workflow.llmDesc', '大语言模型') }}</span>
                         </div>
                       </div>
                       <div class="palette-node" draggable="true" @dragstart="onDragStart($event, 'STT')">
                         <div class="node-icon">🎤</div>
                         <div class="node-info">
-                          <span class="node-name">{{ $t('aiAgent.workflow.sttNode', 'STT') }}</span>
+                          <span class="node-name">STT</span>
                           <span class="node-desc">{{ $t('aiAgent.workflow.sttDesc', '语音转文字') }}</span>
                         </div>
                       </div>
                       <div class="palette-node" draggable="true" @dragstart="onDragStart($event, 'TTS')">
                         <div class="node-icon">🔊</div>
                         <div class="node-info">
-                          <span class="node-name">{{ $t('aiAgent.workflow.ttsNode', 'TTS') }}</span>
+                          <span class="node-name">TTS</span>
                           <span class="node-desc">{{ $t('aiAgent.workflow.ttsDesc', '文字转语音') }}</span>
                         </div>
                       </div>
                       <div class="palette-node" draggable="true" @dragstart="onDragStart($event, 'pic2text')">
                         <div class="node-icon">🖼️</div>
                         <div class="node-info">
-                          <span class="node-name">{{ $t('aiAgent.workflow.pic2textNode', 'Pic2Text') }}</span>
+                          <span class="node-name">Pic2Text</span>
                           <span class="node-desc">{{ $t('aiAgent.workflow.pic2textDesc', '图片转文字') }}</span>
                         </div>
                       </div>
                       <div class="palette-node" draggable="true" @dragstart="onDragStart($event, 'text2pic')">
                         <div class="node-icon">🎨</div>
                         <div class="node-info">
-                          <span class="node-name">{{ $t('aiAgent.workflow.text2picNode', 'Text2Pic') }}</span>
+                          <span class="node-name">Text2Pic</span>
                           <span class="node-desc">{{ $t('aiAgent.workflow.text2picDesc', '文字转图片') }}</span>
                         </div>
                       </div>
@@ -126,14 +135,14 @@
                       <div class="palette-node" draggable="true" @dragstart="onDragStart($event, 'process')">
                         <div class="node-icon">⚙️</div>
                         <div class="node-info">
-                          <span class="node-name">{{ $t('aiAgent.workflow.processNode', 'Process') }}</span>
+                          <span class="node-name">Process</span>
                           <span class="node-desc">{{ $t('aiAgent.workflow.processDesc', '数据处理') }}</span>
                         </div>
                       </div>
                       <div class="palette-node" draggable="true" @dragstart="onDragStart($event, 'transform')">
                         <div class="node-icon">🔄</div>
                         <div class="node-info">
-                          <span class="node-name">{{ $t('aiAgent.workflow.transformNode', 'Transform') }}</span>
+                          <span class="node-name">Transform</span>
                           <span class="node-desc">{{ $t('aiAgent.workflow.transformDesc', '数据转换') }}</span>
                         </div>
                       </div>
@@ -369,47 +378,8 @@
             </div>
             
             <!-- 右侧配置面板 -->
-            <!-- 空状态提示 -->
-            <div class="workflow-config-panel" v-if="!selectedNode && !selectedConnection">
-              <div class="config-header">
-                <h4>{{ $t('aiAgent.workflow.configurationPanel', '配置面板') }}</h4>
-              </div>
-              
-              <div class="config-content">
-                <div class="empty-config-state">
-                  <div class="empty-config-icon">⚙️</div>
-                  <h4>{{ $t('aiAgent.workflow.selectNodeToConfig', '选择节点进行配置') }}</h4>
-                  <p>{{ $t('aiAgent.workflow.configInstructions', '请按照以下步骤操作：') }}</p>
-                  <ol class="config-steps">
-                    <li>{{ $t('aiAgent.workflow.step1', '从左侧拖拽节点到画布') }}</li>
-                    <li><strong>{{ $t('aiAgent.workflow.step2', '点击节点进行选择') }}</strong> - {{ $t('aiAgent.workflow.step2Detail', '点击节点本身，不是连接点') }}</li>
-                    <li>{{ $t('aiAgent.workflow.step3', '在此处配置节点参数') }}</li>
-                    <li><strong>{{ $t('aiAgent.workflow.step4', '设置输入数据（文字、图片等）') }}</strong> - {{ $t('aiAgent.workflow.step4Detail', '在下方"输入数据配置"中输入') }}</li>
-                  </ol>
-                  <div class="config-tips">
-                    <div class="tip-item">
-                      <span class="tip-icon">💡</span>
-                      <span>{{ $t('aiAgent.workflow.tip1', 'LLM节点支持直接输入文字或上传图片') }}</span>
-                    </div>
-                    <div class="tip-item">
-                      <span class="tip-icon">📝</span>
-                      <span>{{ $t('aiAgent.workflow.tipInputLocation', '输入文字位置：选择节点后，向下滚动找到"输入数据配置"部分') }}</span>
-                    </div>
-                    <div class="tip-item">
-                      <span class="tip-icon">🔗</span>
-                      <span>{{ $t('aiAgent.workflow.tip2', '拖拽节点连接点可以创建数据流') }}</span>
-                    </div>
-                    <div class="tip-item">
-                      <span class="tip-icon">⚡</span>
-                      <span>{{ $t('aiAgent.workflow.tip3', '配置完成后可以测试和部署工作流') }}</span>
-                    </div>
-                  </div>
-                </div>
-              </div>
-            </div>
-            
             <!-- 节点配置面板 -->
-            <div class="workflow-config-panel" v-else-if="selectedNode">
+            <div class="workflow-config-panel" v-if="selectedNode">
               <div class="config-header">
                 <h4>{{ $t('aiAgent.workflow.nodeConfiguration', '节点配置') }}</h4>
                 <button class="btn-close" @click="deselectNode">×</button>
@@ -572,7 +542,7 @@
             </div>
             
             <!-- 连接配置面板 -->
-            <div class="workflow-config-panel" v-else-if="selectedConnection">
+            <div class="workflow-config-panel" v-if="selectedConnection">
               <div class="config-header">
                 <h4>{{ $t('aiAgent.workflow.connectionConfiguration', '连接配置') }}</h4>
                 <button class="btn-close" @click="deselectConnection">×</button>
@@ -1100,6 +1070,14 @@ export default {
     return {
       // Active tab state当前激活的标签页状态
       activeTab: 'workflow',
+      // Global tooltip data全局tooltip数据
+      tooltipData: {
+        visible: false,
+        x: 0,
+        y: 0,
+        title: '',
+        description: ''
+      },
       // Current workflow data当前工作流数据
       currentWorkflow: {
         name: '', // Workflow name工作流名称
@@ -1249,6 +1227,9 @@ export default {
   },
   
   mounted() {
+    // 检查用户身份验证状态
+    this.checkAuthentication()
+    
     this.initializeCanvas()
     
     this.saveToHistory()
@@ -1258,11 +1239,62 @@ export default {
   beforeUnmount() {
     this.cleanup()
     this.stopPollingMonitoring()
+    // 清理tooltip
+    this.hideTooltip()
   },
   
   methods: {
+    // 检查用户身份验证状态
+    async checkAuthentication() {
+      try {
+        const { isAuthenticated } = await import('@/utils/auth.js')
+        if (!isAuthenticated()) {
+          // 如果用户未登录，重定向到登录页面
+          this.$router.push('/frontend/login')
+          return false
+        }
+        return true
+      } catch (error) {
+        console.error('身份验证检查失败:', error)
+        this.$router.push('/frontend/login')
+        return false
+      }
+    },
+    
     setActiveTab(tabId) {
       this.activeTab = tabId
+    },
+    showTooltip(tabId, event) {
+      const rect = event.currentTarget.getBoundingClientRect()
+      let x = rect.right + 10 // 10px offset from the right of the tab
+      let y = rect.top + rect.height / 2 - 20 // center vertically
+      
+      // 确保tooltip不会超出屏幕边界
+      const tooltipWidth = 200 // 预估tooltip宽度
+      const tooltipHeight = 80 // 预估tooltip高度
+      
+      if (x + tooltipWidth > window.innerWidth) {
+        x = rect.left - tooltipWidth - 10 // 显示在左侧
+      }
+      
+      if (y + tooltipHeight > window.innerHeight) {
+        y = window.innerHeight - tooltipHeight - 10
+      }
+      
+      if (y < 0) {
+        y = 10
+      }
+      
+      this.tooltipData = {
+        visible: true,
+        x: x,
+        y: y,
+        title: this.getTabTitle(tabId),
+        description: this.getTabDescription(tabId)
+      }
+    },
+    hideTooltip() {
+      this.tooltipData.visible = false
     },
     getTabTitle(tabId) {
       const titleMap = {
@@ -1378,7 +1410,7 @@ export default {
       const nodeId = `${nodeType}-${++this.nodeIdCounter}`
       const nodeTemplates = {
         condition: {
-          title: this.$t('aiAgent.workflow.conditionNode', '条件'),
+          title: 'Condition',
           description: this.$t('aiAgent.workflow.conditionDesc', '条件判断'),
           inputs: [{ name: this.$t('aiAgent.workflow.ports.input', '输入'), type: 'text', value: '' }],
           outputs: [{ name: this.$t('aiAgent.workflow.ports.true', '真'), type: 'text' }, { name: this.$t('aiAgent.workflow.ports.false', '假'), type: 'text' }],
@@ -1387,7 +1419,7 @@ export default {
           service: ''
         },
         LLM: {
-          title: this.$t('aiAgent.workflow.llmNode', 'LLM'),
+          title: 'LLM',
           description: this.$t('aiAgent.workflow.llmDesc', '大语言模型文本处理'),
           inputs: [{ name: this.$t('aiAgent.workflow.ports.prompt', '提示'), type: 'text', value: '' }],
           outputs: [{ name: this.$t('aiAgent.workflow.ports.response', '响应'), type: 'text' }],
@@ -1398,7 +1430,7 @@ export default {
           max_tokens: 2000
         },
         STT: {
-          title: this.$t('aiAgent.workflow.sttNode', 'STT'),
+          title: 'STT',
           description: this.$t('aiAgent.workflow.sttDesc', '语音转文字'),
           inputs: [{ name: this.$t('aiAgent.workflow.ports.audio', '音频'), type: 'audio', value: null }],
           outputs: [{ name: this.$t('aiAgent.workflow.ports.text', '文本'), type: 'text' }],
@@ -1408,7 +1440,7 @@ export default {
           model: 'whisper-1'
         },
         TTS: {
-          title: this.$t('aiAgent.workflow.ttsNode', 'TTS'),
+          title: 'TTS',
           description: this.$t('aiAgent.workflow.ttsDesc', '文字转语音'),
           inputs: [{ name: this.$t('aiAgent.workflow.ports.text', '文本'), type: 'text', value: '' }],
           outputs: [{ name: this.$t('aiAgent.workflow.ports.audio', '音频'), type: 'audio' }],
@@ -1418,7 +1450,7 @@ export default {
           speed: 1.0
         },
         pic2text: {
-          title: this.$t('aiAgent.workflow.pic2textNode', '图片转文字'),
+          title: 'Pic2Text',
           description: this.$t('aiAgent.workflow.pic2textDesc', '图片转文字'),
           inputs: [{ name: this.$t('aiAgent.workflow.ports.image', '图片'), type: 'image', value: null }],
           outputs: [{ name: this.$t('aiAgent.workflow.ports.text', '文本'), type: 'text' }],
@@ -1428,7 +1460,7 @@ export default {
           format: 'markdown'
         },
         text2pic: {
-          title: this.$t('aiAgent.workflow.text2picNode', '文字转图片'),
+          title: 'Text2Pic',
           description: this.$t('aiAgent.workflow.text2picDesc', '文字转图片'),
           inputs: [{ name: this.$t('aiAgent.workflow.ports.prompt', '提示'), type: 'text', value: '' }],
           outputs: [{ name: this.$t('aiAgent.workflow.ports.image', '图片'), type: 'image' }],
@@ -1439,7 +1471,7 @@ export default {
         },
 
         process: {
-          title: this.$t('aiAgent.workflow.processNode', '处理'),
+          title: 'Process',
           description: this.$t('aiAgent.workflow.processDesc', '数据处理'),
           inputs: [{ name: this.$t('aiAgent.workflow.ports.input', '输入'), type: 'text', value: '' }],
           outputs: [{ name: this.$t('aiAgent.workflow.ports.output', '输出'), type: 'text' }],
@@ -1447,7 +1479,7 @@ export default {
           service: ''
         },
         transform: {
-          title: this.$t('aiAgent.workflow.transformNode', '转换'),
+          title: 'Transform',
           description: this.$t('aiAgent.workflow.transformDesc', '数据转换'),
           inputs: [{ name: this.$t('aiAgent.workflow.ports.input', '输入'), type: 'text', value: '' }],
           outputs: [{ name: this.$t('aiAgent.workflow.ports.output', '输出'), type: 'text' }],
@@ -3676,14 +3708,20 @@ export default {
   display: flex;
   flex: 1;
   height: calc(100vh - 80px);
+  position: relative;
+  z-index: 1;
 }
 
 /* Left sidebar */
 .sidebar {
-  width: 300px;
-  background: #2d2d2d;
-  border-right: 1px solid #404040;
+  width: 80px;
+  background: rgba(45, 45, 45, 0.3);
+  backdrop-filter: blur(5px);
+  border-right: 1px solid rgba(64, 64, 64, 0.4);
   overflow-y: auto;
+  overflow-x: visible;
+  position: relative;
+  z-index: 2;
 }
 
 .nav-tabs {
@@ -3693,11 +3731,13 @@ export default {
 .nav-tab {
   display: flex;
   align-items: center;
-  padding: 1rem 1.5rem;
+  justify-content: center;
+  padding: 1rem 0;
   cursor: pointer;
   transition: all 0.2s ease;
   border-left: 3px solid transparent;
   position: relative;
+  z-index: 2;
 }
 
 .nav-tab:hover {
@@ -3718,38 +3758,188 @@ export default {
 .nav-tab[data-tab="workflow"]:before {
   content: "⭐";
   position: absolute;
-  top: 0.5rem;
-  right: 0.5rem;
+  top: 0.3rem;
+  right: 0.3rem;
   color: #ff6b6b;
-  font-size: 1rem;
+  font-size: 0.8rem;
 }
 
 .tab-icon {
-  font-size: 1.5rem;
-  margin-right: 1rem;
+  font-size: 1.8rem;
   min-width: 30px;
+  transition: transform 0.2s ease;
 }
 
-.tab-content {
-  flex: 1;
+.nav-tab:hover .tab-icon {
+  transform: scale(1.1);
 }
 
-.tab-title {
-  font-weight: 600;
-  margin-bottom: 0.2rem;
+/* Global tooltip styles - 可爱气泡设计（顶层显示）*/
+.global-tooltip {
+  position: fixed !important;
+  transform: translateY(-50%) scale(0.8);
+  background: linear-gradient(135deg, #ff6b6b 0%, #4ecdc4 100%) !important;
+  backdrop-filter: blur(15px) !important;
+  color: #ffffff !important;
+  padding: 1rem 1.25rem !important;
+  border-radius: 20px !important;
+  font-size: 0.9rem !important;
+  white-space: nowrap !important;
+  box-shadow: 
+    0 8px 32px rgba(78, 205, 196, 0.3),
+    0 4px 16px rgba(255, 107, 107, 0.2),
+    inset 0 1px 0 rgba(255, 255, 255, 0.2) !important;
+  border: 2px solid rgba(255, 255, 255, 0.3) !important;
+  z-index: 2147483647 !important;
+  opacity: 0 !important;
+  visibility: hidden !important;
+  transition: all 0.4s cubic-bezier(0.68, -0.55, 0.265, 1.55) !important;
+  pointer-events: none !important;
+  min-width: 200px !important;
+  font-weight: 600 !important;
+  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.2) !important;
 }
 
-.tab-description {
+.global-tooltip.active {
+  opacity: 1 !important;
+  visibility: visible !important;
+  transform: translateY(-50%) scale(1) !important;
+  animation: bubble-bounce 0.4s cubic-bezier(0.68, -0.55, 0.265, 1.55), glow-pulse 2s ease-in-out infinite !important;
+}
+
+.global-tooltip::before {
+  content: '';
+  position: absolute;
+  left: -10px;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 0;
+  height: 0;
+  border-top: 10px solid transparent;
+  border-bottom: 10px solid transparent;
+  border-right: 10px solid #ff6b6b;
+  filter: drop-shadow(-2px 0 4px rgba(255, 107, 107, 0.3));
+}
+
+.global-tooltip::after {
+  content: '✨';
+  position: absolute;
+  right: -5px;
+  top: -5px;
   font-size: 0.8rem;
-  color: #b0b0b0;
+  animation: sparkle 2s ease-in-out infinite;
+}
+
+.global-tooltip .tooltip-title {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  font-weight: 700;
+  font-size: 1rem;
+  margin-bottom: 0.25rem;
+}
+
+.global-tooltip .tooltip-title::before {
+  content: '⭐';
+  font-size: 0.8rem;
+}
+
+.global-tooltip .tooltip-description {
+  font-size: 0.8rem;
+  opacity: 0.9;
+}
+
+/* 响应式设计 */
+@media (max-width: 768px) {
+  .global-tooltip::after {
+    display: none;
+  }
+  
+  .global-tooltip {
+    font-size: 0.8rem !important;
+    padding: 0.75rem 1rem !important;
+    min-width: 150px !important;
+  }
+}
+
+
+/* 可爱的动画效果 */
+@keyframes sparkle {
+  0%, 100% { 
+    transform: scale(1) rotate(0deg); 
+    opacity: 0.8;
+  }
+  50% { 
+    transform: scale(1.2) rotate(180deg); 
+    opacity: 1;
+  }
+}
+
+@keyframes bubble-bounce {
+  0% { 
+    transform: translateY(-50%) scale(0.8); 
+    opacity: 0;
+  }
+  50% { 
+    transform: translateY(-50%) scale(1.1); 
+    opacity: 0.8;
+  }
+  100% { 
+    transform: translateY(-50%) scale(1); 
+    opacity: 1;
+  }
+}
+
+@keyframes glow-pulse {
+  0%, 100% { 
+    border-color: rgba(255, 255, 255, 0.3);
+    box-shadow: 
+      0 8px 32px rgba(78, 205, 196, 0.3),
+      0 4px 16px rgba(255, 107, 107, 0.2),
+      inset 0 1px 0 rgba(255, 255, 255, 0.2);
+  }
+  50% { 
+    border-color: rgba(255, 255, 255, 0.6);
+    box-shadow: 
+      0 12px 40px rgba(78, 205, 196, 0.5),
+      0 6px 20px rgba(255, 107, 107, 0.4),
+      inset 0 1px 0 rgba(255, 255, 255, 0.4);
+  }
+}
+
+.tooltip-title {
+  font-weight: 700;
+  margin-bottom: 0.3rem;
+  color: #ffffff;
+  font-size: 1rem;
+  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.3);
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.tooltip-title::before {
+  content: '🌟';
+  font-size: 0.9rem;
+  animation: sparkle 2s ease-in-out infinite;
+}
+
+.tooltip-description {
+  font-size: 0.8rem;
+  color: rgba(255, 255, 255, 0.9);
+  line-height: 1.3;
+  font-weight: 500;
+  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.2);
 }
 
 .tab-indicator {
+  position: absolute;
+  top: 0.5rem;
+  left: 0.5rem;
   width: 6px;
   height: 6px;
   background: #4ecdc4;
   border-radius: 50%;
-  margin-left: 0.5rem;
 }
 
 /* Right editing area */
@@ -3757,6 +3947,8 @@ export default {
   flex: 1;
   overflow-y: auto;
   background: #1a1a1a;
+  position: relative;
+  z-index: 5;
 }
 
 .editor-content {
@@ -4283,119 +4475,190 @@ export default {
 
 /* 左侧工具栏 */
 .workflow-sidebar {
-  width: 250px;
-  background: #2d2d2d;
-  border-right: 1px solid #404040;
-  padding: 0.75rem;
-  box-shadow: 2px 0 8px rgba(0, 0, 0, 0.3);
+  width: 320px;
+  background: rgba(45, 45, 45, 0.4);
+  backdrop-filter: blur(5px);
+  border-right: 1px solid rgba(64, 64, 64, 0.4);
+  padding: 1rem;
+  box-shadow: 2px 0 12px rgba(0, 0, 0, 0.2);
   flex-shrink: 0;
   height: calc(100vh - 80px);
   overflow-y: auto;
+  position: relative;
+  z-index: 1;
 }
 
 /* 自定义滚动条样式 */
 .workflow-sidebar::-webkit-scrollbar {
-  width: 6px;
+  width: 8px;
 }
 
 .workflow-sidebar::-webkit-scrollbar-track {
   background: #1a1a1a;
-  border-radius: 3px;
+  border-radius: 4px;
 }
 
 .workflow-sidebar::-webkit-scrollbar-thumb {
-  background: #555555;
-  border-radius: 3px;
-  transition: background 0.2s ease;
+  background: linear-gradient(135deg, #4ecdc4, #45b7aa);
+  border-radius: 4px;
+  transition: all 0.3s ease;
 }
 
 .workflow-sidebar::-webkit-scrollbar-thumb:hover {
-  background: #666666;
+  background: linear-gradient(135deg, #26d0ce, #3ba99c);
+  box-shadow: 0 0 8px rgba(78, 205, 196, 0.4);
 }
 
 .node-palette h4 {
-  margin: 0 0 0.75rem 0;
+  margin: 0 0 1.5rem 0;
   color: #4ecdc4;
-  font-size: 1rem;
-  font-weight: 600;
+  font-size: 1.2rem;
+  font-weight: 700;
   text-align: center;
-  border-bottom: 2px solid #4ecdc4;
-  padding-bottom: 0.4rem;
+  border-bottom: 3px solid #4ecdc4;
+  padding-bottom: 0.75rem;
+  background: linear-gradient(135deg, #4ecdc4, #45b7aa);
+  background-clip: text;
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  text-shadow: 0 2px 4px rgba(78, 205, 196, 0.3);
 }
 
 .palette-categories {
   display: flex;
   flex-direction: column;
-  gap: 0.6rem;
+  gap: 1rem;
 }
 
 .palette-category {
-  background: #323232;
-  border-radius: 6px;
-  padding: 0.5rem;
-  border-left: 3px solid #ff6b6b;
+  background: linear-gradient(135deg, rgba(50, 50, 50, 0.3), rgba(42, 42, 42, 0.3));
+  backdrop-filter: blur(3px);
+  border-radius: 12px;
+  padding: 1rem;
+  border: 1px solid rgba(64, 64, 64, 0.3);
+  border-left: 4px solid #ff6b6b;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+  transition: all 0.3s ease;
+}
+
+.palette-category:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 20px rgba(0, 0, 0, 0.2);
+  border-left-color: #4ecdc4;
 }
 
 .category-title {
-  margin: 0 0 0.5rem 0;
+  margin: 0 0 1rem 0;
   color: #ff6b6b;
-  font-size: 0.8rem;
-  font-weight: 600;
+  font-size: 0.9rem;
+  font-weight: 700;
   text-transform: uppercase;
-  letter-spacing: 0.4px;
+  letter-spacing: 0.8px;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.category-title::before {
+  content: "✦";
+  color: #4ecdc4;
+  font-size: 1.2rem;
 }
 
 .palette-nodes {
-  display: flex;
-  flex-direction: column;
-  gap: 0.3rem;
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 0.75rem;
 }
 
 .palette-node {
   display: flex;
   align-items: center;
-  gap: 0.5rem;
-  padding: 0.4rem 0.75rem;
-  background: #404040;
-  border: 1px solid #555555;
-  border-radius: 6px;
+  gap: 0.75rem;
+  padding: 0.75rem 1rem;
+  background: linear-gradient(135deg, rgba(64, 64, 64, 0.3), rgba(74, 74, 74, 0.3));
+  backdrop-filter: blur(3px);
+  border: 2px solid rgba(85, 85, 85, 0.3);
+  border-radius: 10px;
   cursor: grab;
-  transition: all 0.2s ease;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  position: relative;
+  overflow: hidden;
+  z-index: 1;
+}
+
+.palette-node::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: linear-gradient(45deg, transparent 49%, rgba(78, 205, 196, 0.1) 50%, transparent 51%);
+  opacity: 0;
+  transition: opacity 0.3s ease;
 }
 
 .palette-node:hover {
-  background: #4a4a4a;
-  border-color: #3b82f6;
-  transform: translateY(-1px);
-  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.3);
+  background: linear-gradient(135deg, rgba(74, 74, 74, 0.5), rgba(85, 85, 85, 0.5));
+  border-color: #4ecdc4;
+  transform: translateY(-3px) scale(1.02);
+  box-shadow: 0 8px 25px rgba(78, 205, 196, 0.3);
+}
+
+.palette-node:hover::before {
+  opacity: 1;
 }
 
 .palette-node:active {
   cursor: grabbing;
+  transform: translateY(-1px) scale(0.98);
 }
 
 .palette-node .node-icon {
-  font-size: 1rem;
-  min-width: 24px;
+  font-size: 1.4rem;
+  min-width: 28px;
+  height: 28px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: linear-gradient(135deg, #4ecdc4, #45b7aa);
+  border-radius: 8px;
+  color: white;
+  box-shadow: 0 2px 8px rgba(78, 205, 196, 0.4);
+  transition: all 0.3s ease;
+}
+
+.palette-node:hover .node-icon {
+  transform: scale(1.1) rotate(5deg);
+  box-shadow: 0 4px 16px rgba(78, 205, 196, 0.6);
 }
 
 .node-info {
   display: flex;
   flex-direction: column;
-  gap: 0.1rem;
+  gap: 0.2rem;
   flex: 1;
+  position: relative;
+  z-index: 1;
+  min-width: 0;
 }
 
 .node-name {
-  font-size: 0.8rem;
-  font-weight: 600;
+  font-size: 1.1rem;
+  font-weight: 800;
   color: #e0e0e0;
+  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.3);
 }
 
 .node-desc {
   font-size: 0.7rem;
   color: #b0b0b0;
-  line-height: 1.1;
+  line-height: 1.3;
+  font-weight: 400;
+  word-wrap: break-word;
+  overflow-wrap: break-word;
+  max-width: 100%;
 }
 
 /* 画布容器 */
@@ -4406,36 +4669,40 @@ export default {
   background: #1a1a1a;
   margin: 0;
   padding: 0;
+  min-width: 800px;
+  min-height: 600px;
 }
 
 .canvas-header {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  padding: 8px 16px;
-  background: #2d2d2d;
+  padding: 0.75rem 1.25rem;
+  background: linear-gradient(135deg, #2d2d2d, #323232);
   border-bottom: 1px solid #404040;
-  min-height: 48px;
+  min-height: 56px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
 }
 
 .canvas-header h3 {
   margin: 0;
   color: #e0e0e0;
-  font-size: 1rem;
-  font-weight: 600;
+  font-size: 1.1rem;
+  font-weight: 700;
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
-  max-width: 400px;
+  max-width: 450px;
   flex: 1;
+  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.3);
 }
 
 .canvas-toolbar {
   display: flex;
   align-items: center;
-  gap: 8px;
+  gap: 1rem;
   justify-content: flex-end;
-  min-height: 32px;
+  min-height: 40px;
   flex-shrink: 0;
 }
 
@@ -4443,39 +4710,46 @@ export default {
 .zoom-controls-compact {
   display: flex;
   align-items: center;
-  gap: 3px;
-  background: rgba(30, 35, 48, 0.9);
+  gap: 0.5rem;
+  background: linear-gradient(135deg, #323232, #2a2a2a);
   backdrop-filter: blur(10px);
-  border-radius: 8px;
-  padding: 3px 6px;
-  border: 1px solid rgba(78, 205, 196, 0.2);
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
+  border-radius: 12px;
+  padding: 0.5rem 0.75rem;
+  border: 1px solid rgba(78, 205, 196, 0.3);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+  transition: all 0.3s ease;
+}
+
+.zoom-controls-compact:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 20px rgba(0, 0, 0, 0.4);
+  border-color: rgba(78, 205, 196, 0.5);
 }
 
 .zoom-btn-mini {
   display: flex;
   align-items: center;
   justify-content: center;
-  width: 22px;
-  height: 22px;
+  width: 28px;
+  height: 28px;
   border: none;
-  border-radius: 4px;
-  background: rgba(78, 205, 196, 0.1);
-  color: #4ecdc4;
+  border-radius: 6px;
+  background: linear-gradient(135deg, #4ecdc4, #45b7aa);
+  color: white;
   cursor: pointer;
-  transition: all 0.2s ease;
-  border: 1px solid rgba(78, 205, 196, 0.2);
+  transition: all 0.3s ease;
+  font-weight: 600;
+  box-shadow: 0 2px 6px rgba(78, 205, 196, 0.4);
 }
 
 .zoom-btn-mini:hover:not(:disabled) {
-  background: rgba(78, 205, 196, 0.2);
-  color: #ffffff;
-  transform: translateY(-0.5px);
-  box-shadow: 0 2px 6px rgba(78, 205, 196, 0.3);
+  background: linear-gradient(135deg, #26d0ce, #3ba99c);
+  transform: translateY(-1px);
+  box-shadow: 0 4px 12px rgba(78, 205, 196, 0.6);
 }
 
 .zoom-btn-mini:disabled {
-  opacity: 0.3;
+  opacity: 0.4;
   cursor: not-allowed;
   transform: none;
   box-shadow: none;
@@ -4485,27 +4759,30 @@ export default {
   display: flex;
   align-items: center;
   justify-content: center;
-  min-width: 36px;
-  height: 22px;
-  background: rgba(78, 205, 196, 0.1);
-  border: 1px solid rgba(78, 205, 196, 0.2);
-  border-radius: 4px;
+  min-width: 50px;
+  height: 28px;
+  background: linear-gradient(135deg, #404040, #4a4a4a);
+  border: 1px solid rgba(78, 205, 196, 0.3);
+  border-radius: 6px;
   cursor: pointer;
-  transition: all 0.2s ease;
+  transition: all 0.3s ease;
+  box-shadow: inset 0 1px 3px rgba(0, 0, 0, 0.3);
 }
 
 .zoom-mini-display:hover {
-  background: rgba(78, 205, 196, 0.15);
-  border-color: rgba(78, 205, 196, 0.3);
-  transform: translateY(-0.5px);
+  background: linear-gradient(135deg, #4a4a4a, #555555);
+  border-color: rgba(78, 205, 196, 0.5);
+  transform: translateY(-1px);
+  box-shadow: 0 2px 8px rgba(78, 205, 196, 0.3);
 }
 
 .zoom-mini-text {
-  font-size: 10px;
+  font-size: 0.8rem;
   font-weight: 700;
   color: #4ecdc4;
   font-family: 'Courier New', monospace;
-  letter-spacing: 0.2px;
+  letter-spacing: 0.5px;
+  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.3);
 }
 
 .zoom-btn {
@@ -4774,36 +5051,37 @@ export default {
 /* 紧凑版操作按钮 */
 .canvas-actions-compact {
   display: flex;
-  gap: 4px;
+  gap: 0.5rem;
 }
 
 .action-btn-mini {
   display: flex;
   align-items: center;
   justify-content: center;
-  width: 28px;
-  height: 28px;
+  width: 36px;
+  height: 36px;
   border: none;
-  border-radius: 6px;
-  background: rgba(30, 35, 48, 0.8);
+  border-radius: 8px;
+  background: linear-gradient(135deg, #404040, #4a4a4a);
   color: #e2e8f0;
   cursor: pointer;
-  transition: all 0.2s ease;
-  border: 1px solid rgba(78, 205, 196, 0.1);
+  transition: all 0.3s ease;
+  border: 1px solid rgba(78, 205, 196, 0.2);
   backdrop-filter: blur(5px);
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.3);
 }
 
 .action-btn-mini:hover {
-  background: rgba(78, 205, 196, 0.15);
-  color: #4ecdc4;
-  border-color: rgba(78, 205, 196, 0.3);
-  transform: translateY(-1px);
-  box-shadow: 0 2px 8px rgba(78, 205, 196, 0.2);
+  background: linear-gradient(135deg, #4ecdc4, #45b7aa);
+  color: white;
+  border-color: rgba(78, 205, 196, 0.5);
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(78, 205, 196, 0.4);
 }
 
 .action-btn-mini:active {
   transform: translateY(0);
-  box-shadow: 0 1px 4px rgba(78, 205, 196, 0.2);
+  box-shadow: 0 2px 6px rgba(78, 205, 196, 0.3);
 }
 
 .canvas-actions {
@@ -4817,10 +5095,17 @@ export default {
   position: relative;
   background: #1a1a1a;
   background-image: 
-    radial-gradient(circle at 1px 1px, #404040 1px, transparent 1px);
-  background-size: 20px 20px;
+    radial-gradient(circle at 1px 1px, rgba(78, 205, 196, 0.2) 1px, transparent 1px);
+  background-size: 30px 30px;
   overflow: hidden;
   cursor: grab;
+  transition: background-size 0.3s ease;
+  min-width: 800px;
+  min-height: 600px;
+}
+
+.workflow-canvas:hover {
+  background-size: 25px 25px;
 }
 
 .workflow-canvas:active {
@@ -4868,6 +5153,8 @@ export default {
   cursor: move;
   transition: all 0.2s ease;
   z-index: 10;
+  padding: 0;
+  overflow: visible;
 }
 
 .workflow-node:hover {
@@ -4976,11 +5263,12 @@ export default {
   border-radius: 10px 10px 0 0;
   background: #404040;
   border-bottom: 1px solid #555555;
-  margin: -2px -2px 0 -2px;
+  margin: 0;
   position: relative;
   box-sizing: border-box;
-  width: calc(100% + 4px);
-  left: -2px;
+  width: 100%;
+  left: 0;
+  overflow: hidden;
 }
 
 .node-header .node-icon {
@@ -5139,18 +5427,19 @@ export default {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  padding: 0.75rem 1rem;
-  background: #2d2d2d;
+  padding: 1rem 1.5rem;
+  background: linear-gradient(135deg, #2d2d2d, #323232);
   border-top: 1px solid #404040;
-  min-height: 60px;
+  min-height: 70px;
   flex-wrap: wrap;
   gap: 1rem;
+  box-shadow: 0 -2px 8px rgba(0, 0, 0, 0.3);
 }
 
 .canvas-stats {
   display: flex;
   gap: 1.5rem;
-  font-size: 0.8rem;
+  font-size: 0.85rem;
   color: #b0b0b0;
   white-space: nowrap;
   flex-shrink: 0;
@@ -5159,18 +5448,95 @@ export default {
 .canvas-stats span {
   display: inline-flex;
   align-items: center;
-  gap: 0.3rem;
-  font-weight: 500;
-  background: rgba(255, 255, 255, 0.05);
-  padding: 0.25rem 0.6rem;
-  border-radius: 12px;
-  border: 1px solid rgba(255, 255, 255, 0.1);
+  gap: 0.5rem;
+  font-weight: 600;
+  background: linear-gradient(135deg, rgba(78, 205, 196, 0.1), rgba(69, 183, 170, 0.1));
+  padding: 0.4rem 0.8rem;
+  border-radius: 20px;
+  border: 1px solid rgba(78, 205, 196, 0.3);
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.2);
+  transition: all 0.3s ease;
+}
+
+.canvas-stats span:hover {
+  background: linear-gradient(135deg, rgba(78, 205, 196, 0.2), rgba(69, 183, 170, 0.2));
+  border-color: rgba(78, 205, 196, 0.5);
+  transform: translateY(-1px);
+  box-shadow: 0 4px 12px rgba(78, 205, 196, 0.2);
 }
 
 .canvas-controls {
   display: flex;
-  gap: 0.4rem;
+  gap: 0.5rem;
   flex-wrap: wrap;
+}
+
+.canvas-controls .btn {
+  padding: 0.6rem 1rem;
+  border-radius: 8px;
+  font-size: 0.85rem;
+  font-weight: 600;
+  transition: all 0.3s ease;
+  border: none;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.3);
+}
+
+.canvas-controls .btn:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.4);
+}
+
+.canvas-controls .btn-outline {
+  background: linear-gradient(135deg, #404040, #4a4a4a);
+  color: #e0e0e0;
+  border: 1px solid #555555;
+}
+
+.canvas-controls .btn-outline:hover {
+  background: linear-gradient(135deg, #4a4a4a, #555555);
+  border-color: #4ecdc4;
+}
+
+.canvas-controls .btn-secondary {
+  background: linear-gradient(135deg, #667eea, #764ba2);
+  color: white;
+}
+
+.canvas-controls .btn-secondary:hover {
+  background: linear-gradient(135deg, #5a67d8, #6b4190);
+}
+
+.canvas-controls .btn-success {
+  background: linear-gradient(135deg, #4ecdc4, #45b7aa);
+  color: white;
+}
+
+.canvas-controls .btn-success:hover {
+  background: linear-gradient(135deg, #26d0ce, #3ba99c);
+}
+
+.canvas-controls .btn-primary {
+  background: linear-gradient(135deg, #ff6b6b, #ff5252);
+  color: white;
+}
+
+.canvas-controls .btn-primary:hover {
+  background: linear-gradient(135deg, #ff5252, #ff3d3d);
+}
+
+.canvas-controls .btn .icon {
+  font-size: 1rem;
+  transition: transform 0.3s ease;
+}
+
+.canvas-controls .btn:hover .icon {
+  transform: scale(1.1);
 }
 
 /* 响应式优化 */
@@ -5226,11 +5592,13 @@ export default {
 /* 右侧配置面板 */
 .workflow-config-panel {
   width: 380px;
-  background: #2d2d2d;
-  border-left: 1px solid #404040;
+  background: rgba(45, 45, 45, 0.4);
+  backdrop-filter: blur(5px);
+  border-left: 1px solid rgba(64, 64, 64, 0.4);
   display: flex;
   flex-direction: column;
-  box-shadow: -2px 0 8px rgba(0, 0, 0, 0.3);
+  box-shadow: -2px 0 12px rgba(0, 0, 0, 0.2);
+  position: relative;
 }
 
 .config-header {
@@ -5238,8 +5606,9 @@ export default {
   justify-content: space-between;
   align-items: center;
   padding: 1.25rem 1.75rem;
-  background: #404040;
-  border-bottom: 1px solid #555555;
+  background: rgba(64, 64, 64, 0.3);
+  backdrop-filter: blur(3px);
+  border-bottom: 1px solid rgba(85, 85, 85, 0.3);
 }
 
 .config-header h4 {
@@ -5254,6 +5623,8 @@ export default {
   padding: 1.75rem;
   overflow-y: auto;
   font-size: 1rem;
+  background: rgba(45, 45, 45, 0.7);
+  backdrop-filter: blur(3px);
 }
 
 .config-section {
@@ -5827,36 +6198,67 @@ export default {
   padding-bottom: 0.5rem;
 }
 
-/* 响应式设计 */
+/* 响应式设计优化 */
 @media (max-width: 1400px) {
+  .workflow-sidebar {
+    width: 280px;
+  }
+  
   .workflow-config-panel {
-    width: 320px;
+    width: 340px;
   }
 }
 
 @media (max-width: 1200px) {
   .workflow-sidebar {
-    width: 200px;
+    width: 260px;
   }
   
   .workflow-config-panel {
-    width: 280px;
+    width: 300px;
+  }
+  
+  .palette-node {
+    padding: 0.6rem 0.8rem;
+  }
+  
+  .palette-node .node-icon {
+    font-size: 1.25rem;
+    min-width: 28px;
+    height: 28px;
+  }
+  
+  .node-name {
+    font-size: 1rem;
+    font-weight: 800;
+  }
+  
+  .node-desc {
+    font-size: 0.65rem;
+    word-wrap: break-word;
+    overflow-wrap: break-word;
+    line-height: 1.3;
+    max-width: 100%;
   }
   
   .config-content {
-    padding: 1.5rem;
-    font-size: 0.95rem;
+    padding: 1.25rem;
+    font-size: 0.85rem;
+  }
+  
+  .config-section {
+    padding: 0.75rem;
   }
   
   .config-section label {
-    font-size: 0.95rem;
+    font-size: 0.85rem;
   }
   
   .config-section .form-input,
   .config-section .form-textarea,
   .config-section .form-select {
-    font-size: 0.95rem;
-    padding: 0.75rem;
+    font-size: 0.85rem;
+    padding: 0.6rem;
   }
 }
 
@@ -5883,7 +6285,7 @@ export default {
     min-width: 120px;
     flex-direction: column;
     text-align: center;
-    padding: 0.75rem 0.5rem;
+    padding: 0.6rem 0.4rem;
   }
   
   .workflow-config-panel {
@@ -6003,7 +6405,7 @@ export default {
   .sidebar {
     width: 100%;
     height: auto;
-    max-height: 200px;
+    max-height: 80px;
   }
   
   .nav-tabs {
@@ -6014,10 +6416,23 @@ export default {
   }
   
   .nav-tab {
-    min-width: 200px;
+    min-width: 60px;
     flex-shrink: 0;
     border-left: none;
     border-bottom: 3px solid transparent;
+    padding: 0.75rem 0;
+  }
+  
+  .tab-tooltip {
+    display: none !important;
+  }
+  
+  .tooltip-title::before {
+    display: none;
+  }
+  
+  .tab-tooltip::after {
+    display: none;
   }
   
   .nav-tab.active {
