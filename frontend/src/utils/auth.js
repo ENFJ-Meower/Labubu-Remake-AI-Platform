@@ -46,7 +46,7 @@ export function getCurrentUser() {
   }
   
   try {
-    const userStr = localStorage.getItem('labubu_user')
+    const userStr = localStorage.getItem('userInfo')
     return JSON.parse(userStr)
   } catch (error) {
     console.error('解析用户信息失败:', error)
@@ -69,7 +69,7 @@ export function getAuthToken() {
  */
 export function clearAuthData() {
   localStorage.removeItem('labubu_token')
-  localStorage.removeItem('labubu_user')
+  localStorage.removeItem('userInfo')
   localStorage.removeItem('labubu_remember')
 }
 

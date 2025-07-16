@@ -1227,6 +1227,9 @@ export default {
   },
   
   mounted() {
+    // 检查用户身份验证状态
+    this.checkAuthentication()
+    
     this.initializeCanvas()
     
     this.saveToHistory()
@@ -1241,6 +1244,23 @@ export default {
   },
   
   methods: {
+    // 检查用户身份验证状态
+    async checkAuthentication() {
+      try {
+        const { isAuthenticated } = await import('@/utils/auth.js')
+        if (!isAuthenticated()) {
+          // 如果用户未登录，重定向到登录页面
+          this.$router.push('/frontend/login')
+          return false
+        }
+        return true
+      } catch (error) {
+        console.error('身份验证检查失败:', error)
+        this.$router.push('/frontend/login')
+        return false
+      }
+    },
+    
     setActiveTab(tabId) {
       this.activeTab = tabId
     },

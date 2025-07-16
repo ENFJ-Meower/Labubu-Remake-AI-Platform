@@ -204,9 +204,10 @@ export default {
         if (data.code === 200) {
           // Save JWT token and user info保存JWT令牌和用户信息
           localStorage.setItem('labubu_token', data.data.token);
-          localStorage.setItem('labubu_user', JSON.stringify({
+          localStorage.setItem('userInfo', JSON.stringify({
             username: data.data.username,
-            email: data.data.email
+            email: data.data.email,
+            tenant_id: data.data.tenant_id || `tenant_${Date.now()}` // 保存tenant_id，如果没有则生成一个
           }));
           
           console.log('Registration successful, JWT token saved注册成功，JWT令牌已保存:', data.data.token.substring(0, 20) + '...')

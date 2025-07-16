@@ -223,12 +223,15 @@ class UserAuthAPI {
     }
   }
 
-  // User login API用户登录API
-  async login(username, password) {
+  // User login API用户登录API - 支持用户名或邮箱登录
+  async login(loginId, password) {
+    // 判断输入是邮箱还是用户名
+    const isEmail = loginId.includes('@')
     return await this.request('/login', {
       method: 'POST',
       body: JSON.stringify({
-        username: username,
+        username: isEmail ? '' : loginId, // 如果是用户名，使用username字段
+        email: isEmail ? loginId : '',    // 如果是邮箱，使用email字段
         password: password
       })
     })
