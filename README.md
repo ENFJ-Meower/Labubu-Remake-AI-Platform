@@ -181,10 +181,13 @@ graph TD
    kubectl apply -f backend/secret/
    ```
 
-2. Deploy databases:
+2. Deploy databases and redis cluster:
    ```bash
    kubectl apply -f backend/postgres/
    kubectl apply -f backend/redis/
+   redis-cli --cluster create \
+   $(for i in $(seq 0 5); do echo -n "redis-cluster-$i.redis-cluster.dag-system.svc.cluster.local:6379" done) \
+   --cluster-replicas 1
    ```
 
 3. Deploy microservices:
@@ -197,10 +200,20 @@ graph TD
    kubectl apply -f backend/scheduler/
    ```
 
-5. Deploy ingress:
+5. Deploy controller:
    ```bash
-   kubectl apply -f backend/ai-agent-ingress/
+   kubectl apply -f backend/ai-agent-controller/
    ```
+
+6. Deploy gateway:
+   ```bash
+   kubectl apply -f nginx ingress controller/
+   ```   
+
+7. Deploy login service:
+   ```bash
+   kubectl apply -f nginx backend/login
+   ```      
 
 ### 💡 System Advantages
 
@@ -406,10 +419,13 @@ graph TD
    kubectl apply -f backend/secret/
    ```
 
-2. 部署数据库:
+2. 部署databases和redis集群:
    ```bash
    kubectl apply -f backend/postgres/
    kubectl apply -f backend/redis/
+   redis-cli --cluster create \
+   $(for i in $(seq 0 5); do echo -n "redis-cluster-$i.redis-cluster.dag-system.svc.cluster.local:6379" done) \
+   --cluster-replicas 1
    ```
 
 3. 部署微服务:
@@ -422,10 +438,20 @@ graph TD
    kubectl apply -f backend/scheduler/
    ```
 
-5. 部署入口:
+5. 部署控制器:
    ```bash
-   kubectl apply -f backend/ai-agent-ingress/
+   kubectl apply -f backend/ai-agent-controller/
    ```
+
+6. 部署网关:
+   ```bash
+   kubectl apply -f nginx ingress controller/
+   ```   
+
+7. 部署登录服务:
+   ```bash
+   kubectl apply -f nginx backend/login
+   ```         
 
 ### 💡 系统优势
 
