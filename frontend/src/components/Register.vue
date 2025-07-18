@@ -17,6 +17,9 @@
         <div class="form-group">
           <label for="password">{{ $t('register.password', '密码') }}</label>
           <input type="password" id="password" v-model="password" required :placeholder="$t('register.passwordPlaceholder', '请输入密码')" />
+          <div class="password-hint">
+            {{ $t('register.passwordHint', '密码要求：8-16位，至少包含大写字母、小写字母、数字中的两种') }}
+          </div>
         </div>
         <div class="form-group">
           <label for="confirmPassword">{{ $t('register.confirmPassword', '确认密码') }}</label>
@@ -38,7 +41,7 @@
             </button>
           </div>
         </div>
-        <!-- 加载状态提示 -->
+        <!-- 验证码发送加载状态提示 -->
         <div v-if="isLoadingCode" class="loading-message">
           <div class="loading-dots">
             <span>{{ $t('register.sendingCode', '正在发送验证码') }}</span>
@@ -50,7 +53,27 @@
           </div>
           <p class="loading-tip">{{ $t('register.loadingTip', '邮箱验证码发送需要一些时间，请耐心等待...') }}</p>
         </div>
-        <button class="register-btn" type="submit" :disabled="isLoadingCode">{{ $t('register.registerButton', '注册') }}</button>
+        <!-- 注册加载状态提示 -->
+        <div v-if="isLoadingRegister" class="loading-message">
+          <div class="loading-dots">
+            <span>{{ $t('register.registering', '正在注册') }}</span>
+            <span class="dots">
+              <span class="dot"></span>
+              <span class="dot"></span>
+              <span class="dot"></span>
+            </span>
+          </div>
+          <p class="loading-tip">{{ $t('register.registeringTip', '账号注册验证需要一些时间，请耐心等待...') }}</p>
+        </div>
+        <button 
+          class="register-btn" 
+          type="submit" 
+          :class="{ 'loading': isLoadingRegister }"
+          :disabled="isLoadingCode || isLoadingRegister"
+        >
+          <span v-if="isLoadingRegister" class="loading-spinner"></span>
+          <span>{{ isLoadingRegister ? $t('register.registering', '正在注册') : $t('register.registerButton', '注册') }}</span>
+        </button>
         <div class="login-link">
           {{ $t('register.hasAccount', '已有账号？') }}<router-link to="/frontend/login">{{ $t('register.goLogin', '去登录') }}</router-link>
         </div>
@@ -73,7 +96,8 @@ export default {
       code: '',
       codeBtnText: '获取验证码', // 临时占位，会在mounted中更新
       codeBtnDisabled: false,
-      isLoadingCode: false, // 新增：验证码发送加载状态
+      isLoadingCode: false, // 验证码发送加载状态
+      isLoadingRegister: false, // 新增：注册加载状态
       codeTimer: null,
       codeCountdown: 60,
       currentLanguage // 引入全局语言状态
@@ -107,7 +131,10 @@ export default {
         return;
       }
       
-      // 开始加载状态
+      // 防止重复提交：开始加载状态
+      if (this.isLoadingCode) {
+        return;
+      }
       this.isLoadingCode = true;
       this.codeBtnDisabled = true;
       this.codeBtnText = this.$t('register.sending', '发送中...');
@@ -161,9 +188,9 @@ export default {
         return;
       }
       
-      // Username length validation用户名长度验证
-      if (this.username.length < 3 || this.username.length > 20) {
-        alert(this.$t('register.usernameLength', '用户名长度应为3-20个字符'));
+      // Username length validation用户名长度验证 - 根据api(1).md要求  
+      if (this.username.length < 2) {
+        alert(this.$t('register.usernameLength', '用户名长度必须大于2个字符'));
         return;
       }
       
@@ -174,9 +201,20 @@ export default {
         return;
       }
       
-      // Password validation密码验证
-      if (this.password.length < 8) {
-        alert(this.$t('register.passwordLength', '密码长度不能少于8位'));
+      // Password validation密码验证 - 根据api(1).md要求
+      if (this.password.length < 8 || this.password.length > 16) {
+        alert(this.$t('register.passwordLength', '密码长度必须为8-16位'));
+        return;
+      }
+      
+      // 检查密码复杂度：大写字母、小写字母、数字中至少包含两类
+      const hasUpper = /[A-Z]/.test(this.password);
+      const hasLower = /[a-z]/.test(this.password);
+      const hasNumber = /[0-9]/.test(this.password);
+      const complexityCount = (hasUpper ? 1 : 0) + (hasLower ? 1 : 0) + (hasNumber ? 1 : 0);
+      
+      if (complexityCount < 2) {
+        alert(this.$t('register.passwordComplexity', '密码必须包含大写字母、小写字母、数字中至少两类'));
         return;
       }
       
@@ -191,6 +229,12 @@ export default {
         alert(this.$t('register.codeError', '请输入6位验证码'));
         return;
       }
+      
+      // 防止重复提交：开始加载状态
+      if (this.isLoadingRegister) {
+        return; // 如果正在注册中，直接返回
+      }
+      this.isLoadingRegister = true;
       
       // Call backend register API using userAuthAPI调用后端注册API使用userAuthAPI
       try {
@@ -207,7 +251,7 @@ export default {
           localStorage.setItem('userInfo', JSON.stringify({
             username: data.data.username,
             email: data.data.email,
-            tenant_id: data.data.tenant_id || `tenant_${Date.now()}` // 保存tenant_id，如果没有则生成一个
+            tenant_id: data.data.tenant_id || 'default' // 新增：存储tenant_id
           }));
           
           console.log('Registration successful, JWT token saved注册成功，JWT令牌已保存:', data.data.token.substring(0, 20) + '...')
@@ -233,6 +277,9 @@ export default {
       } catch (error) {
         console.error('Registration error注册错误:', error);
         alert('注册失败：' + error.message);
+      } finally {
+        // 结束加载状态
+        this.isLoadingRegister = false;
       }
     }
   },
@@ -365,6 +412,13 @@ export default {
 .form-group input:focus {
   box-shadow: 0 0 0 2px #4ecdc4;
 }
+.password-hint {
+  margin-top: 6px;
+  font-size: 0.85rem;
+  color: rgba(78, 205, 196, 0.8);
+  line-height: 1.4;
+  padding-left: 4px;
+}
 /* 验证码输入组合样式 */
 .code-input-group {
   display: flex;
@@ -496,7 +550,11 @@ export default {
   font-weight: 600;
   cursor: pointer;
   margin-bottom: 12px;
-  transition: background 0.2s;
+  transition: all 0.2s;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
 }
 .register-btn:hover:not(:disabled) {
   background: linear-gradient(90deg, #4ecdc4 0%, #ff6b6b 100%);
@@ -505,6 +563,13 @@ export default {
   opacity: 0.6;
   cursor: not-allowed;
 }
+
+/* 注册按钮加载动画样式 */
+.register-btn.loading {
+  background: linear-gradient(90deg, #4ecdc4 0%, #4ecdc4 100%);
+  opacity: 0.8;
+}
+
 .login-link {
   text-align: center;
   color: #bdbdbd;

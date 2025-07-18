@@ -12,6 +12,7 @@ import Marketplace from './components/Marketplace.vue'
 import About from './components/About.vue'
 import Login from './components/Login.vue'
 import Register from './components/Register.vue'
+import Profile from './components/Profile.vue'
 // Import Animate.css for animations导入Animate.css动画库
 import 'animate.css'
 // Import global CSS styles导入全局CSS样式
@@ -29,6 +30,7 @@ const routes = [
   { path: '/frontend/ai-agent', name: 'AIAgent', component: AIAgent, meta: { requiresAuth: true } }, // AI Agent page route AI智能体页面路由
   { path: '/frontend/community', name: 'Community', component: Community, meta: { requiresAuth: true } }, // Community page route社区页面路由
   { path: '/frontend/marketplace', name: 'Marketplace', component: Marketplace, meta: { requiresAuth: true } }, // Marketplace page route市场页面路由
+  { path: '/frontend/profile', name: 'Profile', component: Profile, meta: { requiresAuth: true } }, // Profile page route个人中心页面路由
   { path: '/frontend/about', name: 'About', component: About }, // About page route关于页面路由
   { path: '/frontend/login', name: 'Login', component: Login }, // Login page route登录页面路由
   { path: '/frontend/register', name: 'Register', component: Register } // Register page route注册页面路由

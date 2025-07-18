@@ -1,0 +1,35 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: text2pic-deployment
+  namespace: dag-system
+spec:
+  replicas: 3
+  selector:
+    matchLabels:
+      app: text2pic
+  template:
+    metadata:
+      labels:
+        app: text2pic
+    spec:
+      containers:
+        - name: text2pic
+          image: docker.io/liuyi585851/labubuai-ttp:latest
+          ports:
+            - containerPort: 8000
+          envFrom:
+            - secretRef:
+                name: google-secret
+            - secretRef:
+                name: aws-secret
+          env:
+            - name: AWS_REGION
+              value: "us-east-1"
+          resources:
+            limits:
+              cpu: "500m"
+              memory: "512Mi"
+            requests:
+              cpu: "250m"
+              memory: "256Mi"

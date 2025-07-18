@@ -4,8 +4,8 @@ metadata:
   name: frontend-config
   namespace: dag-system
 data:
-  VITE_USER_API_BASE_URL: "http://login.dag-system.svc.cluster.local:9000"
-  VITE_WORKFLOW_API_BASE_URL: "http://ingress.dag-system.svc.cluster.local:80"
+  VITE_USER_API_BASE_URL: "https://labubuai.me"
+  VITE_WORKFLOW_API_BASE_URL: "https://labubuai.me"
   VITE_APP_TITLE: "Labubu AI Platform"
   VITE_APP_VERSION: "1.0.0"
   VITE_NODE_ENV: "production" 

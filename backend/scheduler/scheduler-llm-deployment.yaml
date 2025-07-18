@@ -15,21 +15,21 @@ spec:
     spec:
       containers:
         - name: scheduler
-          image: docker.io/weimengze/cloud-computing-scheduler:v2
+          image: docker.io/weimengze/cloud-computing-scheduler:v10
           envFrom:
             - secretRef:
                 name: aws-secret
           env:
             - name: SERVICE_NAME
               value: "LLM"
-            - name: REDIS_ADDR
-              value: "redis-cluster.dag-system.svc.cluster.local:6379"
+            - name: REDIS_ADDRS
+              value: "redis-cluster-0.redis-cluster.dag-system.svc.cluster.local:6379,redis-cluster-1.redis-cluster.dag-system.svc.cluster.local:6379,redis-cluster-2.redis-cluster.dag-system.svc.cluster.local:6379,redis-cluster-3.redis-cluster.dag-system.svc.cluster.local:6379,redis-cluster-4.redis-cluster.dag-system.svc.cluster.local:6379,redis-cluster-5.redis-cluster.dag-system.svc.cluster.local:6379"
             - name: WORKER_SERVICE
-              value: "worker-llm.dag-system.svc.cluster.local:8080"
+              value: "llm-service.dag-system.svc.cluster.local:80"
             - name: WORKER_API
-              value: "/api/v1/llm"
+              value: "/api/v1"
             - name: S3_BUCKET
-              value: "cloud-computing-ai-agent"
+              value: "cloud-computing-ai-agent-1"
             - name: AWS_REGION
               value: "us-east-1"
             - name: CONCURRENCY_LIMIT
@@ -37,7 +37,7 @@ spec:
             - name: QPS_LIMIT
               value: "500"
             - name: HTTP_TIMEOUT_MS
-              value: "3000"
+              value: "90000"
           ports:
             - containerPort: 9090
           resources:

@@ -8,7 +8,7 @@
  */
 export function isAuthenticated() {
   const token = localStorage.getItem('labubu_token')
-  const user = localStorage.getItem('labubu_user')
+  const user = localStorage.getItem('userInfo')
   
   // 检查token和用户信息是否存在
   if (!token || !user) {
@@ -114,7 +114,6 @@ export function requiresAuth(path) {
   // 需要登录的路由列表
   const protectedRoutes = [
     '/frontend/ai-agent',
-    '/frontend/community', 
     '/frontend/marketplace'
   ]
   
@@ -147,4 +146,77 @@ export function redirectAfterLogin(router) {
   
   // 重定向到原始路径或首页
   router.push(redirectPath || '/')
+} 
+
+/**
+ * 获取当前用户ID（从JWT token解析）
+ * Get current user ID from JWT token
+ * @returns {string|null} 用户ID或null
+ */
+export function getCurrentUserId() {
+  if (!isAuthenticated()) {
+    return null
+  }
+  
+  try {
+    const token = getAuthToken()
+    const payload = parseJWT(token)
+    return payload.user_id || null
+  } catch (error) {
+    console.error('获取用户ID失败:', error)
+    return null
+  }
+}
+
+/**
+ * 获取当前用户的tenant_id
+ * Get current user's tenant_id
+ * @returns {string|null} tenant_id或null
+ */
+export function getCurrentTenantId() {
+  // 优先从localStorage的userInfo获取
+  const user = getCurrentUser()
+  if (user && user.tenant_id) {
+    return user.tenant_id
+  }
+  
+  // 如果localStorage没有，尝试从JWT token解析
+  try {
+    const token = getAuthToken()
+    const payload = parseJWT(token)
+    return payload.tenant_id || 'default'
+  } catch (error) {
+    console.error('获取tenant_id失败:', error)
+    return 'default'
+  }
+}
+
+/**
+ * 获取完整的用户信息（包含从JWT解析的字段）
+ * Get complete user information including JWT fields
+ * @returns {Object|null} 完整用户信息或null
+ */
+export function getCompleteUserInfo() {
+  if (!isAuthenticated()) {
+    return null
+  }
+  
+  try {
+    // 获取localStorage中存储的用户信息
+    const storedUser = getCurrentUser()
+    
+    // 从JWT token解析补充信息
+    const token = getAuthToken()
+    const payload = parseJWT(token)
+    
+    return {
+      userId: payload.user_id,
+      username: storedUser?.username || payload.username,
+      email: storedUser?.email || payload.email,
+      tenant_id: storedUser?.tenant_id || payload.tenant_id || 'default'
+    }
+  } catch (error) {
+    console.error('获取完整用户信息失败:', error)
+    return getCurrentUser() // 降级返回基础信息
+  }
 } 

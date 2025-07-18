@@ -7,8 +7,8 @@
       </div>
       <form class="login-form" @submit.prevent="handleLogin">
         <div class="form-group">
-          <label for="usernameOrEmail">{{ $t('login.username', '用户名/邮箱') }}</label>
-          <input type="text" id="usernameOrEmail" v-model="usernameOrEmail" required :placeholder="$t('login.usernamePlaceholder', '请输入用户名或邮箱')" />
+          <label for="username">{{ $t('login.username', '用户名') }}</label>
+          <input type="text" id="username" v-model="username" required :placeholder="$t('login.usernamePlaceholder', '请输入用户名')" />
         </div>
         <div class="form-group">
           <label for="password">{{ $t('login.password', '密码') }}</label>
@@ -20,7 +20,27 @@
           </label>
           <a href="#" class="forgot-link" @click.prevent="onForgot">{{ $t('login.forgotPassword', '忘记密码？') }}</a>
         </div>
-        <button class="login-btn" type="submit">{{ $t('login.loginButton', '登录') }}</button>
+        <!-- 加载状态提示 -->
+        <div v-if="isLoading" class="loading-message">
+          <div class="loading-dots">
+            <span>{{ $t('login.loggingIn', '正在登录') }}</span>
+            <span class="dots">
+              <span class="dot"></span>
+              <span class="dot"></span>
+              <span class="dot"></span>
+            </span>
+          </div>
+          <p class="loading-tip">{{ $t('login.loadingTip', '登录验证需要一些时间，请耐心等待...') }}</p>
+        </div>
+        <button 
+          class="login-btn" 
+          type="submit" 
+          :class="{ 'loading': isLoading }"
+          :disabled="isLoading"
+        >
+          <span v-if="isLoading" class="loading-spinner"></span>
+          <span>{{ isLoading ? $t('login.loggingIn', '正在登录') : $t('login.loginButton', '登录') }}</span>
+        </button>
         <div class="register-link">
           {{ $t('login.noAccount', '还没有账号？') }}<router-link to="/frontend/register">{{ $t('login.registerNow', '注册新账号') }}</router-link>
         </div>
@@ -35,16 +55,17 @@ export default {
   name: 'Login',
   data() {
     return {
-      usernameOrEmail: '',
+      username: '',
       password: '',
-      rememberMe: false
+      rememberMe: false,
+      isLoading: false // 新增：登录加载状态
     };
   },
   methods: {
     async handleLogin() {
       // Validate input fields验证输入字段
-      if (!this.usernameOrEmail.trim()) {
-        alert(this.$t('login.usernameRequired', '请输入用户名或邮箱'));
+      if (!this.username.trim()) {
+        alert(this.$t('login.usernameRequired', '请输入用户名'));
         return;
       }
       if (!this.password.trim()) {
@@ -52,19 +73,24 @@ export default {
         return;
       }
       
+      // 防止重复提交：开始加载状态
+      if (this.isLoading) {
+        return; // 如果正在加载中，直接返回
+      }
+      this.isLoading = true;
+      
       // Call backend login API using userAuthAPI调用后端登录API使用userAuthAPI
       try {
         // Import userAuthAPI for authentication导入userAuthAPI进行认证
         const { userAuthAPI } = await import('@/config/api.js')
         
-        // Call login API调用登录API
-        const data = await userAuthAPI.login(this.usernameOrEmail, this.password)
+        // Call login API调用登录API - 现在API层会自动检查code并抛异常
+        const data = await userAuthAPI.login(this.username, this.password)
         
-        // Handle response based on API documentation根据API文档处理响应
-        if (data.code === 200) {
+        // 如果能到这里，说明登录成功(code=200)，API层已经过滤了错误
           // Remember me logic记住我逻辑
           if (this.rememberMe) {
-            localStorage.setItem('labubu_remember', this.usernameOrEmail);
+            localStorage.setItem('labubu_remember', this.username);
           } else {
             localStorage.removeItem('labubu_remember');
           }
@@ -74,7 +100,7 @@ export default {
           localStorage.setItem('userInfo', JSON.stringify({
             username: data.data.username,
             email: data.data.email,
-            tenant_id: data.data.tenant_id || `tenant_${Date.now()}` // 保存tenant_id，如果没有则生成一个
+            tenant_id: data.data.tenant_id || 'default' // 新增：存储tenant_id
           }));
           
           console.log('Login successful, JWT token saved登录成功，JWT令牌已保存:', data.data.token.substring(0, 20) + '...')
@@ -86,19 +112,12 @@ export default {
           const redirectPath = localStorage.getItem('redirect_after_login') || '/'
           localStorage.removeItem('redirect_after_login')
           this.$router.push(redirectPath);
-        } else {
-          // Handle different error codes处理不同的错误代码
-          let errorMessage = data.msg || '登录失败';
-          if (data.code === 401) {
-            errorMessage = this.$t('login.invalidCredentials', '用户名或密码错误');
-          } else if (data.code === 500) {
-            errorMessage = data.msg || this.$t('login.serverError', '服务器错误，请稍后重试');
-          }
-          alert(errorMessage);
-        }
       } catch (error) {
         console.error('Login error登录错误:', error);
-        alert('登录失败：' + error.message);
+        alert(this.$t('login.loginFailed', '登录失败') + '：' + error.message);
+      } finally {
+        // 结束加载状态
+        this.isLoading = false;
       }
     },
     onForgot() {
@@ -112,7 +131,7 @@ export default {
     // 自动填充记住的用户名
     const remembered = localStorage.getItem('labubu_remember');
     if (remembered) {
-      this.usernameOrEmail = remembered;
+      this.username = remembered;
       this.rememberMe = true;
     }
   }
@@ -258,6 +277,63 @@ export default {
   text-decoration: underline;
   cursor: pointer;
 }
+
+/* 加载状态提示消息 */
+.loading-message {
+  background: rgba(78, 205, 196, 0.1);
+  border: 1px solid rgba(78, 205, 196, 0.3);
+  border-radius: 8px;
+  padding: 12px 16px;
+  margin-bottom: 16px;
+  color: #4ecdc4;
+  text-align: center;
+  width: 100%;
+}
+
+.loading-dots {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  font-weight: 600;
+  margin-bottom: 8px;
+}
+
+.dots {
+  display: flex;
+  gap: 4px;
+}
+
+.dot {
+  width: 4px;
+  height: 4px;
+  background-color: #4ecdc4;
+  border-radius: 50%;
+  animation: bounce 1.5s ease-in-out infinite;
+}
+
+.dot:nth-child(1) { animation-delay: -0.3s; }
+.dot:nth-child(2) { animation-delay: -0.15s; }
+.dot:nth-child(3) { animation-delay: 0s; }
+
+@keyframes bounce {
+  0%, 80%, 100% {
+    transform: scale(0);
+    opacity: 0.5;
+  }
+  40% {
+    transform: scale(1);
+    opacity: 1;
+  }
+}
+
+.loading-tip {
+  font-size: 0.85rem;
+  opacity: 0.8;
+  margin: 0;
+  line-height: 1.4;
+}
+
 .login-btn {
   width: 100%;
   padding: 12px 0;
@@ -269,11 +345,41 @@ export default {
   font-weight: 600;
   cursor: pointer;
   margin-bottom: 12px;
-  transition: background 0.2s;
+  transition: all 0.2s;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
 }
-.login-btn:hover {
+
+.login-btn:hover:not(:disabled) {
   background: linear-gradient(90deg, #4ecdc4 0%, #ff6b6b 100%);
 }
+
+.login-btn:disabled {
+  cursor: not-allowed;
+  opacity: 0.6;
+}
+
+/* 加载动画样式 */
+.login-btn.loading {
+  background: linear-gradient(90deg, #4ecdc4 0%, #4ecdc4 100%);
+  opacity: 0.8;
+}
+
+.loading-spinner {
+  width: 16px;
+  height: 16px;
+  border: 2px solid rgba(255, 255, 255, 0.3);
+  border-radius: 50%;
+  border-top-color: #fff;
+  animation: spin 1s ease-in-out infinite;
+}
+
+@keyframes spin {
+  to { transform: rotate(360deg); }
+}
+
 .register-link {
   text-align: center;
   color: #bdbdbd;

@@ -8,9 +8,9 @@ export default defineConfig({
   server: {
     proxy: {
       '/backend': {
-        target: 'http://localhost:8081',
+        target: 'https://labubuai.me',
         changeOrigin: true,
-        secure: false
+        secure: true
       }
     }
   },

@@ -1,0 +1,63 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: ingress
+  namespace: dag-system
+spec:
+  replicas: 3
+  strategy:
+    rollingUpdate:
+      maxSurge: 1
+      maxUnavailable: 1
+  selector:
+    matchLabels:
+      app: ingress
+  template:
+    metadata:
+      labels:
+        app: ingress
+    spec:
+      containers:
+      - name: ingress
+        image: docker.io/weimengze/cloud-computing-ingress:v22
+        envFrom:
+          - secretRef:
+              name: aws-secret
+        env:
+        - name: REDIS_ADDRS
+          value: "redis-cluster-0.redis-cluster.dag-system.svc.cluster.local:6379,redis-cluster-1.redis-cluster.dag-system.svc.cluster.local:6379,redis-cluster-2.redis-cluster.dag-system.svc.cluster.local:6379,redis-cluster-3.redis-cluster.dag-system.svc.cluster.local:6379,redis-cluster-4.redis-cluster.dag-system.svc.cluster.local:6379,redis-cluster-5.redis-cluster.dag-system.svc.cluster.local:6379"
+        - name: S3_BUCKET
+          value: "cloud-computing-ai-agent-1"
+        - name: S3_LIFECYCLE_ENABLE
+          value: "Enabled"
+        - name: S3_LIFECYCLE_DAYS
+          value: "30"
+        - name: AWS_REGION
+          value: "us-east-1"
+        - name: MAX_DAG_SIZE_MB
+          value: "10"
+        ports:
+        - containerPort: 8080
+        livenessProbe:
+          httpGet:
+            path: /backend/ai-agent/healthz
+            port: 8080
+          initialDelaySeconds: 30
+          periodSeconds: 10
+        readinessProbe:
+          httpGet:
+            path: /backend/ai-agent/readyz
+            port: 8080
+          initialDelaySeconds: 30
+          periodSeconds: 10
+          failureThreshold: 3 
+        resources:
+          limits:
+            cpu: "1"
+            memory: "1Gi"
+          requests:
+            cpu: "200m"
+            memory: "256Mi"
+
+
+

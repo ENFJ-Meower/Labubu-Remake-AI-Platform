@@ -23,14 +23,6 @@
         </div>
       </div>
       <div class="toolbar-right">
-        <!-- Save workflow button保存工作流按钮 -->
-        <button class="btn btn-secondary" @click="saveWorkflow">
-          <i class="icon">💾</i> {{ $t('aiAgent.workflow.toolbar.saveWorkflow', 'Save Workflow') }}
-        </button>
-        <!-- Test workflow button测试工作流按钮 -->
-        <button class="btn btn-primary" @click="testWorkflow">
-          <i class="icon">🧪</i> {{ $t('aiAgent.workflow.toolbar.testWorkflow', 'Test Workflow') }}
-        </button>
         <!-- Deploy workflow button部署工作流按钮 -->
         <button class="btn btn-success" @click="deployWorkflow">
           <i class="icon">🚀</i> {{ $t('aiAgent.workflow.toolbar.deployWorkflow', 'Deploy Workflow') }}
@@ -71,19 +63,7 @@
               <div class="node-palette">
                 <h4>{{ $t('aiAgent.workflow.nodeTypes', '节点类型') }}</h4>
                 <div class="palette-categories">
-                  <!-- 控制节点 -->
-                  <div class="palette-category">
-                    <h5 class="category-title">{{ $t('aiAgent.workflow.controlNodes', '控制节点') }}</h5>
-                    <div class="palette-nodes">
-                      <div class="palette-node" draggable="true" @dragstart="onDragStart($event, 'condition')">
-                        <div class="node-icon">❓</div>
-                        <div class="node-info">
-                          <span class="node-name">Condition</span>
-                          <span class="node-desc">{{ $t('aiAgent.workflow.conditionDesc', '条件判断') }}</span>
-                        </div>
-                      </div>
-                    </div>
-                  </div>
+
 
                   <!-- AI服务节点 -->
                   <div class="palette-category">
@@ -128,26 +108,7 @@
                     </div>
                   </div>
 
-                  <!-- 工具节点 -->
-                  <div class="palette-category">
-                    <h5 class="category-title">{{ $t('aiAgent.workflow.toolNodes', '工具节点') }}</h5>
-                    <div class="palette-nodes">
-                      <div class="palette-node" draggable="true" @dragstart="onDragStart($event, 'process')">
-                        <div class="node-icon">⚙️</div>
-                        <div class="node-info">
-                          <span class="node-name">Process</span>
-                          <span class="node-desc">{{ $t('aiAgent.workflow.processDesc', '数据处理') }}</span>
-                        </div>
-                      </div>
-                      <div class="palette-node" draggable="true" @dragstart="onDragStart($event, 'transform')">
-                        <div class="node-icon">🔄</div>
-                        <div class="node-info">
-                          <span class="node-name">Transform</span>
-                          <span class="node-desc">{{ $t('aiAgent.workflow.transformDesc', '数据转换') }}</span>
-                        </div>
-                      </div>
-                    </div>
-                  </div>
+
                 </div>
               </div>
             </div>
@@ -185,11 +146,7 @@
                         <path fill-rule="evenodd" d="M14.5 3a1 1 0 0 1-1 1H13v9a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V4h-.5a1 1 0 0 1-1-1V2a1 1 0 0 1 1-1H6a1 1 0 0 1 1-1h2a1 1 0 0 1 1 1h3.5a1 1 0 0 1 1 1v1zM4.118 4 4 4.059V13a1 1 0 0 0 1 1h6a1 1 0 0 0 1-1V4.059L11.882 4H4.118zM2.5 3V2h11v1h-11z"/>
                       </svg>
                     </button>
-                    <button class="action-btn-mini" @click="saveWorkflow" title="保存">
-                      <svg width="14" height="14" viewBox="0 0 16 16" fill="currentColor">
-                        <path d="M2 1a1 1 0 0 0-1 1v12a1 1 0 0 0 1 1h12a1 1 0 0 0 1-1V2a1 1 0 0 0-1-1H9.5a1 1 0 0 0-1 1v7.293l2.646-2.647a.5.5 0 0 1 .708.708l-3.5 3.5a.5.5 0 0 1-.708 0l-3.5-3.5a.5.5 0 1 1 .708-.708L7.5 9.293V2a2 2 0 0 1 2-2H14a2 2 0 0 1 2 2v12a2 2 0 0 1-2 2H2a2 2 0 0 1-2-2V2a2 2 0 0 1 2-2h2.5a.5.5 0 0 1 0 1H2z"/>
-                      </svg>
-                    </button>
+
 
                   </div>
                 </div>
@@ -364,12 +321,7 @@
                   <button class="btn btn-outline btn-sm" @click="clearCanvas">
                     <i class="icon">🗑️</i> {{ $t('aiAgent.workflow.clearCanvas', '清空画布') }}
                   </button>
-                  <button class="btn btn-secondary btn-sm" @click="saveWorkflow">
-                    <i class="icon">💾</i> {{ $t('aiAgent.workflow.saveWorkflow', '保存工作流') }}
-                  </button>
-                  <button class="btn btn-success btn-sm" @click="testWorkflow">
-                    <i class="icon">🧪</i> {{ $t('aiAgent.workflow.testWorkflow', '测试运行') }}
-                  </button>
+                  
                   <button class="btn btn-primary btn-sm" @click="deployWorkflow">
                     <i class="icon">🚀</i> {{ $t('aiAgent.workflow.deployWorkflow', '部署') }}
                   </button>
@@ -448,7 +400,7 @@
                             <div v-if="!input.value" class="upload-placeholder">
                               <div class="upload-icon">📷</div>
                               <div class="upload-text">{{ $t('aiAgent.workflow.clickToUpload', '点击上传图片') }}</div>
-                              <div class="upload-hint">{{ $t('aiAgent.workflow.supportedFormats', '支持 JPG、PNG、GIF 格式') }}</div>
+                              <div class="upload-hint">{{ $t('aiAgent.workflow.supportedFormats', '支持 JPG、PNG、GIF、BMP、WEBP、SVG 格式，自动转换为JPEG') }}</div>
                             </div>
                             <div v-else class="uploaded-image">
                               <img :src="input.value" alt="Uploaded" class="preview-image">
@@ -475,11 +427,11 @@
                             <div v-if="!input.value" class="upload-placeholder">
                               <div class="upload-icon">🎵</div>
                               <div class="upload-text">{{ $t('aiAgent.workflow.clickToUploadAudio', '点击上传音频') }}</div>
-                              <div class="upload-hint">{{ $t('aiAgent.workflow.audioFormats', '支持 MP3、WAV、OGG 格式') }}</div>
+                              <div class="upload-hint">{{ $t('aiAgent.workflow.audioFormats', '支持 MP3、WAV、OGG 格式，自动设置为WAV格式') }}</div>
                             </div>
                             <div v-else class="uploaded-audio">
                               <div class="audio-info">
-                                <span class="audio-name">{{ input.fileName || '音频文件' }}</span>
+                                <span class="audio-name">{{ input.fileName || 'Audio File' }}</span>
                                 <button @click="removeAudio(input, index)" class="remove-audio-btn">×</button>
                               </div>
                               <audio :src="input.value" controls class="audio-preview"></audio>
@@ -691,6 +643,12 @@
                     {{ getStatusLabel(workflow.status) }}
                   </div>
                 </div>
+                <div class="workflow-description" v-if="workflow.description">
+                  {{ workflow.description }}
+                </div>
+                <div class="workflow-tags" v-if="workflow.tags && workflow.tags.length > 0">
+                  <span v-for="tag in workflow.tags" :key="tag" class="tag">{{ tag }}</span>
+                </div>
                 <div class="workflow-meta">
                   <div class="meta-item">
                     <span class="meta-label">{{ $t('aiAgent.workflow.workflowManagement.nodeCount', '节点数:') }}</span>
@@ -699,6 +657,14 @@
                   <div class="meta-item">
                     <span class="meta-label">{{ $t('aiAgent.workflow.workflowManagement.createdAt', '创建时间:') }}</span>
                     <span class="meta-value">{{ formatDate(workflow.created_at) }}</span>
+                  </div>
+                  <div class="meta-item" v-if="workflow.execution_time">
+                    <span class="meta-label">{{ $t('aiAgent.workflow.workflowManagement.executionTime', '执行时长:') }}</span>
+                    <span class="meta-value">{{ workflow.execution_time }}</span>
+                  </div>
+                  <div class="meta-item" v-if="workflow.success_rate">
+                    <span class="meta-label">{{ $t('aiAgent.workflow.workflowManagement.successRate', '成功率:') }}</span>
+                    <span class="meta-value">{{ workflow.success_rate }}%</span>
                   </div>
                 </div>
                 <div class="workflow-actions" @click.stop>
@@ -755,11 +721,11 @@
     <div v-if="showStatusMonitor" class="modal-overlay" @click="closeStatusMonitor">
       <div class="status-monitor-modal" @click.stop>
         <div class="modal-header">
-          <h3>📊 工作流状态监控</h3>
+          <h3>📊 Workflow Status Monitor</h3>
           <div class="connection-status">
-            <div class="connection-indicator" :class="pollingStatus">
+            <div class="connection-indicator" :class="sseConnectionStatus">
               <div class="indicator-dot"></div>
-              <span class="indicator-text">{{ getConnectionStatusText(pollingStatus) }}</span>
+              <span class="indicator-text">{{ getConnectionStatusText(sseConnectionStatus) }}</span>
             </div>
           </div>
           <button class="close-btn" @click="closeStatusMonitor">×</button>
@@ -768,24 +734,24 @@
         <div class="modal-body">
           <!-- 工作流基本信息 -->
           <div class="workflow-info-section">
-            <h4>工作流信息</h4>
+            <h4>Workflow Information</h4>
             <div class="info-grid">
               <div class="info-item">
-                <span class="info-label">工作流ID:</span>
+                <span class="info-label">Workflow ID:</span>
                 <span class="info-value">{{ monitoringWorkflowId }}</span>
               </div>
               <div class="info-item">
-                <span class="info-label">状态:</span>
+                <span class="info-label">Status:</span>
                 <span class="info-value status-badge" :class="currentWorkflowStatus?.status">
                   {{ getStatusLabel(currentWorkflowStatus?.status) }}
                 </span>
               </div>
               <div class="info-item">
-                <span class="info-label">开始时间:</span>
+                <span class="info-label">Start Time:</span>
                 <span class="info-value">{{ formatDate(currentWorkflowStatus?.start_time) }}</span>
               </div>
               <div class="info-item">
-                <span class="info-label">持续时间:</span>
+                <span class="info-label">Duration:</span>
                 <span class="info-value">{{ formatDuration(currentWorkflowStatus?.duration) }}</span>
               </div>
             </div>
@@ -793,12 +759,12 @@
 
           <!-- 节点状态列表 -->
           <div class="nodes-status-section">
-            <h4>节点状态</h4>
+            <h4>Node Status</h4>
             <div class="nodes-list">
               <div v-if="!currentWorkflowStatus?.nodes || currentWorkflowStatus.nodes.length === 0" 
                    class="empty-nodes">
                 <div class="empty-icon">📄</div>
-                <p>暂无节点状态信息</p>
+                <p>No node status information</p>
               </div>
               <div v-else 
                    v-for="node in currentWorkflowStatus.nodes" 
@@ -832,12 +798,12 @@
 
           <!-- 执行日志 -->
           <div class="execution-logs-section">
-            <h4>执行日志</h4>
+            <h4>Execution Logs</h4>
             <div class="logs-container">
               <div v-if="!currentWorkflowStatus?.logs || currentWorkflowStatus.logs.length === 0" 
                    class="empty-logs">
                 <div class="empty-icon">📝</div>
-                <p>暂无执行日志</p>
+                <p>No execution logs</p>
               </div>
               <div v-else class="logs-list">
                 <div v-for="log in currentWorkflowStatus.logs" 
@@ -866,7 +832,7 @@
     <div v-if="showResultsViewer" class="modal-overlay" @click="closeResultsViewer">
       <div class="results-viewer-modal" @click.stop>
         <div class="modal-header">
-          <h3>📋 工作流执行结果 - {{ currentWorkflow.name || monitoringWorkflowId }}</h3>
+          <h3>📋 Workflow Execution Results - {{ currentWorkflow.name || monitoringWorkflowId }}</h3>
           <button class="close-btn" @click="closeResultsViewer">×</button>
         </div>
         
@@ -874,7 +840,7 @@
           <!-- 🎯 最终输出区域 -->
           <div class="final-output-section" :class="{ 'focused': focusOnFinalOutput }">
             <div class="final-output-header">
-              <h4>🎯 最终输出</h4>
+              <h4>🎯 Final Output</h4>
               <div class="output-node-info" v-if="finalOutputNode">
                 <span class="node-type">{{ finalOutputNode.service || finalOutputNode.type }}</span>
                 <span class="node-name">{{ finalOutputNode.name || finalOutputNode.id }}</span>
@@ -884,14 +850,14 @@
             <div class="final-output-content">
               <div v-if="!finalOutputData" class="no-final-output">
                 <div class="empty-icon">🎯</div>
-                <p>暂无最终输出结果</p>
-                <small>工作流可能未完成或没有输出节点</small>
+                <p>No final output available</p>
+                <small>Workflow may not be complete or has no output nodes</small>
               </div>
               
               <div v-else class="final-output-display" :class="finalOutputData.type">
                 <!-- 文本输出 -->
                 <div v-if="finalOutputData.type === 'text'" class="output-text">
-                  <pre>{{ finalOutputData.displayContent }}</pre>
+                  <div class="markdown-container" v-html="renderMarkdown(finalOutputData.displayContent)"></div>
             </div>
                 
                 <!-- JSON输出 -->
@@ -901,20 +867,20 @@
 
                 <!-- 图片输出 -->
                 <div v-else-if="finalOutputData.type === 'image'" class="output-image">
-                  <img :src="finalOutputData.content" alt="输出图片" @error="handleImageError" />
+                  <img :src="finalOutputData.content" alt="Output Image" @error="handleImageError" />
                 </div>
                 
                 <!-- 音频输出 -->
                 <div v-else-if="finalOutputData.type === 'audio'" class="output-audio">
                   <audio controls :src="finalOutputData.content" @error="handleAudioError">
-                    您的浏览器不支持音频播放
+                    Your browser does not support audio playback
                   </audio>
                 </div>
                 
                 <!-- 视频输出 -->
                 <div v-else-if="finalOutputData.type === 'video'" class="output-video">
                   <video controls :src="finalOutputData.content" @error="handleVideoError">
-                    您的浏览器不支持视频播放
+                    Your browser does not support video playback
                   </video>
                 </div>
                 
@@ -926,17 +892,17 @@
               
               <!-- 操作按钮 -->
               <div v-if="finalOutputData" class="output-actions">
-                <button class="action-btn primary" @click="copyFinalOutput" title="复制">
-                  <i class="icon">📋</i> 复制
+                <button class="action-btn primary" @click="copyFinalOutput" title="Copy">
+                  <i class="icon">📋</i> Copy
                 </button>
-                <button class="action-btn secondary" @click="downloadFinalOutput" title="下载">
-                  <i class="icon">💾</i> 下载
+                <button class="action-btn secondary" @click="downloadFinalOutput" :title="getDownloadButtonText()">
+                  <i class="icon">💾</i> {{ getDownloadButtonText() }}
                 </button>
-                <button class="action-btn secondary" @click="shareFinalOutput" title="分享">
-                  <i class="icon">🔗</i> 分享
+                <button class="action-btn secondary" @click="shareFinalOutput" title="Share">
+                  <i class="icon">🔗</i> Share
                 </button>
-                <button class="action-btn secondary" @click="viewFinalOutputFullscreen" title="全屏">
-                  <i class="icon">⛶</i> 全屏
+                <button class="action-btn secondary" @click="viewFinalOutputFullscreen" title="Fullscreen">
+                  <i class="icon">⛶</i> Fullscreen
                 </button>
               </div>
             </div>
@@ -951,7 +917,7 @@
                 <div class="summary-value">{{ formatDuration(calculateExecutionSummary().totalTime) }}</div>
               </div>
               <div class="summary-item">
-                <div class="summary-label">成功节点</div>
+                <div class="summary-label">Successful Nodes</div>
                 <div class="summary-value">{{ calculateExecutionSummary().successfulNodes }}/{{ calculateExecutionSummary().totalNodes }}</div>
               </div>
               <div class="summary-item">
@@ -969,12 +935,12 @@
 
           <!-- 🔄 节点执行详情 -->
           <div class="node-execution-details">
-            <h4>🔄 节点执行详情</h4>
+            <h4>🔄 Node Execution Details</h4>
             <div class="execution-flow">
               <div v-if="!currentWorkflowStatus?.nodes || currentWorkflowStatus.nodes.length === 0" 
                    class="empty-nodes">
                 <div class="empty-icon">🔄</div>
-                <p>暂无节点执行详情</p>
+                <p>No node execution details</p>
               </div>
               <div v-else class="nodes-flow">
                 <div v-for="(node, index) in currentWorkflowStatus.nodes" 
@@ -1005,9 +971,9 @@
           <!-- 📋 完整日志 (可折叠) -->
           <div class="full-logs-section">
             <div class="logs-header" @click="toggleLogsExpanded">
-              <h4>📋 完整日志</h4>
+              <h4>📋 Complete Logs</h4>
               <button class="expand-btn" :class="{ 'expanded': logsExpanded }">
-                {{ logsExpanded ? '收起' : '展开' }}
+                                  {{ logsExpanded ? 'Collapse' : 'Expand' }}
               </button>
             </div>
             
@@ -1015,12 +981,12 @@
               <!-- 消息筛选 -->
             <div class="messages-filters">
               <select v-model="selectedMessageType" class="filter-select">
-                <option value="all">所有消息</option>
-                <option value="input">输入消息</option>
-                <option value="output">输出消息</option>
-                <option value="error">错误消息</option>
+                <option value="all">All Messages</option>
+                <option value="input">Input Messages</option>
+                <option value="output">Output Messages</option>
+                <option value="error">Error Messages</option>
               </select>
-                <button class="btn btn-sm" @click="exportResults">导出日志</button>
+                <button class="btn btn-sm" @click="exportResults">Export Logs</button>
             </div>
               
               <!-- 消息列表 -->
@@ -1028,7 +994,7 @@
               <div v-if="!filteredMessages || filteredMessages.length === 0" 
                    class="empty-messages">
                 <div class="empty-icon">💬</div>
-                <p>暂无消息记录</p>
+                <p>No message records</p>
               </div>
               <div v-else class="messages-grid">
                 <div v-for="message in filteredMessages" 
@@ -1054,15 +1020,20 @@
         </div>
 
         <div class="modal-footer">
-          <button class="btn btn-secondary" @click="closeResultsViewer">关闭</button>
-          <button class="btn btn-primary" @click="refreshWorkflowResults">刷新结果</button>
+          <button class="btn btn-secondary" @click="closeResultsViewer">Close</button>
+          <button class="btn btn-primary" @click="refreshWorkflowResults">Refresh Results</button>
         </div>
       </div>
     </div>
+
+
   </div>
 </template>
 
 <script>
+import { AI_AGENT_API } from '@/config/api.js'
+import { marked } from 'marked'
+
 // AI Agent Builder Component - Main workflow design interface AI智能体构建器组件 - 主要工作流设计界面
 export default {
   name: 'AIAgent', // Component name组件名称
@@ -1083,6 +1054,7 @@ export default {
         name: '', // Workflow name工作流名称
         description: '' // Workflow description工作流描述
       },
+      
       // Navigation tabs configuration导航标签页配置
       navigationTabs: [
         {
@@ -1133,7 +1105,7 @@ export default {
       // 其他状态
       nodeIdCounter: 0,
       workflowStatus: 'Ready', // 始终使用英文key，通过getTranslatedStatus方法进行翻译
-      statusEventSource: null,
+
       
       // UI状态
       copiedNode: null,
@@ -1173,12 +1145,13 @@ export default {
       focusOnFinalOutput: false,
       logsExpanded: false,
       
-      // 轮询监控状态
-      pollingInterval: null,
-      pollingDelay: 2000, // 2秒轮询一次
-      maxPollingAttempts: 300, // 最大轮询次数（10分钟）
-      currentPollingAttempts: 0,
-      pollingStatus: 'stopped', // stopped, running, error
+      // SSE监控状态
+      eventSource: null, // EventSource实例
+      sseConnectionStatus: 'stopped', // stopped, connecting, connected, error
+      sseReconnectAttempts: 0, // 重连尝试次数
+      maxReconnectAttempts: 5, // 最大重连次数
+      reconnectDelay: 2000, // 重连延迟(ms)
+      sseHeartbeatTimeout: null, // 心跳超时定时器
       
       // UI响应优化
       statusUpdateQueue: [],
@@ -1227,39 +1200,264 @@ export default {
   },
   
   mounted() {
+    // 配置markdown渲染器
+    this.configureMarkdownRenderer()
+    
     // 检查用户身份验证状态
-    this.checkAuthentication()
+    // 暂时注释身份验证，方便前端布局调试
+    // this.checkAuthentication()
     
     this.initializeCanvas()
     
     this.saveToHistory()
     this.loadWorkflowList()
+    
+    // 检查是否有要加载的工作流数据
+    this.checkAndLoadWorkflowFromRoute()
   },
   
   beforeUnmount() {
     this.cleanup()
-    this.stopPollingMonitoring()
+    this.stopSSEMonitoring()
     // 清理tooltip
     this.hideTooltip()
   },
   
   methods: {
-    // 检查用户身份验证状态
-    async checkAuthentication() {
-      try {
-        const { isAuthenticated } = await import('@/utils/auth.js')
-        if (!isAuthenticated()) {
-          // 如果用户未登录，重定向到登录页面
-          this.$router.push('/frontend/login')
-          return false
+    // 配置markdown渲染器
+    configureMarkdownRenderer() {
+      // 创建自定义renderer
+      const renderer = new marked.Renderer()
+      
+      // 自定义链接渲染 - 在新窗口打开并添加安全属性
+      renderer.link = function(href, title, text) {
+        const titleAttr = title ? ` title="${title}"` : ''
+        return `<a href="${href}"${titleAttr} target="_blank" rel="noopener noreferrer">${text}</a>`
+      }
+      
+      marked.setOptions({
+        renderer: renderer,
+        breaks: true,
+        gfm: true,
+        sanitize: false,
+        smartLists: true,
+        smartypants: true,
+        highlight: function(code, lang) {
+          // 简单的代码高亮，可以后续集成更复杂的高亮库
+          return `<pre class="code-block"><code class="language-${lang}">${code}</code></pre>`
         }
-        return true
+      })
+    },
+
+    // 渲染markdown内容
+    renderMarkdown(content) {
+      try {
+        return marked(content)
       } catch (error) {
-        console.error('身份验证检查失败:', error)
-        this.$router.push('/frontend/login')
-        return false
+        console.error('Markdown渲染失败:', error)
+        return `<pre>${content}</pre>`
       }
     },
+
+    // 获取下载按钮文本
+    getDownloadButtonText() {
+      if (!this.finalOutputData) return '下载'
+      
+      switch (this.finalOutputData.type) {
+        case 'image':
+          return '下载图片'
+        case 'audio':
+          return '下载音频'
+        case 'video':
+          return '下载视频'
+        case 'json':
+          return '下载JSON'
+        default:
+          return '下载文档'
+      }
+    },
+
+    // 检查并加载来自路由的工作流数据
+    checkAndLoadWorkflowFromRoute() {
+      try {
+        const loadWorkflowData = this.$route.query.loadWorkflow
+        if (loadWorkflowData) {
+          const workflowData = JSON.parse(loadWorkflowData)
+          this.loadWorkflowToCanvas(workflowData)
+          
+          // 清除路由查询参数以避免重复加载
+          this.$router.replace({
+            name: this.$route.name,
+            params: this.$route.params
+          })
+        }
+      } catch (error) {
+        console.error('加载工作流数据失败:', error)
+        this.showError('加载工作流数据失败')
+      }
+    },
+    
+    // 将工作流数据加载到画布
+    loadWorkflowToCanvas(workflowData) {
+      try {
+        // 设置工作流基本信息
+        this.currentWorkflow = {
+          ...this.currentWorkflow,
+          name: workflowData.name || 'Imported Workflow',
+          description: workflowData.description || '',
+          dag_id: workflowData.id || this.generateDAGId(workflowData.name || 'imported')
+        }
+        
+        // 清空当前画布
+        this.workflowNodes = []
+        this.connections = []
+        
+        // 加载节点数据
+        if (workflowData.nodes && workflowData.nodes.length > 0) {
+          this.workflowNodes = workflowData.nodes.map(node => ({
+            id: node.id || this.generateNodeId(),
+            type: node.type || 'LLM',
+            title: node.title || node.name || 'Node',
+            description: node.description || '',
+            prompt: node.prompt || '',
+            x: node.x || Math.random() * 400 + 100,
+            y: node.y || Math.random() * 300 + 100,
+            inputs: node.inputs || [{ name: 'input', type: 'text' }],
+            outputs: node.outputs || [{ name: 'output', type: 'text' }],
+            status: 'idle',
+            ...node
+          }))
+        } else {
+          // 如果没有节点数据，创建一个基本的工作流示例
+          this.createSampleWorkflow(workflowData)
+        }
+        
+        // 加载连接数据
+        if (workflowData.connections && workflowData.connections.length > 0) {
+          this.connections = workflowData.connections.map(conn => ({
+            id: conn.id || this.generateConnectionId(),
+            source: conn.source,
+            target: conn.target,
+            ...conn
+          }))
+        }
+        
+        // 切换到工作流设计标签
+        this.setActiveTab('workflow')
+        
+        // 显示成功消息
+        this.showSuccess(`工作流 "${workflowData.name}" 已成功加载到设计台`)
+        
+      } catch (error) {
+        console.error('加载工作流到画布失败:', error)
+        this.showError('加载工作流到画布失败')
+      }
+    },
+    
+    // 创建示例工作流
+    createSampleWorkflow(workflowData) {
+      // 根据工作流类型创建相应的节点
+      if (workflowData.name && workflowData.name.toLowerCase().includes('voice')) {
+        // 语音相关工作流
+        this.workflowNodes = [
+          {
+            id: this.generateNodeId(),
+            type: 'STT',
+            title: '语音转文字',
+            description: '将语音输入转换为文字',
+            x: 100,
+            y: 100,
+            inputs: [{ name: 'audio', type: 'audio' }],
+            outputs: [{ name: 'text', type: 'text' }],
+            status: 'idle'
+          },
+          {
+            id: this.generateNodeId(),
+            type: 'LLM',
+            title: '文字处理',
+            description: '处理转换后的文字',
+            x: 300,
+            y: 100,
+            inputs: [{ name: 'text', type: 'text' }],
+            outputs: [{ name: 'processed_text', type: 'text' }],
+            status: 'idle'
+          }
+        ]
+      } else if (workflowData.name && workflowData.name.toLowerCase().includes('image')) {
+        // 图像相关工作流
+        this.workflowNodes = [
+          {
+            id: this.generateNodeId(),
+            type: 'pic2text',
+            title: '图像识别',
+            description: '识别图像内容',
+            x: 100,
+            y: 100,
+            inputs: [{ name: 'image', type: 'image' }],
+            outputs: [{ name: 'description', type: 'text' }],
+            status: 'idle'
+          },
+          {
+            id: this.generateNodeId(),
+            type: 'text2pic',
+            title: '图像生成',
+            description: '基于描述生成图像',
+            x: 300,
+            y: 100,
+            inputs: [{ name: 'prompt', type: 'text' }],
+            outputs: [{ name: 'image', type: 'image' }],
+            status: 'idle'
+          }
+        ]
+      } else {
+        // 默认工作流
+        this.workflowNodes = [
+          {
+            id: this.generateNodeId(),
+            type: 'LLM',
+            title: workflowData.name || 'AI处理',
+            description: workflowData.description || '智能处理节点',
+            x: 200,
+            y: 150,
+            inputs: [{ name: 'input', type: 'text' }],
+            outputs: [{ name: 'output', type: 'text' }],
+            status: 'idle'
+          }
+        ]
+      }
+    },
+    
+    // 生成DAG ID
+    generateDAGId(workflowName) {
+      const timestamp = Date.now()
+      const randomSuffix = Math.random().toString(36).substring(2, 8)
+      return `${workflowName.replace(/[^a-zA-Z0-9]/g, '_').toLowerCase()}_${timestamp}_${randomSuffix}`
+    },
+    
+    // 获取租户ID
+    getTenantId() {
+      // 根据api(1).md，后端没有tenant概念，所有用户都是default
+      var jsonString = localStorage.getItem("userInfo")
+      var jsonObject = JSON.parse(jsonString)
+      return jsonObject.tenant_id.toString()
+    },
+    
+    // 检查用户身份验证状态 - 暂时注释掉，方便调试
+    // async checkAuthentication() {
+    //   try {
+    //     const { isAuthenticated } = await import('@/utils/auth.js')
+    //     if (!isAuthenticated()) {
+    //       // 如果用户未登录，重定向到登录页面
+    //       this.$router.push('/frontend/login')
+    //       return false
+    //     }
+    //     return true
+    //   } catch (error) {
+    //     console.error('身份验证检查失败:', error)
+    //     this.$router.push('/frontend/login')
+    //     return false
+    //   }
+    // },
     
     setActiveTab(tabId) {
       this.activeTab = tabId
@@ -1342,37 +1540,119 @@ export default {
       const statusKey = statusKeyMap[status] || status.toLowerCase()
       return this.$t(`aiAgent.workflow.statusValues.${statusKey}`, status)
     },
-    saveWorkflow() {
-      // Save current workflow
-      console.log('Save Workflow')
-    },
-    testWorkflow() {
-      // Test workflow functionality
-      console.log('Test Workflow')
-    },
-    deployWorkflow() {
-      // Deploy workflow
-      console.log('Deploy Workflow')
+    // 部署工作流 - 使用现有后端API
+    async deployWorkflow() {
+      try {
+        // 验证工作流
+        if (!this.validateWorkflow()) {
+          return
+        }
+        
+        // 为工作流生成名称（如果没有）
+        if (!this.currentWorkflow.name || this.currentWorkflow.name.trim() === '') {
+          this.currentWorkflow.name = `工作流_${new Date().toLocaleString()}`
+        }
+        
+        // 验证上传数据完整性
+        const validation = this.validateUploadData()
+        if (validation.errors.length > 0) {
+          this.showError('数据验证失败：\n' + validation.errors.join('\n'))
+          return
+        }
+        if (validation.warnings.length > 0) {
+          console.warn('数据验证警告:', validation.warnings)
+          validation.warnings.forEach(warning => this.showWarning(warning))
+        }
+        
+        // 预处理文件数据 - 确保所有输入数据准备就绪
+        await this.preprocessWorkflowFiles()
+        
+        // 生成DAG数据 - 按照后端API文档格式
+        const dagData = await this.generateDAGData()
+        
+        // 显示需要上传的文件列表（用于调试）
+        const uploadsList = this.getRequiredUploadsList()
+        console.log('需要上传的文件:', uploadsList)
+        this.showSuccess(`检测到 ${uploadsList.length} 个文件需要上传`)
+        
+        this.showSuccess('正在部署工作流...')
+        
+        // 第一步：提交DAG到后端存储，获取预签名上传URL
+        const submitResponse = await fetch(AI_AGENT_API.CREATE, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(dagData)
+        })
+        
+        if (!submitResponse.ok) {
+          throw new Error(`HTTP ${submitResponse.status}: ${submitResponse.statusText}`)
+        }
+        
+        const submitData = await submitResponse.json()
+        console.log('DAG提交成功，后端响应:', submitData)
+        
+        const { dag_id, tenant_id, presigned_urls } = submitData
+        
+        // 第二步：使用预签名URL上传文件到S3
+        if (presigned_urls && Object.keys(presigned_urls).length > 0) {
+          this.showSuccess('正在上传文件到云端存储...')
+          await this.uploadFilesToS3(presigned_urls)
+        }
+        
+        // 第三步：通知后端文件已上传完毕，开始执行工作流
+        const deployResponse = await fetch(AI_AGENT_API.DEPLOY, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ 
+            dag_id: dag_id, 
+            tenant_id: tenant_id 
+          })
+        })
+        
+        if (!deployResponse.ok) {
+          throw new Error(`HTTP ${deployResponse.status}: ${deployResponse.statusText}`)
+        }
+        
+        console.log('DAG就绪通知成功，开始执行')
+        
+        // 更新当前工作流信息
+        this.currentWorkflow = {
+          dag_id: dag_id,
+          name: this.currentWorkflow.name,
+          description: this.currentWorkflow.description || '',
+          status: 'deployed'
+        }
+        
+        // 更新工作流状态
+        this.workflowStatus = 'Deployed'
+        
+        // 开始监控工作流执行
+        await this.monitorWorkflowExecution(dag_id)
+        
+        // 刷新工作流列表，显示新部署的工作流
+        await this.loadWorkflowList()
+        
+        this.showSuccess(`工作流 "${this.currentWorkflow.name}" 部署成功并已保存到记录中！DAG ID: ${dag_id}`)
+        
+      } catch (error) {
+        console.error('部署工作流失败:', error)
+        this.showError(`部署工作流失败: ${error.message || '未知错误'}`)
+      }
     },
     // Workflow methods
     getNodeIcon(nodeType) {
       const icons = {
-        condition: '❓',
         LLM: '🧠',
         STT: '🎤',
         TTS: '🔊',
         pic2text: '🖼️',
-        text2pic: '🎨',
-        process: '⚙️',
-        transform: '🔄'
+        text2pic: '🎨'
       }
       return icons[nodeType] || '📦'
     },
     getNodeTypeLabel(type) {
       const labels = {
-        llm: 'LLM',
-        process: 'Process',
-        condition: 'Condition'
+        llm: 'LLM'
       }
       return labels[type] || type
     },
@@ -1406,18 +1686,9 @@ export default {
       
       this.createNode(nodeType, x, y)
     },
-    createNode(nodeType, x, y) {
-      const nodeId = `${nodeType}-${++this.nodeIdCounter}`
+    // 获取节点模板 - 提取为独立方法供恢复工作流时复用
+    getNodeTemplate(nodeType) {
       const nodeTemplates = {
-        condition: {
-          title: 'Condition',
-          description: this.$t('aiAgent.workflow.conditionDesc', '条件判断'),
-          inputs: [{ name: this.$t('aiAgent.workflow.ports.input', '输入'), type: 'text', value: '' }],
-          outputs: [{ name: this.$t('aiAgent.workflow.ports.true', '真'), type: 'text' }, { name: this.$t('aiAgent.workflow.ports.false', '假'), type: 'text' }],
-          condition: '',
-          prompt: this.$t('aiAgent.workflow.defaultPrompts.condition', '根据输入内容进行条件判断，返回true或false。'),
-          service: ''
-        },
         LLM: {
           title: 'LLM',
           description: this.$t('aiAgent.workflow.llmDesc', '大语言模型文本处理'),
@@ -1468,27 +1739,15 @@ export default {
           prompt: this.$t('aiAgent.workflow.defaultPrompts.text2pic', '根据描述生成高质量图片，画面构图合理，色彩和谐，细节丰富。'),
           size: '1024x1024',
           style: 'natural'
-        },
-
-        process: {
-          title: 'Process',
-          description: this.$t('aiAgent.workflow.processDesc', '数据处理'),
-          inputs: [{ name: this.$t('aiAgent.workflow.ports.input', '输入'), type: 'text', value: '' }],
-          outputs: [{ name: this.$t('aiAgent.workflow.ports.output', '输出'), type: 'text' }],
-          prompt: this.$t('aiAgent.workflow.defaultPrompts.process', '对输入数据进行处理和分析，提取有用信息并整理输出。'),
-          service: ''
-        },
-        transform: {
-          title: 'Transform',
-          description: this.$t('aiAgent.workflow.transformDesc', '数据转换'),
-          inputs: [{ name: this.$t('aiAgent.workflow.ports.input', '输入'), type: 'text', value: '' }],
-          outputs: [{ name: this.$t('aiAgent.workflow.ports.output', '输出'), type: 'text' }],
-          prompt: this.$t('aiAgent.workflow.defaultPrompts.transform', '将输入数据转换为指定格式，保持数据的完整性和准确性。'),
-          service: ''
         }
       }
       
-      const template = nodeTemplates[nodeType] || nodeTemplates.process
+      return nodeTemplates[nodeType] || nodeTemplates.LLM
+    },
+
+    createNode(nodeType, x, y) {
+      const nodeId = `${nodeType}-${++this.nodeIdCounter}`
+      const template = this.getNodeTemplate(nodeType)
       const newNode = {
         id: nodeId,
         type: nodeType,
@@ -1525,7 +1784,7 @@ export default {
     
     saveConnectionConfig() {
       // 连接配置已经通过v-model双向绑定自动保存
-      this.$message?.success?.(this.$t('aiAgent.workflow.connectionSaved', '连接配置已保存'))
+      this.showSuccess(this.$t('aiAgent.workflow.connectionSaved', '连接配置已保存'))
     },
     
     deleteConnection() {
@@ -1536,7 +1795,7 @@ export default {
         this.connections.splice(connectionIndex, 1)
         this.selectedConnection = null
         this.saveToHistory()
-        this.$message?.success?.(this.$t('aiAgent.workflow.connectionDeleted', '连接已删除'))
+        this.showSuccess(this.$t('aiAgent.workflow.connectionDeleted', '连接已删除'))
       }
     },
     editNode(node) {
@@ -1938,7 +2197,7 @@ export default {
     clearAllConnectionPointHighlights() {
       // 清除所有连接点的高亮样式
       document.querySelectorAll('.connection-point').forEach(element => {
-        element.classList.remove('connectable-highlight', 'dragging')
+        element.classList.remove('connectable-highlight', 'incompatible-highlight', 'dragging')
       })
     },
     
@@ -1988,11 +2247,81 @@ export default {
         return false
       }
       
+      // 检查数据类型兼容性
+      if (!this.isDataTypeCompatible(sourceNode, sourcePortType, targetNode, targetPortType)) {
+        return false
+      }
+      
       return true
     },
     
     showError(message) {
-      // 静默处理连接错误，不显示弹窗
+      // 显示连接错误提示
+      console.warn('连接验证失败:', message)
+      // 可以在这里添加用户友好的提示，比如toast通知
+      if (message && message.trim()) {
+        alert(message)
+      }
+    },
+    
+    // 获取节点的输出数据类型
+    getNodeOutputTypes(node) {
+      const nodeTypes = {
+        'LLM': ['text'],
+        'STT': ['text'], 
+        'TTS': ['audio'],
+        'pic2text': ['text'],
+        'text2pic': ['image']
+      }
+      return nodeTypes[node.type] || []
+    },
+    
+    // 获取节点的输入数据类型
+    getNodeInputTypes(node) {
+      const nodeTypes = {
+        'LLM': ['text'],
+        'STT': ['audio'],
+        'TTS': ['text'], 
+        'pic2text': ['image'],
+        'text2pic': ['text']
+      }
+      return nodeTypes[node.type] || []
+    },
+    
+    // 检查数据类型兼容性
+    isDataTypeCompatible(sourceNode, sourcePortType, targetNode, targetPortType) {
+      // 确定连接方向
+      let outputNode, inputNode
+      if (sourcePortType === 'output') {
+        outputNode = sourceNode
+        inputNode = targetNode
+      } else {
+        outputNode = targetNode
+        inputNode = sourceNode
+      }
+      
+      // 获取输出节点的输出类型和输入节点的输入类型
+      const outputTypes = this.getNodeOutputTypes(outputNode)
+      const inputTypes = this.getNodeInputTypes(inputNode)
+      
+      // 检查是否有兼容的类型
+      const hasCompatibleType = outputTypes.some(outputType => 
+        inputTypes.includes(outputType)
+      )
+      
+      if (!hasCompatibleType) {
+        const outputTypeStr = outputTypes.join('/')
+        const inputTypeStr = inputTypes.join('/')
+        const errorMessage = this.$t('aiAgent.workflow.errors.dataTypeIncompatible')
+          .replace('{outputNode}', outputNode.title || outputNode.type)
+          .replace('{outputType}', outputTypeStr)
+          .replace('{inputNode}', inputNode.title || inputNode.type)
+          .replace('{inputType}', inputTypeStr)
+        this.showError(errorMessage)
+        return false
+      }
+      
+      return true
     },
     
     // 检查是否会形成循环
@@ -2019,23 +2348,28 @@ export default {
       return false
     },
     
-    // 高亮可连接的节点
+    // 高亮可连接的节点（只高亮数据类型兼容的节点）
     highlightConnectableNodes(sourceNode, sourcePortType) {
       this.workflowNodes.forEach(node => {
         if (node.id === sourceNode.id) return
         
-        // 高亮可连接的连接点
+        // 检查基本连接可能性和数据类型兼容性
+        let targetPortType, connectionElement
         if (sourcePortType === 'output') {
-          // 输出端口可以连接到其他节点的输入端口
-          const inputPoint = document.querySelector(`[data-node-id="${node.id}"] .input-point`)
-          if (inputPoint) {
-            inputPoint.classList.add('connectable-highlight')
-          }
+          targetPortType = 'input'
+          connectionElement = document.querySelector(`[data-node-id="${node.id}"] .input-point`)
         } else if (sourcePortType === 'input') {
-          // 输入端口可以接收其他节点的输出端口
-          const outputPoint = document.querySelector(`[data-node-id="${node.id}"] .output-point`)
-          if (outputPoint) {
-            outputPoint.classList.add('connectable-highlight')
+          targetPortType = 'output'
+          connectionElement = document.querySelector(`[data-node-id="${node.id}"] .output-point`)
+        }
+        
+        if (connectionElement) {
+          // 检查数据类型兼容性
+          if (this.isDataTypeCompatible(sourceNode, sourcePortType, node, targetPortType)) {
+            connectionElement.classList.add('connectable-highlight')
+          } else {
+            // 为不兼容的节点添加不同的样式
+            connectionElement.classList.add('incompatible-highlight')
           }
         }
       })
@@ -2049,6 +2383,10 @@ export default {
       // 清除连接点高亮
       document.querySelectorAll('.connectable-highlight').forEach(element => {
         element.classList.remove('connectable-highlight')
+      })
+      // 清除不兼容连接点高亮
+      document.querySelectorAll('.incompatible-highlight').forEach(element => {
+        element.classList.remove('incompatible-highlight')
       })
     },
     
@@ -2137,12 +2475,36 @@ export default {
       })
     },
     
-    // 显示错误信息
+    // 统一错误处理
     showError(message) {
+      console.error('错误:', message)
       if (this.$message && this.$message.error) {
         this.$message.error(message)
       } else {
-        console.error(message)
+        // 降级处理：使用alert
+        alert('错误: ' + message)
+      }
+    },
+    
+    // 统一成功消息处理
+    showSuccess(message) {
+      console.log('成功:', message)
+      if (this.$message && this.$message.success) {
+        this.$message.success(message)
+      } else {
+        // 降级处理：使用alert
+        alert('成功: ' + message)
+      }
+    },
+    
+    // 统一警告消息处理
+    showWarning(message) {
+      console.warn('警告:', message)
+      if (this.$message && this.$message.warning) {
+        this.$message.warning(message)
+      } else {
+        // 降级处理：使用alert
+        alert('警告: ' + message)
       }
     },
     
@@ -2153,9 +2515,8 @@ export default {
       
       document.removeEventListener('click', this.cancelConnection)
       
-      if (this.statusEventSource) {
-        this.statusEventSource.close()
-      }
+      // 停止SSE监控
+      this.stopSSEMonitoring()
     },
     
     
@@ -2169,7 +2530,7 @@ export default {
         'LLM': '请输入LLM处理提示词，例如：你是一个专业的助手，请根据输入内容提供有价值的回复...',
         'STT': '请输入语音转文字的处理指令，例如：将以下音频转换为文字，并标注时间戳...',
         'TTS': '请输入文字转语音的处理指令，例如：以自然流畅的语调朗读以下文字...',
-        'pic2text': '请输入图片转文字的处理指令，例如：分析图片内容并提取所有文字信息...',
+        'pic2text': 'Enter image-to-text processing instructions, for example: Analyze image content and extract all text information...',
         'text2pic': '请输入文字转图片的处理指令，例如：根据描述生成高质量的图片，注意细节和色彩搭配...'
       }
       return placeholders[serviceType] || '请输入节点处理提示词...'
@@ -2219,11 +2580,11 @@ export default {
     },
     saveNodeConfig() {
       // 节点配置已经通过双向绑定自动保存到workflowNodes数组中
-      this.$message?.success?.(this.$t('aiAgent.workflow.configSaved', '节点配置已保存'))
+      this.showSuccess(this.$t('aiAgent.workflow.configSaved', '节点配置已保存'))
     },
     validateNodeConfig() {
       if (!this.selectedNode) {
-        this.$message?.warning?.(this.$t('aiAgent.workflow.noNodeSelected', '请先选择一个节点'))
+        this.showWarning(this.$t('aiAgent.workflow.noNodeSelected', '请先选择一个节点'))
         return false
       }
       
@@ -2231,184 +2592,94 @@ export default {
       
       // 基础验证
       if (!node.title || !node.title.trim()) {
-        this.$message?.error?.(this.$t('aiAgent.workflow.nameRequired', '节点名称不能为空'))
+        this.showError(this.$t('aiAgent.workflow.nameRequired', '节点名称不能为空'))
         return false
       }
       
       // AI服务节点必须配置service和prompt
       if (this.isAIServiceNode(node.type)) {
         if (!node.service) {
-          this.$message?.error?.(this.$t('aiAgent.workflow.serviceRequired', '请选择服务类型'))
+          this.showError(this.$t('aiAgent.workflow.serviceRequired', '请选择服务类型'))
           return false
         }
         
         if (!node.prompt || !node.prompt.trim()) {
-          this.$message?.error?.(this.$t('aiAgent.workflow.promptRequired', '请配置节点提示词'))
+          this.showError(this.$t('aiAgent.workflow.promptRequired', '请配置节点提示词'))
           return false
         }
       }
       
-      // 条件节点必须配置条件表达式
-      if (node.type === 'condition' && (!node.condition || !node.condition.trim())) {
-        this.$message?.error?.(this.$t('aiAgent.workflow.conditionRequired', '请配置条件表达式'))
-        return false
-      }
+
       
       // Validation passed验证通过
-      this.$message?.success?.(this.$t('aiAgent.workflow.configValid', '节点配置验证通过！'))
+      this.showSuccess(this.$t('aiAgent.workflow.configValid', '节点配置验证通过！'))
       return true
     },
     // Workflow operation methods工作流操作方法
-    // Save workflow to backend保存工作流到后端
-    async saveWorkflow() {
+    
+    // 获取当前用户信息
+    getCurrentUser() {
       try {
-        // Validate workflow before saving保存前验证工作流
-        if (!this.validateWorkflow()) {
-          return
-        }
-        
-        // Generate DAG data生成DAG数据
-        const dagData = this.generateDAGData()
-        
-        // Call API to save调用API保存
-        const workflowAPI = (await import('@/config/api.js')).default
-        await workflowAPI.submitDAG(dagData)
-        
-        this.$message?.success?.(this.$t('aiAgent.workflow.workflowSaved', '工作流已保存'))
+        const userInfo = localStorage.getItem('userInfo')
+        return userInfo ? JSON.parse(userInfo) : null
       } catch (error) {
-        console.error('Failed to save workflow保存工作流失败:', error)
-        this.$message?.error?.(this.$t('aiAgent.workflow.saveFailed', '保存工作流失败') + ': ' + error.message)
+        console.error('Failed to get user information:', error)
+        return null
       }
     },
-    // Test workflow execution测试工作流执行
-    async testWorkflow() {
-      try {
-        // Validate workflow before testing测试前验证工作流
-        if (!this.validateWorkflow()) {
-          return
-        }
-        
-        // Generate DAG data and submit for testing生成DAG数据并提交测试
-        const dagData = this.generateDAGData()
-        
-        const workflowAPI = (await import('@/config/api.js')).default
-        const result = await workflowAPI.submitDAG(dagData)
-        
-        // Notify backend that workflow is ready通知后端工作流就绪
-        await workflowAPI.notifyReady(dagData.dag_id)
-        
-        // Monitor workflow execution监听工作流执行状态
-        await this.monitorWorkflowExecution(dagData.dag_id)
-        
-        this.$message?.success?.(this.$t('aiAgent.workflow.testStarted', '工作流测试已启动'))
-      } catch (error) {
-        console.error('Failed to test workflow测试工作流失败:', error)
-        this.$message?.error?.(this.$t('aiAgent.workflow.testFailed', '测试工作流失败') + ': ' + error.message)
-      }
-    },
-    // Deploy workflow to production部署工作流到生产环境
-    async deployWorkflow() {
-      try {
-        // Validate workflow before deployment部署前验证工作流
-        if (!this.validateWorkflow()) {
-          return
-        }
-        
-        // 生成并部署DAG
-        const dagData = this.generateDAGData()
-        
-        const workflowAPI = (await import('@/config/api.js')).default
-        await workflowAPI.submitDAG(dagData)
-        await workflowAPI.notifyReady(dagData.dag_id)
-        
-        // 更新状态
-        this.workflowStatus = 'Deployed'
-        
-        this.$message?.success?.(this.$t('aiAgent.workflow.deploySuccess', '工作流部署成功'))
-      } catch (error) {
-        console.error('部署工作流失败:', error)
-        this.$message?.error?.(this.$t('aiAgent.workflow.deployFailed', '部署工作流失败') + ': ' + error.message)
-      }
-    },
+
     validateWorkflow() {
+      // 检查工作流是否为空
+      if (this.workflowNodes.length === 0) {
+        this.showError(this.$t('aiAgent.workflow.emptyWorkflow', '工作流不能为空，请添加至少一个节点'))
+        return false
+      }
+      
       // 检查所有AI服务节点是否正确配置
       for (const node of this.workflowNodes) {
         if (this.isAIServiceNode(node.type)) {
           if (!node.service || !node.prompt) {
-            this.$message?.error?.(this.$t('aiAgent.workflow.nodeConfigIncomplete', `节点 ${node.title} 配置不完整`))
+            this.showError(this.$t('aiAgent.workflow.nodeConfigIncomplete', `节点 ${node.title} 配置不完整`))
             return false
           }
         }
       }
       
+      // 检查是否有孤立节点（没有连接的节点）
+      const connectedNodes = new Set()
+      this.connections.forEach(conn => {
+        connectedNodes.add(conn.from)
+        connectedNodes.add(conn.to)
+      })
+      
+      const isolatedNodes = this.workflowNodes.filter(node => 
+        !connectedNodes.has(node.id) && this.workflowNodes.length > 1
+      )
+      
+      if (isolatedNodes.length > 0) {
+        this.showWarning(this.$t('aiAgent.workflow.isolatedNodes', `发现孤立节点: ${isolatedNodes.map(n => n.title).join(', ')}`))
+      }
+      
       return true
     },
     async generateDAGData() {
-      const workflowAPI = (await import('@/config/api.js')).default
-      
+      // 根据后端API文档生成简化的DAG数据
       const dagData = {
-        dag_id: workflowAPI.generateDAGId(this.currentWorkflow.name || 'workflow'),
-        tenant_id: workflowAPI.config.getTenantId(),
+        dag_id: this.generateDAGId(this.currentWorkflow.name || 'workflow'),
+        tenant_id: this.getTenantId(),
         nodes: {},
         edges: []
       }
       
-      // 转换节点数据
+      // 转换节点数据 - 包含服务类型和处理指令
       this.workflowNodes.forEach(node => {
         dagData.nodes[node.id] = {
-          prompt: node.prompt || '',
           service: node.service || node.type,
-          // 添加完整的节点配置信息
-          title: node.title || '',
-          description: node.description || '',
-          // 添加服务特定参数
-          ...(node.service === 'LLM' && {
-            model: node.model || 'gpt-3.5-turbo',
-            temperature: node.temperature || 0.7,
-            max_tokens: node.max_tokens || 2000,
-            top_p: node.top_p || 1.0,
-            frequency_penalty: node.frequency_penalty || 0,
-            presence_penalty: node.presence_penalty || 0,
-            stop: node.stop || '',
-            user: node.user || '',
-            stream: node.stream || false,
-            logit_bias: node.logit_bias || {}
-          }),
-          ...(node.service === 'STT' && {
-            language: node.language || 'zh',
-            model: node.model || 'whisper-1',
-            response_format: node.response_format || 'text',
-            temperature: node.temperature || 0,
-            prompt: node.prompt || '',
-            timestamp_granularities: node.timestamp_granularities || ['word']
-          }),
-          ...(node.service === 'TTS' && {
-            voice: node.voice || 'alloy',
-            response_format: node.response_format || 'mp3',
-            speed: node.speed || 1.0,
-            model: node.model || 'tts-1'
-          }),
-          ...(node.service === 'pic2text' && {
-            language: node.language || 'zh',
-            format: node.format || 'plain',
-            max_tokens: node.max_tokens || 300,
-            detail: node.detail || 'auto',
-            quality: node.quality || 'auto'
-          }),
-          ...(node.service === 'text2pic' && {
-            model: node.model || 'dall-e-3',
-            size: node.size || '1024x1024',
-            style: node.style || 'vivid',
-            quality: node.quality || 'standard',
-            n: node.n || 1,
-            user: node.user || '',
-            response_format: node.response_format || 'url'
-          }),
-
+          prompt: node.prompt || ''  // 添加prompt字段，告诉后端"如何处理"数据
         }
       })
       
-      // 转换连接数据
+      // 转换连接数据 - 按照后端API文档的简化格式
       this.connections.forEach(connection => {
         dagData.edges.push({
           from: connection.from,
@@ -2417,11 +2688,1046 @@ export default {
         })
       })
       
+      console.log('生成简化的DAG数据:', dagData)
+      
       return dagData
     },
+    
+    // 检测工作流中是否有循环
+    detectCycles() {
+      // 简单的环路检测实现
+      const visited = new Set()
+      const recStack = new Set()
+      
+      const hasCycle = (nodeId) => {
+        if (recStack.has(nodeId)) return true
+        if (visited.has(nodeId)) return false
+        
+        visited.add(nodeId)
+        recStack.add(nodeId)
+        
+        const outgoingConnections = this.connections.filter(conn => conn.from === nodeId)
+        for (const conn of outgoingConnections) {
+          if (hasCycle(conn.to)) return true
+        }
+        
+        recStack.delete(nodeId)
+        return false
+      }
+      
+      for (const node of this.workflowNodes) {
+        if (hasCycle(node.id)) return true
+      }
+      
+      return false
+    },
+    
+    // 计算工作流复杂度分数
+    calculateComplexityScore() {
+      let score = 0
+      score += this.workflowNodes.length * 2 // 每个节点+2分
+      score += this.connections.length * 1 // 每个连接+1分
+      score += this.workflowNodes.filter(node => this.isAIServiceNode(node.type)).length * 3 // AI服务节点+3分
+      return score
+    },
+    
+    // 获取工作流验证错误
+    getWorkflowValidationErrors() {
+      const errors = []
+      
+      // 检查是否有孤立节点
+      const connectedNodes = new Set()
+      this.connections.forEach(conn => {
+        connectedNodes.add(conn.from)
+        connectedNodes.add(conn.to)
+      })
+      
+      this.workflowNodes.forEach(node => {
+        if (!connectedNodes.has(node.id) && this.workflowNodes.length > 1) {
+          errors.push(`节点 ${node.title || node.id} 未连接到其他节点`)
+        }
+        
+        // 检查AI服务节点配置
+        if (this.isAIServiceNode(node.type)) {
+          if (!node.service) {
+            errors.push(`节点 ${node.title || node.id} 未配置服务类型`)
+          }
+          if (!node.prompt) {
+            errors.push(`节点 ${node.title || node.id} 未配置提示词`)
+          }
+        }
+      })
+      
+      return errors
+    },
+    
+    // 获取工作流验证警告
+    getWorkflowValidationWarnings() {
+      const warnings = []
+      
+      // 检查是否有输入/输出节点
+      const hasInput = this.workflowNodes.some(node => node.type === 'input')
+      const hasOutput = this.workflowNodes.some(node => node.type === 'output')
+      
+      if (!hasInput) {
+        warnings.push('工作流没有输入节点，可能无法正常接收数据')
+      }
+      if (!hasOutput) {
+        warnings.push('工作流没有输出节点，可能无法返回结果')
+      }
+      
+      // 检查循环依赖
+      if (this.detectCycles()) {
+        warnings.push('工作流中存在循环依赖，可能导致执行问题')
+      }
+      
+      return warnings
+    },
+    
+    // 使用预签名URL上传文件到S3 - 适配后端API格式（每个节点一个预签名URL）
+    async uploadFilesToS3(presignedUrls) {
+      try {
+        console.log('🚀 开始批量上传到S3');
+        console.log('📋 预签名URL信息:', {
+          总数: Object.keys(presignedUrls).length,
+          节点列表: Object.keys(presignedUrls),
+          URL预览: Object.keys(presignedUrls).reduce((acc, key) => {
+            acc[key] = presignedUrls[key].substring(0, 50) + '...';
+            return acc;
+          }, {})
+        });
+        
+        const uploadPromises = []
+        
+        // 1. 预处理连接prompt，将其分配到目标节点
+        const nodeConnectionPrompts = this.getNodeConnectionPrompts()
+        console.log('📝 节点连接Prompt信息:', nodeConnectionPrompts);
+        
+        // 2. 为每个节点准备实际文件数据并上传
+        let processedNodes = 0;
+        let skippedNodes = 0;
+        
+        for (const node of this.workflowNodes) {
+          console.log(`🔄 处理节点: ${node.id} (${node.title || '未命名'})`);
+          
+          if (presignedUrls[node.id]) {
+            // 获取节点的实际文件数据
+            const fileData = await this.getNodeFileData(node, nodeConnectionPrompts);
+            
+            if (fileData) {
+              console.log(`📦 节点 ${node.id} 文件数据:`, {
+                文件类型: fileData.contentType,
+                文件大小: fileData.blob.size + ' bytes',
+                数据来源: fileData.source
+              });
+              
+              // 获取节点的AI服务类型
+              const serviceType = node.service || node.type
+              const correctContentType = this.getContentTypeByService(serviceType)
+              
+              console.log(`📤 准备上传节点 ${node.id}，文件大小: ${fileData.blob.size} bytes，服务类型: ${serviceType}，Content-Type: ${correctContentType}`);
+              
+              uploadPromises.push(
+                this.uploadFileToS3(presignedUrls[node.id], fileData.blob, fileData.contentType, serviceType)
+                  .then(() => {
+                    console.log(`✅ 节点 ${node.id} 上传成功`);
+                    this.showUploadProgress(uploadPromises.length, this.workflowNodes.length, `节点 ${node.id} 完成`);
+                  })
+                  .catch((error) => {
+                    console.error(`❌ 节点 ${node.id} 上传失败:`, error);
+                    throw new Error(`节点 ${node.id} 上传失败: ${error.message}`);
+                  })
+              )
+              processedNodes++;
+            } else {
+              console.warn(`⚠️ 节点 ${node.id} 没有可上传的文件数据`);
+              skippedNodes++;
+            }
+          } else {
+            console.warn(`⚠️ 节点 ${node.id} 没有对应的预签名URL`);
+            skippedNodes++;
+          }
+        }
+        
+        console.log('📊 节点处理统计:', {
+          总节点数: this.workflowNodes.length,
+          处理成功: processedNodes,
+          跳过节点: skippedNodes,
+          上传任务: uploadPromises.length
+        });
+        
+        // 3. 并行上传所有文件
+        if (uploadPromises.length > 0) {
+          console.log(`🔄 开始并行上传 ${uploadPromises.length} 个文件...`);
+          this.showUploadProgress(0, uploadPromises.length, '开始上传节点数据...')
+          
+          // 使用Promise.allSettled以获取每个上传的详细结果
+          const results = await Promise.allSettled(uploadPromises);
+          
+          const successCount = results.filter(r => r.status === 'fulfilled').length;
+          const failureCount = results.filter(r => r.status === 'rejected').length;
+          
+          console.log('📈 上传结果统计:', {
+            成功: successCount,
+            失败: failureCount,
+            总计: results.length
+          });
+          
+          if (failureCount > 0) {
+            const failedReasons = results
+              .filter(r => r.status === 'rejected')
+              .map(r => r.reason.message);
+            console.error('❌ 失败的上传任务:', failedReasons);
+            throw new Error(`${failureCount} 个文件上传失败: ${failedReasons.join('; ')}`);
+          }
+          
+          console.log(`✅ 成功上传 ${successCount} 个节点数据包到S3`);
+          this.showUploadProgress(uploadPromises.length, uploadPromises.length, '上传完成')
+          this.showSuccess(`已成功上传 ${successCount} 个节点数据包！`);
+        } else {
+          console.warn('⚠️ 没有需要上传的文件');
+          console.log('🔍 可能的原因:', {
+            节点数量: this.workflowNodes.length,
+            预签名URL数量: Object.keys(presignedUrls).length,
+            节点ID列表: this.workflowNodes.map(n => n.id),
+            预签名URL节点列表: Object.keys(presignedUrls)
+          });
+          this.showWarning('没有检测到需要上传的文件，请检查工作流配置');
+        }
+        
+      } catch (error) {
+        console.error('❌ 批量文件上传失败:', {
+          错误信息: error.message,
+          错误堆栈: error.stack,
+          预签名URL: Object.keys(presignedUrls || {}),
+          节点数量: this.workflowNodes.length,
+          时间戳: new Date().toISOString()
+        });
+        throw new Error(`文件上传失败: ${error.message}`)
+      }
+    },
+
+    // 获取每个节点的连接prompt信息
+    getNodeConnectionPrompts() {
+      const nodePrompts = {}
+      
+      // 遍历所有连接，将prompt分配到目标节点
+      this.connections.forEach((connection, index) => {
+        const targetNodeId = connection.to
+        if (!nodePrompts[targetNodeId]) {
+          nodePrompts[targetNodeId] = []
+        }
+        
+        nodePrompts[targetNodeId].push({
+          from: connection.from,
+          prompt: connection.prompt || '默认处理指令',
+          connectionIndex: index
+        })
+      })
+      
+      return nodePrompts
+    },
+
+    // 获取节点的实际文件数据 - 修复：优先处理用户上传的文件
+    async getNodeFileData(node, nodeConnectionPrompts) {
+      try {
+        // 1. 优先上传用户实际上传的文件（图片、音频、文件）
+        if (node.inputs && node.inputs.length > 0) {
+          for (const input of node.inputs) {
+            // 图片文件 - 用户上传的实际图片数据
+            if (input.type === 'image' && input.fileData) {
+              const blob = this.base64ToBlob(input.fileData, input.fileType || 'image/jpeg');
+              console.log(`✅ 节点 ${node.id} 使用图片文件 (prompt已在submit中发送)`);
+              return {
+                blob: blob,
+                contentType: input.fileType || 'image/jpeg',
+                source: `图片文件: ${input.fileName || 'image'}`
+              };
+            }
+            
+            // 音频文件 - 用户上传的实际音频数据  
+            if (input.type === 'audio' && input.fileData) {
+              const blob = this.base64ToBlob(input.fileData, input.fileType || 'audio/wav');
+              console.log(`✅ 节点 ${node.id} 使用音频文件 (prompt已在submit中发送)`);
+              return {
+                blob: blob,
+                contentType: input.fileType || 'audio/wav',
+                source: `音频文件: ${input.fileName || 'audio'}`
+              };
+            }
+            
+            // 其他文件 - 用户上传的实际文件数据
+            if (input.type === 'file' && input.fileData) {
+              const blob = this.base64ToBlob(input.fileData, input.fileType || 'application/octet-stream');
+              console.log(`✅ 节点 ${node.id} 使用文件 (prompt已在submit中发送)`);
+              return {
+                blob: blob,
+                contentType: input.fileType || 'application/octet-stream',
+                source: `文件: ${input.fileName || 'file'}`
+              };
+            }
+            
+            // 文本输入 - 用户输入的文本数据
+            if (input.type === 'text' && input.value && input.value.trim()) {
+              const blob = new Blob([input.value], { type: 'text/plain' });
+              console.log(`✅ 节点 ${node.id} 使用文本输入 (prompt已在submit中发送)`);
+              return {
+                blob: blob,
+                contentType: 'text/plain',
+                source: `文本输入: ${input.name}`
+              };
+            }
+          }
+        }
+        
+        // 2. 如果没有用户文件，为纯prompt节点创建占位符文件
+        // 注意：prompt已经在submit请求中发送，这里只是为了满足API要求每个节点都有文件
+        if (node.prompt && node.prompt.trim()) {
+          const placeholderText = `系统提示：请忽略节点信息,只响应用户要求:节点ID: ${node.id}\n服务类型: ${node.service || node.type}\n说明: 此节点的处理指令已在DAG提交中发送\n时间: ${new Date().toISOString()}`;
+          const blob = new Blob([placeholderText], { type: 'text/plain' });
+          console.log(`✅ 节点 ${node.id} 创建占位符文件 (prompt已在submit中发送)`);
+          return {
+            blob: blob,
+            contentType: 'text/plain',
+            source: '占位符文件 (prompt已在submit中发送)'
+          };
+        }
+        
+        // 3. 检查连接prompt并创建占位符
+        const connectionPrompts = nodeConnectionPrompts[node.id];
+        if (connectionPrompts && connectionPrompts.length > 0) {
+          const placeholderText = `系统提示：请忽略节点信息,只响应用户要求:节点ID: ${node.id}\n服务类型: ${node.service || node.type}\n连接数: ${connectionPrompts.length}\n说明: 此节点的连接指令已在DAG提交中发送\n时间: ${new Date().toISOString()}`;
+          const blob = new Blob([placeholderText], { type: 'text/plain' });
+          console.log(`✅ 节点 ${node.id} 创建连接占位符文件`);
+          return {
+            blob: blob,
+            contentType: 'text/plain',
+            source: '连接占位符文件'
+          };
+        }
+        
+        // 4. 最后的默认占位符
+        const defaultText = `系统提示：请忽略节点信息,只响应用户要求:节点ID: ${node.id}\n服务类型: ${node.service || node.type}\n状态: 默认占位符\n时间: ${new Date().toISOString()}`;
+        const blob = new Blob([defaultText], { type: 'text/plain' });
+        console.log(`✅ 节点 ${node.id} 创建默认占位符文件`);
+        return {
+          blob: blob,
+          contentType: 'text/plain',
+          source: '默认占位符文件'
+        };
+        
+      } catch (error) {
+        console.error(`Failed to get file data for node ${node.id}:`, error);
+        return null;
+      }
+    },
+
+    // 准备节点完整数据包
+    async prepareNodeDataPackage(node, nodeConnectionPrompts) {
+      try {
+        const dataPackage = {
+          // 节点基本信息
+          nodeId: node.id,
+          service: node.service || node.type,
+          title: node.title,
+          description: node.description,
+          
+          // 节点配置
+          config: {
+            model: node.model,
+            temperature: node.temperature,
+            max_tokens: node.max_tokens,
+            language: node.language,
+            voice: node.voice,
+            speed: node.speed,
+            size: node.size,
+            style: node.style,
+            format: node.format
+          },
+          
+          // 节点自身的prompt
+          nodePrompt: node.prompt || '请处理输入数据',
+          
+          // 连接prompt（来自其他节点的处理指令）
+          connectionPrompts: nodeConnectionPrompts[node.id] || [],
+          
+          // 输入数据
+          inputs: [],
+          
+          // 元数据
+          metadata: {
+            uploadTime: new Date().toISOString(),
+            version: '1.0'
+          }
+        }
+        
+        // 处理节点输入数据
+        if (node.inputs && node.inputs.length > 0) {
+          for (let i = 0; i < node.inputs.length; i++) {
+            const input = node.inputs[i]
+            const processedInput = await this.processNodeInput(input, node)
+            if (processedInput) {
+              dataPackage.inputs.push(processedInput)
+            }
+          }
+        }
+        
+        return dataPackage
+        
+      } catch (error) {
+        console.error('准备节点数据包失败:', error)
+        throw error
+      }
+    },
+
+    // 处理单个节点输入数据
+    async processNodeInput(input, node) {
+      try {
+        const processedInput = {
+          name: input.name,
+          type: input.type,
+          value: null,
+          contentType: 'text/plain',
+          encoding: 'utf8'
+        }
+        
+        switch (input.type) {
+          case 'text':
+            processedInput.value = input.value || ''
+            processedInput.contentType = 'text/plain'
+            break
+            
+          case 'audio':
+            if (input.fileData) {
+              processedInput.value = input.fileData // base64数据
+              processedInput.contentType = input.fileType || 'audio/wav'
+              processedInput.encoding = 'base64'
+            } else if (input.value && input.value instanceof File) {
+              processedInput.value = await this.fileToBase64(input.value)
+              processedInput.contentType = input.value.type || 'audio/wav'
+              processedInput.encoding = 'base64'
+            }
+            break
+            
+          case 'image':
+            if (input.fileData) {
+              processedInput.value = input.fileData // base64数据
+              processedInput.contentType = input.fileType || 'image/jpeg'
+              processedInput.encoding = 'base64'
+            } else if (input.value && input.value instanceof File) {
+              processedInput.value = await this.fileToBase64(input.value)
+              processedInput.contentType = input.value.type || 'image/jpeg'
+              processedInput.encoding = 'base64'
+            }
+            break
+            
+          case 'file':
+            if (input.fileData) {
+              processedInput.value = input.fileData
+              processedInput.contentType = input.fileType || 'application/octet-stream'
+              processedInput.encoding = 'base64'
+            } else if (input.value && input.value instanceof File) {
+              processedInput.value = await this.fileToBase64(input.value)
+              processedInput.contentType = input.value.type || 'application/octet-stream'
+              processedInput.encoding = 'base64'
+            }
+            break
+            
+          case 'json':
+            if (input.value) {
+              processedInput.value = typeof input.value === 'string' ? input.value : JSON.stringify(input.value)
+              processedInput.contentType = 'application/json'
+            }
+            break
+            
+          default:
+            processedInput.value = String(input.value || '')
+            break
+        }
+        
+        return processedInput
+        
+      } catch (error) {
+        console.error('Failed to process node input:', error)
+        return null
+      }
+    },
+
+    // 根据AI服务类型获取正确的Content-Type（与后端保持一致）
+    getContentTypeByService(serviceType) {
+      const contentTypeMap = {
+        'LLM': 'application/x-www-form-urlencoded',
+        'STT': 'audio/wav',
+        'TTS': 'application/x-www-form-urlencoded', 
+        'pic2text': 'image/jpeg',
+        'text2pic': 'application/x-www-form-urlencoded'
+      }
+      
+      return contentTypeMap[serviceType] || 'application/octet-stream'
+    },
+
+    // 单个文件上传到S3 - 支持Blob对象和base64字符串
+    async uploadFileToS3(presignedUrl, fileData, originalContentType, serviceType) {
+      try {
+        // 根据AI服务类型获取正确的Content-Type
+        const correctContentType = this.getContentTypeByService(serviceType)
+        
+        console.log('📤 开始S3上传:', {
+          url: presignedUrl.substring(0, 100) + '...',
+          serviceType: serviceType,
+          originalContentType: originalContentType,
+          correctContentType: correctContentType,
+          dataType: fileData instanceof Blob ? 'Blob' : typeof fileData,
+          dataSize: fileData instanceof Blob ? fileData.size : 'unknown'
+        });
+
+        let blob
+        
+        // 判断fileData类型并相应处理
+        if (fileData instanceof Blob) {
+          // 如果已经是Blob对象，直接使用
+          blob = fileData
+          console.log('✅ 使用Blob对象，大小:', blob.size, 'bytes');
+        } else if (typeof fileData === 'string') {
+          // 如果是base64字符串，转换为Blob
+          blob = this.base64ToBlob(fileData, originalContentType)
+          console.log('✅ Base64转换为Blob，大小:', blob.size, 'bytes');
+        } else {
+          throw new Error(`不支持的文件数据类型: ${typeof fileData}`)
+        }
+
+        // 验证blob有效性
+        if (!blob || blob.size === 0) {
+          throw new Error('文件数据为空或无效');
+        }
+        
+        // 使用PUT方法上传到S3预签名URL，使用正确的Content-Type
+        console.log('🔄 正在向S3发送请求，Content-Type:', correctContentType);
+        const response = await fetch(presignedUrl, {
+          method: 'PUT',
+          body: blob,
+          headers: {
+            'Content-Type': correctContentType
+          },
+          redirect: 'follow'
+        })
+        
+        console.log('📡 S3响应状态:', {
+          status: response.status,
+          statusText: response.statusText,
+          ok: response.ok,
+          headers: Object.fromEntries(response.headers.entries())
+        });
+
+        if (!response.ok) {
+          // 尝试解析S3的错误响应
+          let errorDetails = '';
+          try {
+            const errorText = await response.text();
+            console.error('❌ S3错误响应内容:', errorText);
+            
+            // 尝试解析XML错误格式（S3常用格式）
+            if (errorText.includes('<Error>')) {
+              const codeMatch = errorText.match(/<Code>(.*?)<\/Code>/);
+              const messageMatch = errorText.match(/<Message>(.*?)<\/Message>/);
+              if (codeMatch && messageMatch) {
+                errorDetails = `${codeMatch[1]}: ${messageMatch[1]}`;
+              } else {
+                errorDetails = errorText;
+              }
+            } else {
+              errorDetails = errorText;
+            }
+          } catch (parseError) {
+            console.warn('⚠️ 无法解析S3错误响应:', parseError);
+            errorDetails = '无法获取详细错误信息';
+          }
+          
+          const errorMessage = `S3上传失败 [${response.status}]: ${response.statusText}${errorDetails ? ` - ${errorDetails}` : ''}`;
+          throw new Error(errorMessage);
+        }
+        
+        console.log('✅ 节点数据包上传到S3成功');
+        return response
+        
+      } catch (error) {
+        console.error('❌ S3上传失败 - 详细信息:', {
+          error: error.message,
+          stack: error.stack,
+          presignedUrl: presignedUrl.substring(0, 100) + '...',
+          serviceType: serviceType,
+          originalContentType: originalContentType,
+          correctContentType: this.getContentTypeByService(serviceType),
+          timestamp: new Date().toISOString()
+        });
+        throw error
+      }
+    },
+
+    // 准备输入数据的文件格式 - 根据api.md要求转换所有输入为文件
+    async prepareInputFileData(input, node) {
+      try {
+        switch (input.type) {
+          case 'text':
+            // 文本输入转换为文本文件
+            if (input.value && typeof input.value === 'string') {
+              return {
+                blob: new Blob([input.value], { type: 'text/plain' }),
+                contentType: 'text/plain'
+              }
+            }
+            break
+            
+          case 'audio':
+            // 音频文件处理
+            if (input.fileData) {
+              return {
+                blob: this.base64ToBlob(input.fileData, input.fileType || 'audio/wav'),
+                contentType: input.fileType || 'audio/wav'
+              }
+            } else if (input.value && input.value instanceof File) {
+              return {
+                blob: input.value,
+                contentType: input.value.type || 'audio/wav'
+              }
+            }
+            break
+            
+          case 'image':
+            // 图片文件处理
+            if (input.fileData) {
+              return {
+                blob: this.base64ToBlob(input.fileData, input.fileType || 'image/jpeg'),
+                contentType: input.fileType || 'image/jpeg'
+              }
+            } else if (input.value && input.value instanceof File) {
+              return {
+                blob: input.value,
+                contentType: input.value.type || 'image/jpeg'
+              }
+            }
+            break
+            
+          case 'file':
+            // 通用文件处理
+            if (input.fileData) {
+              return {
+                blob: this.base64ToBlob(input.fileData, input.fileType || 'application/octet-stream'),
+                contentType: input.fileType || 'application/octet-stream'
+              }
+            } else if (input.value && input.value instanceof File) {
+              return {
+                blob: input.value,
+                contentType: input.value.type || 'application/octet-stream'
+              }
+            }
+            break
+            
+          case 'json':
+            // JSON数据转换为文本文件
+            if (input.value) {
+              const jsonString = typeof input.value === 'string' ? input.value : JSON.stringify(input.value, null, 2)
+              return {
+                blob: new Blob([jsonString], { type: 'application/json' }),
+                contentType: 'application/json'
+              }
+            }
+            break
+            
+          default:
+            console.warn(`未知的输入类型: ${input.type}`)
+            return null
+        }
+        
+        return null
+      } catch (error) {
+        console.error(`准备输入文件数据失败: ${input.type}`, error)
+        return null
+      }
+    },
+
+    // 将File对象转换为base64字符串（用于兼容性）
+    async fileToBase64(file) {
+      return new Promise((resolve, reject) => {
+        const reader = new FileReader()
+        reader.onload = () => resolve(reader.result)
+        reader.onerror = reject
+        reader.readAsDataURL(file)
+      })
+    },
+
+    // Base64转Blob工具方法
+    base64ToBlob(base64Data, contentType) {
+      // 移除data:前缀
+      const base64 = base64Data.replace(/^data:[^;]+;base64,/, '')
+      
+      // 解码base64
+      const byteCharacters = atob(base64)
+      const byteNumbers = new Array(byteCharacters.length)
+      
+      for (let i = 0; i < byteCharacters.length; i++) {
+        byteNumbers[i] = byteCharacters.charCodeAt(i)
+      }
+      
+      const byteArray = new Uint8Array(byteNumbers)
+      return new Blob([byteArray], { type: contentType })
+    },
+
+    // 预处理所有需要上传的节点数据包 - 在调用uploadFilesToS3之前准备数据
+    async preprocessWorkflowFiles() {
+      try {
+        // 1. 预处理节点数据
+        for (const node of this.workflowNodes) {
+          // 确保节点有基本的服务类型
+          if (!node.service && node.type) {
+            node.service = node.type
+          }
+          
+          // 预处理节点输入数据
+          if (node.inputs) {
+            for (let i = 0; i < node.inputs.length; i++) {
+              const input = node.inputs[i]
+              
+              // 确保文本输入有值（如果用户没有输入，给默认值）
+              if (input.type === 'text' && !input.value) {
+                input.value = '' // 空字符串也需要处理
+              }
+              
+              // 为输入数据准备元数据
+              if (!input.metadata) {
+                input.metadata = {
+                  nodeId: node.id,
+                  inputIndex: i,
+                  type: input.type,
+                  processedAt: new Date().toISOString()
+                }
+              }
+            }
+          }
+          
+          // 确保节点有prompt（如果没有，给默认值）
+          if (!node.prompt) {
+            node.prompt = '请处理输入数据' // 默认prompt
+          }
+          
+          // 为节点准备数据包元数据
+          if (!node.packageMetadata) {
+            node.packageMetadata = {
+              nodeId: node.id,
+              service: node.service || node.type,
+              uploadKey: node.id,
+              processedAt: new Date().toISOString()
+            }
+          }
+        }
+        
+        // 2. 预处理连接数据
+        for (let i = 0; i < this.connections.length; i++) {
+          const connection = this.connections[i]
+          
+          // 确保连接prompt有值（如果没有，给默认值）
+          if (!connection.prompt) {
+            connection.prompt = '请处理输入数据' // 默认prompt
+          }
+          
+          // 为连接准备元数据
+          if (!connection.metadata) {
+            connection.metadata = {
+              connectionIndex: i,
+              from: connection.from,
+              to: connection.to,
+              type: 'connection_prompt',
+              processedAt: new Date().toISOString()
+            }
+          }
+        }
+        
+        // 3. 验证预处理结果
+        const nodeConnectionPrompts = this.getNodeConnectionPrompts()
+        let processedNodes = 0
+        
+        for (const node of this.workflowNodes) {
+          const hasInputs = node.inputs && node.inputs.some(input => 
+            input.value !== undefined && input.value !== null
+          )
+          const hasPrompt = !!(node.prompt && node.prompt.trim())
+          const hasConnectionPrompts = nodeConnectionPrompts[node.id] && nodeConnectionPrompts[node.id].length > 0
+          
+          if (hasInputs || hasPrompt || hasConnectionPrompts) {
+            processedNodes++
+          }
+        }
+        
+        console.log(`节点数据预处理完成: ${processedNodes}/${this.workflowNodes.length} 个节点包含数据`)
+        return true
+        
+      } catch (error) {
+        console.error('Failed to preprocess node data:', error)
+        throw new Error(`Failed to preprocess node data: ${error.message}`)
+      }
+    },
+
+    // 获取工作流中所有需要上传的节点数据包列表
+    getRequiredUploadsList() {
+      const uploads = []
+      
+      // 获取连接prompt信息
+      const nodeConnectionPrompts = this.getNodeConnectionPrompts()
+      
+      // 遍历所有节点，生成数据包上传信息
+      this.workflowNodes.forEach(node => {
+        const hasInputs = node.inputs && node.inputs.some(input => 
+          input.value !== undefined && input.value !== null && input.value !== ''
+        )
+        const hasPrompt = !!(node.prompt && node.prompt.trim())
+        const hasConnectionPrompts = nodeConnectionPrompts[node.id] && nodeConnectionPrompts[node.id].length > 0
+        
+        uploads.push({
+          type: 'node_data_package',
+          nodeId: node.id,
+          service: node.service || node.type,
+          title: node.title,
+          uploadKey: node.id,
+          hasInputs: hasInputs,
+          hasPrompt: hasPrompt,
+          hasConnectionPrompts: hasConnectionPrompts,
+          inputsCount: node.inputs ? node.inputs.length : 0,
+          connectionPromptsCount: nodeConnectionPrompts[node.id] ? nodeConnectionPrompts[node.id].length : 0,
+          hasData: hasInputs || hasPrompt || hasConnectionPrompts
+        })
+      })
+      
+      return uploads
+    },
+
+    // 验证节点数据包上传前的数据完整性
+    validateUploadData() {
+      const errors = []
+      const warnings = []
+      
+      // 1. 验证节点数据完整性
+      for (const node of this.workflowNodes) {
+        // 检查节点基本信息
+        if (!node.service && !node.type) {
+          errors.push(`节点 ${node.title || node.id} 缺少服务类型配置`)
+        }
+        
+        // 检查节点输入数据
+        if (node.inputs) {
+          for (let i = 0; i < node.inputs.length; i++) {
+            const input = node.inputs[i]
+            
+            // 检查必需的输入是否有值
+            if (input.type === 'audio' && !input.value && !input.fileData) {
+              errors.push(`节点 ${node.title} 的音频输入 ${input.name} 没有数据`)
+            }
+            if (input.type === 'image' && !input.value && !input.fileData) {
+              errors.push(`节点 ${node.title} 的图片输入 ${input.name} 没有数据`)
+            }
+            
+            // 检查文件大小限制
+            if (input.fileData && input.fileSize) {
+              const maxSize = 10 * 1024 * 1024 // 10MB 限制
+              if (input.fileSize > maxSize) {
+                errors.push(`节点 ${node.title} 的文件 ${input.name} 超过大小限制 (${Math.round(input.fileSize / 1024 / 1024)}MB > 10MB)`)
+              }
+            }
+          }
+        }
+        
+        // 检查AI服务节点是否有prompt
+        if (this.isAIServiceNode(node.type) && !node.prompt) {
+          warnings.push(`AI服务节点 ${node.title} 没有配置prompt，将使用默认处理指令`)
+        }
+      }
+      
+      // 2. 验证连接数据
+      for (let i = 0; i < this.connections.length; i++) {
+        const connection = this.connections[i]
+        if (!connection.prompt) {
+          warnings.push(`连接 ${connection.from} → ${connection.to} 没有配置prompt，将使用默认指令`)
+        }
+      }
+      
+      // 3. 验证工作流完整性
+      const nodeConnectionPrompts = this.getNodeConnectionPrompts()
+      let totalDataPackages = 0
+      let packagesWithData = 0
+      
+      for (const node of this.workflowNodes) {
+        totalDataPackages++
+        const hasInputs = node.inputs && node.inputs.some(input => 
+          input.value !== undefined && input.value !== null && input.value !== ''
+        )
+        const hasPrompt = !!(node.prompt && node.prompt.trim())
+        const hasConnectionPrompts = nodeConnectionPrompts[node.id] && nodeConnectionPrompts[node.id].length > 0
+        
+        if (hasInputs || hasPrompt || hasConnectionPrompts) {
+          packagesWithData++
+        }
+      }
+      
+      if (packagesWithData === 0) {
+        warnings.push('工作流中没有任何节点包含数据，可能无法正常执行')
+      }
+      
+      return { 
+        errors, 
+        warnings,
+        summary: {
+          totalNodes: this.workflowNodes.length,
+          totalDataPackages,
+          packagesWithData,
+          totalConnections: this.connections.length
+        }
+      }
+    },
+
+    // 显示上传进度信息
+    showUploadProgress(current, total, currentFile) {
+      const percent = Math.round((current / total) * 100)
+      this.showSuccess(`上传进度: ${current}/${total} (${percent}%) - 正在上传: ${currentFile}`)
+    },
+
+    // 测试和验证完整的文件上传流程
+    async testUploadFlow() {
+      try {
+        console.log('=== 开始测试文件上传流程 ===')
+        
+        // 1. 检查工作流状态
+        if (this.workflowNodes.length === 0) {
+          throw new Error('没有工作流节点可供测试')
+        }
+        
+        // 2. 预处理文件
+        await this.preprocessWorkflowFiles()
+        console.log('✅ 文件预处理完成')
+        
+        // 3. 验证数据
+        const validation = this.validateUploadData()
+        if (validation.errors.length > 0) {
+          console.error('❌ 数据验证失败:', validation.errors)
+          return false
+        }
+        console.log('✅ 数据验证通过')
+        
+        // 4. 生成上传列表
+        const uploadsList = this.getRequiredUploadsList()
+        console.log('✅ 生成上传列表:', uploadsList)
+        
+        // 5. 测试文件数据准备
+        let fileDataCount = 0
+        for (const node of this.workflowNodes) {
+          if (node.inputs) {
+            for (const input of node.inputs) {
+              if (input.value) {
+                const fileData = await this.prepareInputFileData(input, node)
+                if (fileData) {
+                  fileDataCount++
+                  console.log(`✅ 节点 ${node.id} 输入 ${input.type} 文件数据准备完成`)
+                }
+              }
+            }
+          }
+        }
+        
+        console.log(`✅ 总计准备了 ${fileDataCount} 个文件的数据`)
+        console.log('=== 文件上传流程测试完成 ===')
+        
+        return true
+        
+      } catch (error) {
+        console.error('❌ 文件上传流程测试失败:', error)
+        return false
+      }
+    },
+    
     async monitorWorkflowExecution(dagId) {
-      console.log('开始轮询监控工作流:', dagId)
-      this.startPollingMonitoring(dagId)
+      console.log('开始SSE监控工作流:', dagId)
+      this.startSSEMonitoring(dagId)
+    },
+
+    // 调试上传问题的专用方法
+    debugUploadProcess() {
+      console.log('🔍 ===== 上传问题调试报告 =====');
+      console.log('📅 调试时间:', new Date().toISOString());
+      
+      // 1. 检查工作流状态
+      console.log('📋 工作流基本信息:', {
+        节点数量: this.workflowNodes.length,
+        连接数量: this.connections.length,
+        当前工作流: this.currentWorkflow,
+        租户ID: this.getTenantId()
+      });
+      
+      // 2. 检查节点详情
+      console.log('🔍 节点详细信息:');
+      this.workflowNodes.forEach((node, index) => {
+        console.log(`节点 ${index + 1}:`, {
+          ID: node.id,
+          类型: node.type,
+          服务: node.service,
+          标题: node.title,
+          输入数量: node.inputs ? node.inputs.length : 0,
+          有输入数据: node.inputs ? node.inputs.some(input => input.value) : false,
+          提示词: node.prompt ? '已设置' : '未设置'
+        });
+        
+        if (node.inputs) {
+          node.inputs.forEach((input, idx) => {
+            console.log(`  输入 ${idx + 1}:`, {
+              名称: input.name,
+              类型: input.type,
+              有值: !!input.value,
+              有文件数据: !!input.fileData,
+              值预览: input.value ? input.value.substring(0, 50) + '...' : '无'
+            });
+          });
+        }
+      });
+      
+      // 3. 检查连接信息
+      console.log('🔗 连接信息:');
+      this.connections.forEach((conn, index) => {
+        console.log(`连接 ${index + 1}:`, {
+          从: conn.from,
+          到: conn.to,
+          提示词: conn.prompt ? '已设置' : '未设置'
+        });
+      });
+      
+      // 4. 模拟数据包准备过程
+      console.log('📦 模拟数据包准备:');
+      const nodeConnectionPrompts = this.getNodeConnectionPrompts();
+      this.workflowNodes.forEach(async (node) => {
+        try {
+          const dataPackage = await this.prepareNodeDataPackage(node, nodeConnectionPrompts);
+          console.log(`节点 ${node.id} 数据包:`, dataPackage);
+        } catch (error) {
+          console.error(`节点 ${node.id} 数据包准备失败:`, error);
+        }
+      });
+      
+      // 5. 检查上传列表
+      const uploadsList = this.getRequiredUploadsList();
+      console.log('📤 上传列表:', uploadsList);
+      
+      // 6. 检查API配置
+      console.log('⚙️ API配置:', {
+        基础URL: AI_AGENT_API.CREATE,
+        部署URL: AI_AGENT_API.DEPLOY,
+        列表URL: AI_AGENT_API.LIST(this.getTenantId()),
+        状态URL: AI_AGENT_API.STATUS('test-dag-id')
+      });
+      
+      console.log('✅ 调试报告完成，请查看上述信息定位问题');
+      console.log('💡 提示: 如果节点没有输入数据，上传列表可能为空');
+      
+      return {
+        节点数量: this.workflowNodes.length,
+        上传任务数量: uploadsList.length,
+        有数据的节点: uploadsList.filter(item => item.hasData).length
+      };
     },
     clearCanvas() {
       this.workflowNodes = []
@@ -2559,10 +3865,71 @@ export default {
         this.loadingWorkflows = true
         this.workflowListError = null
         
-        const workflowAPI = (await import('@/config/api.js')).default
+        const tenantId = this.getTenantId();
+        console.log('🔄 开始加载工作流列表 - 租户ID:', tenantId);
+        console.log('📡 请求URL:', AI_AGENT_API.LIST(tenantId));
         
-        const response = await workflowAPI.getAllDAGs()
-        this.workflowList = response.dags || []
+        const response = await fetch(AI_AGENT_API.LIST(tenantId))
+        
+        if (!response.ok) {
+          console.error('❌ API响应失败:', {
+            status: response.status,
+            statusText: response.statusText,
+            url: response.url
+          });
+          throw new Error(`HTTP ${response.status}: ${response.statusText}`)
+        }
+        
+        // 增强响应解析和验证
+        let data;
+        try {
+          const responseText = await response.text();
+          console.log('📄 原始响应内容:', responseText);
+          
+          if (!responseText.trim()) {
+            console.warn('⚠️ 收到空响应，使用空数组');
+            data = [];
+          } else {
+            data = JSON.parse(responseText);
+            console.log('✅ 成功解析JSON响应:', data);
+          }
+        } catch (parseError) {
+          console.error('❌ JSON解析失败:', parseError);
+          throw new Error(`响应解析失败: ${parseError.message}`);
+        }
+        
+        // 详细的响应格式验证
+        let workflowList = [];
+        
+        if (Array.isArray(data)) {
+          // 直接是数组格式（符合API文档）
+          workflowList = data;
+          console.log('✅ 响应格式正确 - 直接数组格式，包含', data.length, '个工作流');
+        } else if (data && typeof data === 'object') {
+          // 对象格式，尝试提取数组
+          if (Array.isArray(data.dags)) {
+            workflowList = data.dags;
+            console.log('✅ 响应格式 - 对象包装格式，从data.dags提取', data.dags.length, '个工作流');
+          } else if (Array.isArray(data.data)) {
+            workflowList = data.data;
+            console.log('✅ 响应格式 - 对象包装格式，从data.data提取', data.data.length, '个工作流');
+          } else if (Array.isArray(data.workflows)) {
+            workflowList = data.workflows;
+            console.log('✅ 响应格式 - 对象包装格式，从data.workflows提取', data.workflows.length, '个工作流');
+          } else {
+            console.warn('⚠️ 未知响应格式，尝试将整个对象作为单个工作流处理');
+            console.log('🔍 响应对象结构:', Object.keys(data));
+            workflowList = [data]; // 将整个对象作为单个工作流
+          }
+        } else {
+          console.warn('⚠️ 响应数据类型异常:', typeof data);
+          workflowList = [];
+        }
+        
+        this.workflowList = workflowList;
+        console.log('📋 最终工作流列表:', this.workflowList);
+        
+        // 工作流列表为空时显示空状态，不添加示例数据
         
         // 更新统计信息
         this.updateWorkflowStats()
@@ -2570,7 +3937,7 @@ export default {
       } catch (error) {
         console.error('加载工作流列表失败:', error)
         this.workflowListError = error.message || '加载工作流列表失败'
-        this.$message?.error?.('加载工作流列表失败: ' + error.message)
+        this.showError('加载工作流列表失败: ' + error.message)
       } finally {
         this.loadingWorkflows = false
       }
@@ -2580,7 +3947,7 @@ export default {
     async refreshWorkflowList() {
       await this.loadWorkflowList()
       if (!this.workflowListError) {
-        this.$message?.success?.('工作流列表已刷新')
+        this.showSuccess('工作流列表已刷新')
       }
     },
 
@@ -2613,51 +3980,69 @@ export default {
       this.workflowStats = stats
     },
 
-    // 查看工作流详情
+    // 编辑工作流 - 加载到设计台进行编辑
     viewWorkflow(workflow) {
-      // 切换到工作流设计页面并加载该工作流
+      // 切换到工作流设计页面并加载该工作流数据
       this.setActiveTab('workflow')
+      // 从记录中加载工作流数据到设计台，可以在此基础上修改并重新部署
       this.loadWorkflowData(workflow.dag_id)
     },
 
     // 查看工作流状态
     async viewWorkflowStatus(workflow) {
       try {
-        const workflowAPI = (await import('@/config/api.js')).default
-        const status = await workflowAPI.getDAGStatus(workflow.dag_id)
-        
-        this.currentWorkflowStatus = status
-        this.monitoringWorkflowId = workflow.dag_id
+        // 使用SSE监控状态
+        this.startSSEMonitoring(workflow.dag_id)
         
         // 显示状态监控弹窗
         this.showStatusMonitor = true
         
-        // 开始实时监控
-        this.startPollingMonitoring(workflow.dag_id)
-        
       } catch (error) {
-        console.error('获取工作流状态失败:', error)
-        this.$message?.error?.('获取工作流状态失败: ' + error.message)
+        console.error('Failed to get workflow status:', error)
+        this.showError('Failed to get workflow status: ' + error.message)
       }
     },
 
     // 查看工作流结果
     async viewWorkflowResults(workflow) {
       try {
-        const workflowAPI = (await import('@/config/api.js')).default
-        const results = await workflowAPI.getResult(workflow.dag_id)
-        
-        this.workflowResults = results
-        this.monitoringWorkflowId = workflow.dag_id
+        // 获取最终输出节点的结果
+        const finalNode = this.identifyFinalOutputNode()
+        if (finalNode) {
+          const response = await fetch(AI_AGENT_API.RESULT, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+              dag_id: workflow.dag_id,
+              tenant_id: this.getTenantId(),
+              node_id: finalNode.id
+            })
+          })
+          
+          if (!response.ok) {
+            throw new Error(`HTTP ${response.status}: ${response.statusText}`)
+          }
+          
+          const results = await response.json()
+          
+          this.workflowResults = {
+            dag_id: workflow.dag_id,
+            final_output: results,
+            node_id: finalNode.id
+          }
         
         // 识别和处理最终输出
-        await this.processFinalOutput(results)
+          await this.processFinalOutput(this.workflowResults)
+        } else {
+          this.showWarning('Final output node not found')
+        }
         
+        this.monitoringWorkflowId = workflow.dag_id
         this.showResultsViewer = true
         
       } catch (error) {
-        console.error('获取工作流结果失败:', error)
-        this.$message?.error?.('获取工作流结果失败: ' + error.message)
+        console.error('Failed to get workflow results:', error)
+        this.showError('Failed to get workflow results: ' + error.message)
       }
     },
 
@@ -2705,7 +4090,7 @@ export default {
         }
         
       } catch (error) {
-        console.error('处理最终输出失败:', error)
+        console.error('Failed to process final output:', error)
         this.finalOutputData = null
       }
     },
@@ -2733,6 +4118,60 @@ export default {
       return null
     },
 
+    // 从JSON响应中智能提取实际内容
+    extractActualContent(jsonResponse) {
+      if (!jsonResponse || typeof jsonResponse !== 'object') {
+        return jsonResponse
+      }
+
+      // 内容提取优先级列表
+      const contentKeys = [
+        // 专业字段（最高优先级）
+        'audio_url', 'image_url', 'video_url', 'file_url',
+        'voice', 'speech', 'audio', 'sound',
+        'image', 'picture', 'photo',
+        'video', 'movie', 'clip',
+        
+        // 通用输出字段
+        'output', 'result', 'data', 'content', 
+        'message', 'text', 'response',
+        
+        // URL字段
+        'url', 'link', 'href',
+        
+        // 嵌套数据字段
+        'payload', 'body', 'value'
+      ]
+
+      // 按优先级查找内容
+      for (const key of contentKeys) {
+        if (jsonResponse.hasOwnProperty(key) && jsonResponse[key] != null) {
+          const value = jsonResponse[key]
+          
+          // 如果是嵌套对象，递归提取（最多递归2层）
+          if (typeof value === 'object' && !Array.isArray(value)) {
+            const nestedContent = this.extractActualContent(value)
+            if (nestedContent !== value) {
+              return nestedContent
+            }
+          }
+          
+          // 如果是有效的非空值，返回
+          if (value !== '' && value !== null && value !== undefined) {
+            return value
+          }
+        }
+      }
+
+      // 如果没有找到特定字段，检查是否是错误响应
+      if (jsonResponse.error || jsonResponse.message) {
+        return jsonResponse.error || jsonResponse.message
+      }
+
+      // 都没找到，返回原始对象
+      return jsonResponse
+    },
+
     // 格式化最终输出
     formatFinalOutput(output) {
       if (!output) return null
@@ -2751,48 +4190,164 @@ export default {
     // 检测输出类型
     detectOutputType(output) {
       if (typeof output === 'string') {
-        // 检查是否是图片URL
-        if (output.match(/\.(jpg|jpeg|png|gif|bmp|webp)$/i) || 
-            output.startsWith('data:image/') || 
-            output.match(/^https?:\/\/.*\.(jpg|jpeg|png|gif|bmp|webp)$/i)) {
-          return 'image'
-        }
-        
-        // 检查是否是音频URL
-        if (output.match(/\.(mp3|wav|ogg|m4a)$/i) || 
-            output.startsWith('data:audio/') ||
-            output.match(/^https?:\/\/.*\.(mp3|wav|ogg|m4a)$/i)) {
-          return 'audio'
-        }
-        
-        // 检查是否是视频URL
-        if (output.match(/\.(mp4|webm|avi|mov)$/i) || 
-            output.startsWith('data:video/') ||
-            output.match(/^https?:\/\/.*\.(mp4|webm|avi|mov)$/i)) {
-          return 'video'
-        }
-        
-        // 检查是否是JSON字符串
+        // 先尝试检测是否是JSON，如果是则提取内容后重新检测
         try {
-          JSON.parse(output)
+          const parsed = JSON.parse(output)
+          const actualContent = this.extractActualContent(parsed)
+          
+          // 如果提取到了不同的内容，对提取的内容重新检测
+          if (actualContent !== parsed) {
+            return this.detectOutputType(actualContent)
+          }
+          // 如果提取不到有用内容，才标记为json
           return 'json'
         } catch (e) {
-          return 'text'
+          // 不是JSON，继续检测媒体类型
+          return this.detectMediaType(output)
         }
       }
       
       if (typeof output === 'object') {
+        // 对象类型，尝试提取内容
+        const actualContent = this.extractActualContent(output)
+        if (actualContent !== output) {
+          return this.detectOutputType(actualContent)
+        }
         return 'json'
       }
       
       return 'text'
     },
 
+    // 检测媒体类型（增强版）
+    detectMediaType(content) {
+      if (typeof content !== 'string') {
+        return 'text'
+      }
+
+      // 1. Data URL检测
+      if (content.startsWith('data:image/')) return 'image'
+      if (content.startsWith('data:audio/')) return 'audio'
+      if (content.startsWith('data:video/')) return 'video'
+
+      // 2. Blob URL检测
+      if (content.startsWith('blob:')) {
+        // 根据当前节点类型推断
+        if (this.finalOutputNode) {
+          const nodeType = this.finalOutputNode.service || this.finalOutputNode.type
+          if (nodeType === 'STT') return 'text'
+          if (nodeType === 'TTS') return 'audio'
+          if (nodeType === 'pic2text') return 'text'
+          if (nodeType === 'text2pic') return 'image'
+        }
+        return 'audio' // blob默认假设为音频
+      }
+
+      // 3. 智能文件扩展名检测
+      const getFileExtension = (url) => {
+        try {
+          const urlObj = new URL(url)
+          const pathname = urlObj.pathname
+          const match = pathname.match(/\.([^.]+)$/)
+          return match ? match[1].toLowerCase() : null
+        } catch (e) {
+          const match = url.match(/\.([^.?#]+)/)
+          return match ? match[1].toLowerCase() : null
+        }
+      }
+
+      const extension = getFileExtension(content)
+
+      // 图片扩展名
+      if (extension && ['jpg', 'jpeg', 'png', 'gif', 'bmp', 'webp', 'svg', 'tiff', 'ico'].includes(extension)) {
+          return 'image'
+        }
+        
+      // 音频扩展名
+      if (extension && ['mp3', 'wav', 'ogg', 'm4a', 'aac', 'flac', 'wma', 'opus', 'webm', '3gp', 'amr'].includes(extension)) {
+          return 'audio'
+        }
+        
+      // 视频扩展名
+      if (extension && ['mp4', 'webm', 'avi', 'mov', 'mkv', 'wmv', 'flv', 'f4v', '3gp', 'ogv'].includes(extension)) {
+          return 'video'
+        }
+        
+      // 4. URL路径特征检测
+      if (content.includes('/tts/') || content.includes('/synthesize/') || content.includes('/speech/')) {
+        return 'audio'
+      }
+
+      if (content.includes('/images/') || content.includes('/generate/') || content.includes('/img/')) {
+        return 'image'
+      }
+
+      // 5. 根据节点类型推断
+      if (this.finalOutputNode) {
+        const nodeType = this.finalOutputNode.service || this.finalOutputNode.type
+        if (nodeType === 'TTS' && this.looksLikeAudioData(content)) {
+          return 'audio'
+        }
+        if (nodeType === 'text2pic' && this.looksLikeImageData(content)) {
+          return 'image'
+        }
+      }
+
+      // 6. 内容特征检测
+      if (this.looksLikeAudioData(content)) return 'audio'
+      if (this.looksLikeImageData(content)) return 'image'
+
+      // 默认为文本
+      return 'text'
+    },
+
+    // 检测是否像音频数据
+    looksLikeAudioData(content) {
+      return (
+        content.startsWith('data:audio/') ||
+        content.startsWith('blob:') ||
+        content.includes('audio') ||
+        content.includes('tts') ||
+        content.includes('synthesize') ||
+        content.includes('speech') ||
+        content.includes('voice') ||
+        /\.(mp3|wav|ogg|m4a|aac|flac|wma|opus|webm|3gp|amr)(\?|$)/i.test(content)
+      )
+    },
+
+    // 检测是否像图片数据
+    looksLikeImageData(content) {
+      return (
+        content.startsWith('data:image/') ||
+        content.includes('image') ||
+        content.includes('photo') ||
+        content.includes('picture') ||
+        content.includes('generate') ||
+        /\.(jpg|jpeg|png|gif|bmp|webp|svg|tiff|ico)(\?|$)/i.test(content)
+      )
+    },
+
     // 格式化显示内容
     formatDisplayContent(content, type) {
       switch (type) {
         case 'json':
-          return typeof content === 'string' ? content : JSON.stringify(content, null, 2)
+          // 先尝试提取内容，再格式化
+          if (typeof content === 'string') {
+            try {
+              const parsed = JSON.parse(content)
+              const extracted = this.extractActualContent(parsed)
+              if (extracted !== parsed) {
+                // 提取到内容，使用提取的内容重新格式化
+                const extractedType = this.detectOutputType(extracted)
+                return this.formatDisplayContent(extracted, extractedType)
+              }
+              // 提取不到，格式化显示JSON
+              return JSON.stringify(parsed, null, 2)
+            } catch (e) {
+              return content
+            }
+          }
+          return typeof content === 'object' ? JSON.stringify(content, null, 2) : String(content)
         case 'text':
           return String(content)
         case 'image':
@@ -2822,7 +4377,7 @@ export default {
         }, 3000)
         
       } catch (error) {
-        console.error('自动显示结果失败:', error)
+        console.error('Failed to auto-show results:', error)
       }
     },
 
@@ -2831,87 +4386,221 @@ export default {
     // 复制最终输出到剪贴板
     async copyFinalOutput() {
       if (!this.finalOutputData) {
-        this.$message?.error?.('没有可复制的内容')
+        this.showError('No content available for copying')
         return
       }
 
       try {
-        const textContent = this.finalOutputData.type === 'json' 
-          ? this.finalOutputData.displayContent 
-          : this.finalOutputData.content
+        let textContent = ''
+        
+        // 根据类型选择合适的复制内容
+        if (this.finalOutputData.type === 'text') {
+          textContent = this.finalOutputData.displayContent
+        } else if (this.finalOutputData.type === 'json') {
+          textContent = this.finalOutputData.displayContent
+        } else if (['image', 'audio', 'video'].includes(this.finalOutputData.type)) {
+          // 媒体文件复制URL
+          textContent = this.finalOutputData.content
+        } else {
+          textContent = String(this.finalOutputData.content)
+        }
 
         await navigator.clipboard.writeText(textContent)
-        this.$message?.success?.('内容已复制到剪贴板')
+        
+        // 根据类型显示不同的成功消息
+        const typeMessages = {
+          'text': 'Text content copied to clipboard',
+          'json': 'JSON data copied to clipboard', 
+          'image': 'Image URL copied to clipboard',
+          'audio': 'Audio URL copied to clipboard',
+          'video': 'Video URL copied to clipboard'
+        }
+        
+        this.showSuccess(typeMessages[this.finalOutputData.type] || 'Content copied to clipboard')
       } catch (error) {
-        console.error('复制失败:', error)
-        this.$message?.error?.('复制失败: ' + error.message)
+        console.error('Copy failed:', error)
+        this.showError('Copy failed: ' + error.message)
       }
     },
 
     // 下载最终输出
     downloadFinalOutput() {
       if (!this.finalOutputData) {
-        this.$message?.error?.('没有可下载的内容')
+        this.showError('No content available for download')
         return
       }
 
       try {
         const { type, content, displayContent } = this.finalOutputData
-        const filename = `workflow_output_${this.monitoringWorkflowId}_${Date.now()}`
+        const timestamp = new Date().toISOString().replace(/[:.]/g, '-')
+        const nodeType = this.finalOutputNode?.service || this.finalOutputNode?.type || 'output'
+        const baseFilename = `${nodeType}_output_${this.monitoringWorkflowId}_${timestamp}`
         
         if (type === 'image') {
-          this.downloadFile(content, `${filename}.png`, 'image/png')
+          // 智能检测图片格式
+          const format = this.detectImageFormat(content)
+          this.downloadMediaFile(content, `${baseFilename}.${format}`, `image/${format}`)
         } else if (type === 'audio') {
-          this.downloadFile(content, `${filename}.mp3`, 'audio/mpeg')
+          // 智能检测音频格式
+          const format = this.detectAudioFormat(content)
+          this.downloadMediaFile(content, `${baseFilename}.${format}`, `audio/${format}`)
         } else if (type === 'video') {
-          this.downloadFile(content, `${filename}.mp4`, 'video/mp4')
+          // 智能检测视频格式
+          const format = this.detectVideoFormat(content)
+          this.downloadMediaFile(content, `${baseFilename}.${format}`, `video/${format}`)
         } else if (type === 'json') {
-          this.downloadTextFile(displayContent, `${filename}.json`, 'application/json')
+          this.downloadTextFile(displayContent, `${baseFilename}.json`, 'application/json')
         } else {
-          this.downloadTextFile(content, `${filename}.txt`, 'text/plain')
+          // 文本内容，根据内容长度和格式智能选择扩展名
+          const extension = this.detectTextFormat(displayContent)
+          this.downloadTextFile(displayContent, `${baseFilename}.${extension}`, this.getTextMimeType(extension))
         }
         
-        this.$message?.success?.('下载已开始')
+        this.showSuccess('Download started successfully')
       } catch (error) {
-        console.error('下载失败:', error)
-        this.$message?.error?.('下载失败: ' + error.message)
+        console.error('Download failed:', error)
+        this.showError('Download failed: ' + error.message)
       }
+    },
+
+    // 检测图片格式
+    detectImageFormat(content) {
+      if (content.startsWith('data:image/')) {
+        const match = content.match(/data:image\/([^;]+)/)
+        if (match) return match[1]
+      }
+      
+      // 从URL中提取扩展名
+      const urlMatch = content.match(/\.([^.?#]+)(\?|#|$)/)
+      if (urlMatch) {
+        const ext = urlMatch[1].toLowerCase()
+        if (['jpg', 'jpeg', 'png', 'gif', 'webp', 'svg', 'bmp'].includes(ext)) {
+          return ext === 'jpg' ? 'jpeg' : ext
+        }
+      }
+      
+      return 'png' // 默认PNG格式
+    },
+
+    // 检测音频格式
+    detectAudioFormat(content) {
+      if (content.startsWith('data:audio/')) {
+        const match = content.match(/data:audio\/([^;]+)/)
+        if (match) return match[1]
+      }
+      
+      const urlMatch = content.match(/\.([^.?#]+)(\?|#|$)/)
+      if (urlMatch) {
+        const ext = urlMatch[1].toLowerCase()
+        if (['mp3', 'wav', 'ogg', 'm4a', 'aac', 'flac'].includes(ext)) {
+          return ext
+        }
+      }
+      
+      return 'mp3' // 默认MP3格式
+    },
+
+    // 检测视频格式
+    detectVideoFormat(content) {
+      if (content.startsWith('data:video/')) {
+        const match = content.match(/data:video\/([^;]+)/)
+        if (match) return match[1]
+      }
+      
+      const urlMatch = content.match(/\.([^.?#]+)(\?|#|$)/)
+      if (urlMatch) {
+        const ext = urlMatch[1].toLowerCase()
+        if (['mp4', 'webm', 'avi', 'mov', 'mkv'].includes(ext)) {
+          return ext
+        }
+      }
+      
+      return 'mp4' // 默认MP4格式
+    },
+
+    // 检测文本格式
+    detectTextFormat(content) {
+      // 检测是否包含markdown语法
+      const markdownPattern = /[#*`\[\]]/
+      if (markdownPattern.test(content) || content.includes('##') || content.includes('**')) {
+        return 'md'
+      }
+      
+      // 检测是否是代码
+      if (content.includes('function') || content.includes('class') || content.includes('import')) {
+        return 'txt'
+      }
+      
+      // 检测是否是HTML
+      if (content.includes('<html>') || content.includes('<!DOCTYPE')) {
+        return 'html'
+      }
+      
+      // 默认为文本
+      return 'txt'
+    },
+
+    // 获取文本MIME类型
+    getTextMimeType(extension) {
+      const mimeTypes = {
+        'md': 'text/markdown',
+        'txt': 'text/plain',
+        'html': 'text/html',
+        'json': 'application/json'
+      }
+      return mimeTypes[extension] || 'text/plain'
     },
 
     // 分享最终输出
     async shareFinalOutput() {
       if (!this.finalOutputData) {
-        this.$message?.error?.('没有可分享的内容')
+        this.showError('No content available for sharing')
         return
       }
 
       try {
+        const nodeType = this.finalOutputNode?.service || this.finalOutputNode?.type || 'AI'
+        const { type, content, displayContent } = this.finalOutputData
+        
+        let shareText = ''
+        if (type === 'text') {
+          shareText = `${nodeType} AI Result:\n${displayContent.substring(0, 200)}${displayContent.length > 200 ? '...' : ''}`
+        } else if (['image', 'audio', 'video'].includes(type)) {
+          shareText = `${nodeType} AI generated ${type}: ${content}`
+        } else {
+          shareText = `${nodeType} AI Result:\n${displayContent.substring(0, 200)}${displayContent.length > 200 ? '...' : ''}`
+        }
+
         const shareData = {
-          title: `工作流执行结果 - ${this.monitoringWorkflowId}`,
-          text: `工作流执行结果：\n${this.finalOutputData.displayContent}`,
+          title: `${nodeType} AI Workflow Result - ${this.monitoringWorkflowId}`,
+          text: shareText,
           url: window.location.href
         }
 
-        if (navigator.share) {
+        if (navigator.share && navigator.canShare && navigator.canShare(shareData)) {
           await navigator.share(shareData)
-          this.$message?.success?.('分享成功')
+          this.showSuccess('Content shared successfully')
         } else {
           // 降级方案：复制到剪贴板
-          await navigator.clipboard.writeText(shareData.text)
-          this.$message?.success?.('分享内容已复制到剪贴板')
+          const fallbackText = `${shareData.title}\n\n${shareData.text}\n\n${shareData.url}`
+          await navigator.clipboard.writeText(fallbackText)
+          this.showSuccess('Share content copied to clipboard')
         }
       } catch (error) {
-        console.error('分享失败:', error)
-        this.$message?.error?.('分享失败: ' + error.message)
+        console.error('Share failed:', error)
+        this.showError('Share failed: ' + error.message)
       }
     },
 
     // 全屏查看最终输出
     viewFinalOutputFullscreen() {
       if (!this.finalOutputData) {
-        this.$message?.error?.('没有可查看的内容')
+        this.showError('No content available for fullscreen view')
         return
       }
+
+      const nodeType = this.finalOutputNode?.service || this.finalOutputNode?.type || 'Output'
+      const { type } = this.finalOutputData
 
       // 创建全屏模态窗口
       const modal = document.createElement('div')
@@ -2919,25 +4608,59 @@ export default {
       modal.innerHTML = `
         <div class="fullscreen-content">
           <div class="fullscreen-header">
-            <h3>🎯 最终输出 - 全屏查看</h3>
-            <button class="fullscreen-close" onclick="this.parentElement.parentElement.parentElement.remove()">×</button>
+            <h3>🎯 ${nodeType} ${type.charAt(0).toUpperCase() + type.slice(1)} Output - Fullscreen View</h3>
+            <div class="fullscreen-controls">
+              <button class="fullscreen-btn" onclick="navigator.clipboard.writeText('${this.finalOutputData.content.replace(/'/g, "\\'")}').then(() => alert('Copied to clipboard'))" title="Copy">📋</button>
+              <button class="fullscreen-close" onclick="this.parentElement.parentElement.parentElement.remove()" title="Close">×</button>
+            </div>
           </div>
           <div class="fullscreen-body">
             ${this.generateOutputHTML(this.finalOutputData)}
+          </div>
+          <div class="fullscreen-footer">
+            <span class="output-info">Type: ${type.toUpperCase()} | Node: ${nodeType} | Workflow: ${this.monitoringWorkflowId}</span>
           </div>
         </div>
       `
       
       document.body.appendChild(modal)
       
-      // 添加ESC键关闭功能
-      const handleEscape = (e) => {
+      // 添加键盘快捷键
+      const handleKeydown = (e) => {
         if (e.key === 'Escape') {
           modal.remove()
-          document.removeEventListener('keydown', handleEscape)
+          document.removeEventListener('keydown', handleKeydown)
+        } else if (e.key === 'c' && (e.ctrlKey || e.metaKey)) {
+          // Ctrl+C 或 Cmd+C 复制
+          e.preventDefault()
+          navigator.clipboard.writeText(this.finalOutputData.content).then(() => {
+            // 显示临时提示
+            const toast = document.createElement('div')
+            toast.className = 'copy-toast'
+            toast.textContent = 'Copied to clipboard!'
+            toast.style.cssText = `
+              position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%);
+              background: #4CAF50; color: white; padding: 12px 24px; border-radius: 8px;
+              z-index: 10001; opacity: 0; transition: opacity 0.3s ease;
+            `
+            document.body.appendChild(toast)
+            setTimeout(() => toast.style.opacity = '1', 10)
+            setTimeout(() => {
+              toast.style.opacity = '0'
+              setTimeout(() => document.body.removeChild(toast), 300)
+            }, 2000)
+          })
         }
       }
-      document.addEventListener('keydown', handleEscape)
+      document.addEventListener('keydown', handleKeydown)
+      
+      // 点击模态背景关闭
+      modal.addEventListener('click', (e) => {
+        if (e.target === modal) {
+          modal.remove()
+          document.removeEventListener('keydown', handleKeydown)
+        }
+      })
     },
 
     // 生成输出HTML
@@ -2953,7 +4676,11 @@ export default {
           return `<video controls style="max-width: 100%; height: auto;"><source src="${content}" type="video/mp4"></video>`
         case 'json':
           return `<pre style="background: #1a1a1a; color: #e0e0e0; padding: 20px; border-radius: 8px; overflow: auto; font-family: 'Consolas', monospace; font-size: 14px; line-height: 1.5;">${displayContent}</pre>`
+        case 'text':
+          // 文本类型使用markdown渲染，保持链接功能
+          return `<div class="fullscreen-markdown-container">${this.renderMarkdown(displayContent)}</div>`
         default:
+          // 其他类型降级为纯文本显示
           return `<pre style="background: #1a1a1a; color: #e0e0e0; padding: 20px; border-radius: 8px; overflow: auto; font-family: 'Consolas', monospace; font-size: 14px; line-height: 1.5; white-space: pre-wrap;">${displayContent}</pre>`
       }
     },
@@ -2967,6 +4694,27 @@ export default {
       document.body.appendChild(a)
       a.click()
       document.body.removeChild(a)
+    },
+
+    // 工具方法：下载媒体文件（处理URL和base64）
+    async downloadMediaFile(url, filename, mimeType) {
+      try {
+        if (url.startsWith('data:')) {
+          // Base64数据，直接下载
+          this.downloadFile(url, filename, mimeType)
+        } else {
+          // URL资源，需要先获取数据
+          const response = await fetch(url)
+          const blob = await response.blob()
+          const blobUrl = URL.createObjectURL(blob)
+          this.downloadFile(blobUrl, filename, mimeType)
+          URL.revokeObjectURL(blobUrl)
+        }
+      } catch (error) {
+        console.error('媒体文件下载失败:', error)
+        // 降级方案：直接使用URL
+        this.downloadFile(url, filename, mimeType)
+      }
     },
 
     // 工具方法：下载文本文件
@@ -3004,28 +4752,23 @@ export default {
       }
     },
 
-    // 复制工作流
+    // 复制工作流 - 加载到设计台进行编辑
     async cloneWorkflow(workflow) {
       try {
-        // 加载原工作流数据
+        // 切换到设计页面
+        this.setActiveTab('workflow')
+        
+        // 加载工作流数据到设计台
         await this.loadWorkflowData(workflow.dag_id)
         
-        // 生成新的DAG数据
-        const workflowAPI = (await import('@/config/api.js')).default
-        const newDagData = await this.generateDAGData()
-        newDagData.dag_id = workflowAPI.generateDAGId('cloned')
+        // 修改名称表示这是副本
+        this.currentWorkflow.name = `${this.currentWorkflow.name}_副本`
         
-        // 提交新工作流
-        await workflowAPI.submitDAG(newDagData)
-        
-        // 刷新列表
-        await this.refreshWorkflowList()
-        
-        this.$message?.success?.(`工作流已复制为: ${newDagData.dag_id}`)
+        this.showSuccess(`工作流 "${workflow.name || workflow.dag_id}" 已复制到设计台，您可以修改后重新部署`)
         
       } catch (error) {
         console.error('复制工作流失败:', error)
-        this.$message?.error?.('复制工作流失败: ' + error.message)
+        this.showError(`复制工作流失败: ${error.message}`)
       }
     },
 
@@ -3044,97 +4787,341 @@ export default {
           this.updateWorkflowStats()
         }
         
-        this.$message?.success?.('工作流已删除')
+        this.showSuccess('工作流已删除')
         
       } catch (error) {
         console.error('删除工作流失败:', error)
-        this.$message?.error?.('删除工作流失败: ' + error.message)
+        this.showError('删除工作流失败: ' + error.message)
       }
     },
 
-    // 加载工作流数据
+    // 从后端加载工作流数据到编辑器
     async loadWorkflowData(dagId) {
       try {
-        // 这里需要根据实际API实现加载工作流的节点和连接数据
-        // 目前API文档中没有获取工作流详情的接口，这里暂时用空实现
-        console.log('加载工作流数据:', dagId)
+        console.log('Starting to load workflow data:', dagId)
+        
+        // 获取租户所有DAG列表
+        const response = await fetch(AI_AGENT_API.LIST(this.getTenantId()))
+        
+        if (!response.ok) {
+          throw new Error(`HTTP ${response.status}: ${response.statusText}`)
+        }
+        
+        const data = await response.json()
+        const allDAGs = Array.isArray(data) ? data : (data.dags || [])
+        
+        // 查找指定的DAG
+        const targetDAG = allDAGs.find(dag => dag.dag_id === dagId)
+        
+        if (!targetDAG) {
+          throw new Error(`Workflow with DAG ID ${dagId} not found`)
+        }
+        
+        console.log('Found target workflow:', targetDAG)
+        
+        // 重置当前画布
+        this.clearCanvas()
+        
+        // 恢复工作流基本信息 - 重置为新的工作流状态，可以正常编辑和部署
+        this.currentWorkflow = {
+          name: targetDAG.name || targetDAG.workflow_metadata?.name || '已加载工作流',
+          description: targetDAG.description || targetDAG.workflow_metadata?.description || '',
+          version: targetDAG.version || targetDAG.workflow_metadata?.version || '1.0.0'
+        }
+        
+        // 恢复节点数据
+        if (targetDAG.nodes) {
+          this.workflowNodes = []
+          Object.keys(targetDAG.nodes).forEach(nodeId => {
+            const nodeData = targetDAG.nodes[nodeId]
+            
+            // 获取节点类型和模板
+            const nodeType = nodeData.service || nodeData.type || 'LLM'
+            const template = this.getNodeTemplate(nodeType)
+            
+            // 获取节点位置信息
+            const position = targetDAG.nodes_positions?.[nodeId] || nodeData.position || { x: 100, y: 100 }
+            
+            // 使用模板重建完整节点对象，然后用保存的数据覆盖
+            const restoredNode = {
+              // 从模板开始，确保有完整的inputs和outputs结构
+              ...template,
+              
+              // 基本节点信息
+              id: nodeId,
+              type: nodeType,
+              title: nodeData.title || template.title || nodeId,
+              description: nodeData.description || template.description || '',
+              service: nodeData.service || template.service,
+              
+              // 保留用户配置的prompt，如果没有则使用模板默认值
+              prompt: nodeData.prompt || template.prompt,
+              
+              // 位置信息
+              x: position.x || 100,
+              y: position.y || 100,
+              width: position.width || 200,
+              height: position.height || 120,
+              
+              // 状态信息
+              status: nodeData.status || 'ready',
+              enabled: nodeData.enabled !== false,
+              
+              // 用保存的服务特定配置覆盖模板默认值
+              ...(nodeData.service === 'LLM' && {
+                model: nodeData.model || template.model,
+                temperature: nodeData.temperature !== undefined ? nodeData.temperature : template.temperature,
+                max_tokens: nodeData.max_tokens || template.max_tokens,
+                top_p: nodeData.top_p || 1.0,
+                frequency_penalty: nodeData.frequency_penalty || 0,
+                presence_penalty: nodeData.presence_penalty || 0,
+                stop: nodeData.stop || '',
+                user: nodeData.user || '',
+                stream: nodeData.stream || false,
+                logit_bias: nodeData.logit_bias || {}
+              }),
+              ...(nodeData.service === 'STT' && {
+                language: nodeData.language || template.language,
+                model: nodeData.model || template.model,
+                response_format: nodeData.response_format || 'text',
+                temperature: nodeData.temperature !== undefined ? nodeData.temperature : 0,
+                timestamp_granularities: nodeData.timestamp_granularities || ['word']
+              }),
+              ...(nodeData.service === 'TTS' && {
+                voice: nodeData.voice || template.voice,
+                response_format: nodeData.response_format || 'mp3',
+                speed: nodeData.speed !== undefined ? nodeData.speed : template.speed,
+                model: nodeData.model || 'tts-1'
+              }),
+              ...(nodeData.service === 'pic2text' && {
+                language: nodeData.language || template.language,
+                format: nodeData.format || template.format,
+                max_tokens: nodeData.max_tokens || 300,
+                detail: nodeData.detail || 'auto',
+                quality: nodeData.quality || 'auto'
+              }),
+              ...(nodeData.service === 'text2pic' && {
+                model: nodeData.model || 'dall-e-3',
+                size: nodeData.size || template.size,
+                style: nodeData.style || template.style,
+                quality: nodeData.quality || 'standard',
+                n: nodeData.n || 1,
+                user: nodeData.user || '',
+                response_format: nodeData.response_format || 'url'
+              })
+            }
+            
+            // 恢复用户输入的数据到inputs中
+            if (template.inputs && template.inputs.length > 0) {
+              restoredNode.inputs = template.inputs.map(inputTemplate => {
+                // 创建输入副本，保持模板结构但清空用户数据
+                const restoredInput = {
+                  ...inputTemplate,
+                  value: inputTemplate.type === 'text' ? '' : null,
+                  fileData: null,
+                  fileName: null,
+                  fileSize: null,
+                  fileType: null
+                }
+                
+                // 如果有保存的输入数据，尝试恢复（通常工作流记录不包含用户输入数据）
+                // 这里预留扩展空间，以后可以保存和恢复用户输入
+                
+                return restoredInput
+              })
+            }
+            
+            this.workflowNodes.push(restoredNode)
+          })
+        }
+        
+        // 恢复连接数据
+        if (targetDAG.edges) {
+          this.connections = targetDAG.edges.map(edge => ({
+            id: edge.id || `${edge.from}-${edge.to}`,
+            from: edge.from,
+            to: edge.to,
+            prompt: edge.prompt || '',
+            type: edge.type || 'default',
+            label: edge.label || '',
+            enabled: edge.enabled !== false,
+            
+            // 连接样式
+            color: edge.style?.color || '#333',
+            width: edge.style?.width || 2,
+            dashArray: edge.style?.dashArray || '',
+            
+            // 数据映射
+            data_mapping: edge.data_mapping || {},
+            created_at: edge.created_at || new Date().toISOString()
+          }))
+        }
+        
+        // 恢复画布设置
+        if (targetDAG.canvas_settings) {
+          this.canvasScale = targetDAG.canvas_settings.zoom || 1.0
+          this.canvasOffsetX = targetDAG.canvas_settings.pan_x || 0
+          this.canvasOffsetY = targetDAG.canvas_settings.pan_y || 0
+        }
+        
+        // 保存历史记录
+        this.saveToHistory()
+        
+        // 重置选择状态
+        this.selectedNode = null
+        this.selectedConnection = null
+        
+        console.log('Workflow loading completed:', {
+          nodes: this.workflowNodes.length,
+          connections: this.connections.length,
+          workflow: this.currentWorkflow
+        })
+        
+        this.showSuccess(`Workflow "${this.currentWorkflow.name}" loaded successfully! Ready for editing and redeployment.`)
         
       } catch (error) {
-        console.error('加载工作流数据失败:', error)
-        this.$message?.error?.('加载工作流数据失败: ' + error.message)
+        console.error('Failed to load workflow data:', error)
+        this.showError(`Failed to load workflow data: ${error.message}`)
       }
     },
 
-    // 开始轮询监控
-    startPollingMonitoring(dagId) {
-      this.stopPollingMonitoring()
+    // 开始SSE监控
+    startSSEMonitoring(dagId) {
+      this.stopSSEMonitoring()
       this.monitoringWorkflowId = dagId
-      this.currentPollingAttempts = 0
-      this.pollingStatus = 'running'
+      this.sseReconnectAttempts = 0
+      this.sseConnectionStatus = 'connecting'
       
-      console.log(`开始轮询监控工作流 ${dagId}，每${this.pollingDelay}ms检查一次状态`)
+      console.log(`开始SSE监控工作流 ${dagId}`)
       
-      // 立即执行一次
-      this.pollWorkflowStatus()
-      
-      // 设置定时轮询
-      this.pollingInterval = setInterval(() => {
-        this.pollWorkflowStatus()
-      }, this.pollingDelay)
+      this.createSSEConnection(dagId)
     },
 
-    // 轮询工作流状态
-    async pollWorkflowStatus() {
-      if (!this.monitoringWorkflowId || this.pollingStatus !== 'running') {
+    // 创建SSE连接
+    createSSEConnection(dagId) {
+      try {
+        // 创建EventSource连接
+        this.eventSource = new EventSource(AI_AGENT_API.STATUS(dagId))
+        
+        // 连接打开事件
+        this.eventSource.onopen = () => {
+          console.log('SSE连接已建立')
+          this.sseConnectionStatus = 'connected'
+          this.sseReconnectAttempts = 0
+          this.resetHeartbeatTimeout()
+        }
+        
+        // 接收消息事件
+        this.eventSource.onmessage = (event) => {
+          console.log('SSE消息:', event.data)
+          this.handleSSEMessage(event.data)
+          this.resetHeartbeatTimeout()
+        }
+        
+        // 连接错误事件
+        this.eventSource.onerror = (error) => {
+          console.error('SSE连接错误:', error)
+          this.sseConnectionStatus = 'error'
+          
+          // 如果EventSource还在连接状态，它会自动重试
+          // 但如果连接已关闭，我们需要手动重连
+          if (this.eventSource.readyState === EventSource.CLOSED) {
+            this.handleSSEReconnect(dagId)
+          }
+        }
+        
+      } catch (error) {
+        console.error('创建SSE连接失败:', error)
+        this.sseConnectionStatus = 'error'
+        this.handleSSEReconnect(dagId)
+      }
+    },
+
+    // 处理SSE消息
+    handleSSEMessage(data) {
+      try {
+        // 忽略心跳消息
+        if (data.trim() === 'ping' || data.trim() === '') {
         return
       }
       
-      try {
-        this.currentPollingAttempts++
+        // 解析状态数据 - 根据api.md格式
+        let status, nodeId = null
         
-        const workflowAPI = (await import('@/config/api.js')).default
-        const statusData = await workflowAPI.getDAGStatus(this.monitoringWorkflowId)
+        if (data.includes('running')) {
+          // 格式: "running {nodeID}"
+          const match = data.match(/running\s+(.+)/)
+          status = 'running'
+          nodeId = match ? match[1].trim() : null
+        } else {
+          // 其他状态: pending, completed, failed
+          status = data.trim()
+        }
         
-        console.log(`轮询状态 #${this.currentPollingAttempts}:`, statusData)
+        console.log('解析的状态:', { status, nodeId, originalData: data })
+        
+        // 构造状态数据对象
+        const statusData = {
+          dag_id: this.monitoringWorkflowId,
+          status: status,
+          current_node_id: nodeId,
+          timestamp: new Date().toISOString()
+        }
         
         // 更新状态
         this.updateWorkflowStatus(statusData)
         
         // 检查是否完成
-        if (statusData.status === 'completed' || statusData.status === 'failed') {
-          console.log('工作流执行完成，停止轮询')
-          this.stopPollingMonitoring()
+        if (status === 'completed' || status === 'failed') {
+          console.log('工作流执行完成，关闭SSE连接')
+          this.stopSSEMonitoring()
           
           // 如果工作流完成，自动显示结果
-          if (statusData.status === 'completed') {
+          if (status === 'completed') {
             setTimeout(() => {
               this.onWorkflowCompleted(this.monitoringWorkflowId)
             }, 1000)
           }
         }
         
-        // 检查是否超过最大轮询次数
-        if (this.currentPollingAttempts >= this.maxPollingAttempts) {
-          console.warn('达到最大轮询次数，停止监控')
-          this.stopPollingMonitoring()
-          this.$message?.warning?.('监控超时，请手动刷新查看状态')
-        }
-        
       } catch (error) {
-        console.error('轮询状态失败:', error)
-        this.pollingStatus = 'error'
-        
-        // 连续失败5次后停止轮询
-        if (this.currentPollingAttempts % 5 === 0) {
-          this.$message?.error?.('状态查询失败，请检查网络连接')
-        }
-        
-        // 如果连续失败太多次，停止轮询
-        if (this.currentPollingAttempts >= 20) {
-          this.stopPollingMonitoring()
-          this.$message?.error?.('无法获取工作流状态，已停止监控')
-        }
+        console.error('Failed to handle SSE message:', error, 'data:', data)
       }
+    },
+
+    // 处理SSE重连
+    handleSSEReconnect(dagId) {
+      if (this.sseReconnectAttempts >= this.maxReconnectAttempts) {
+        console.warn('达到最大重连次数，停止监控')
+        this.stopSSEMonitoring()
+        this.showError('连接失败次数过多，已停止监控')
+        return
+      }
+      
+      this.sseReconnectAttempts++
+      console.log(`SSE重连尝试 ${this.sseReconnectAttempts}/${this.maxReconnectAttempts}`)
+      
+      setTimeout(() => {
+        if (this.monitoringWorkflowId === dagId) {
+          this.createSSEConnection(dagId)
+        }
+      }, this.reconnectDelay * this.sseReconnectAttempts) // 指数退避
+    },
+
+    // 重置心跳超时
+    resetHeartbeatTimeout() {
+      if (this.sseHeartbeatTimeout) {
+        clearTimeout(this.sseHeartbeatTimeout)
+      }
+      
+      // 40秒无消息则认为连接可能有问题（后端30秒发一次心跳）
+      this.sseHeartbeatTimeout = setTimeout(() => {
+        console.warn('SSE心跳超时，可能连接有问题')
+        if (this.eventSource && this.eventSource.readyState === EventSource.OPEN) {
+          // 主动关闭连接以触发重连
+          this.eventSource.close()
+        }
+      }, 40000)
     },
 
     // 更新工作流状态
@@ -3143,7 +5130,37 @@ export default {
       this.currentWorkflowStatus = statusData
       this.workflowStatus = statusData.status || 'Running'
       
-      // 更新节点状态
+      // 更新当前运行节点的状态（SSE格式）
+      if (statusData.current_node_id && statusData.status === 'running') {
+        const node = this.workflowNodes.find(n => n.id === statusData.current_node_id)
+        if (node) {
+          node.status = 'running'
+        }
+        
+        // 将之前的节点标记为已完成
+        this.workflowNodes.forEach(n => {
+          if (n.id !== statusData.current_node_id && n.status === 'running') {
+            n.status = 'completed'
+          }
+        })
+      }
+      
+      // 如果工作流完成或失败，更新所有节点状态
+      if (statusData.status === 'completed') {
+        this.workflowNodes.forEach(n => {
+          if (n.status === 'running') {
+            n.status = 'completed'
+          }
+        })
+      } else if (statusData.status === 'failed') {
+        this.workflowNodes.forEach(n => {
+          if (n.status === 'running') {
+            n.status = 'failed'
+          }
+        })
+      }
+      
+      // 兼容处理：如果是旧格式的数据（有nodes数组）
       if (statusData.nodes && Array.isArray(statusData.nodes)) {
         statusData.nodes.forEach(nodeStatus => {
           const node = this.workflowNodes.find(n => n.id === nodeStatus.node_id)
@@ -3157,22 +5174,30 @@ export default {
       this.updateStatusDisplay(statusData)
     },
 
-    // 停止轮询监控
-    stopPollingMonitoring() {
-      if (this.pollingInterval) {
-        clearInterval(this.pollingInterval)
-        this.pollingInterval = null
+    // 停止SSE监控
+    stopSSEMonitoring() {
+      // 关闭EventSource连接
+      if (this.eventSource) {
+        this.eventSource.close()
+        this.eventSource = null
       }
       
-      this.pollingStatus = 'stopped'
-      console.log('轮询监控已停止')
+      // 清除心跳超时
+      if (this.sseHeartbeatTimeout) {
+        clearTimeout(this.sseHeartbeatTimeout)
+        this.sseHeartbeatTimeout = null
+      }
+      
+      this.sseConnectionStatus = 'stopped'
+      console.log('SSE监控已停止')
     },
 
     // 获取连接状态文本
     getConnectionStatusText(status) {
       const statusMap = {
         'stopped': '未连接',
-        'running': '监控中...',
+        'connecting': '连接中...',
+        'connected': '已连接',
         'error': '连接错误'
       }
       return statusMap[status] || '未知状态'
@@ -3187,11 +5212,19 @@ export default {
         this.updateWorkflowStats()
       }
 
-      // 如果正在监控当前工作流，更新节点状态
+      // 兼容处理：如果是旧格式的数据（有node_id和node_status）
       if (statusData.node_id && statusData.node_status) {
         const node = this.workflowNodes.find(n => n.id === statusData.node_id)
         if (node) {
           node.status = statusData.node_status
+        }
+      }
+      
+      // SSE格式：如果有当前节点ID
+      if (statusData.current_node_id && statusData.status === 'running') {
+        const node = this.workflowNodes.find(n => n.id === statusData.current_node_id)
+        if (node) {
+          node.status = 'running'
         }
       }
     },
@@ -3228,24 +5261,25 @@ export default {
     // 关闭状态监控弹窗
     closeStatusMonitor() {
       this.showStatusMonitor = false
-      this.stopPollingMonitoring()
+      this.stopSSEMonitoring()
       this.monitoringWorkflowId = null
       this.currentWorkflowStatus = null
     },
 
-    // 刷新工作流状态
+    // 刷新工作流状态 - 重新建立SSE连接
     async refreshWorkflowStatus() {
       if (!this.monitoringWorkflowId) return
       
       try {
-        const workflowAPI = (await import('@/config/api.js')).default
-        const status = await workflowAPI.getDAGStatus(this.monitoringWorkflowId)
-        this.currentWorkflowStatus = status
+        // 重新建立SSE连接来获取最新状态
+        this.stopSSEMonitoring()
+        await new Promise(resolve => setTimeout(resolve, 500)) // 短暂延迟
+        this.startSSEMonitoring(this.monitoringWorkflowId)
         
-        this.$message?.success?.('状态已刷新')
+        this.showSuccess('正在重新连接获取最新状态...')
       } catch (error) {
         console.error('刷新工作流状态失败:', error)
-        this.$message?.error?.(this.$t('aiAgent.workflow.workflowManagement.refreshStatusFailed', '刷新状态失败') + ': ' + error.message)
+        this.showError(this.$t('aiAgent.workflow.workflowManagement.refreshStatusFailed', '刷新状态失败') + ': ' + error.message)
       }
     },
 
@@ -3267,8 +5301,8 @@ export default {
 
     // 处理图片加载错误
     handleImageError(event) {
-      console.error('图片加载失败:', event)
-      event.target.alt = '图片加载失败'
+      console.error('Image loading failed:', event)
+      event.target.alt = 'Image loading failed'
       event.target.style.display = 'none'
       
       // 显示错误提示
@@ -3276,35 +5310,35 @@ export default {
       errorDiv.className = 'media-error'
       errorDiv.innerHTML = `
         <div class="error-icon">🖼️</div>
-        <div class="error-text">图片加载失败</div>
+        <div class="error-text">Image loading failed</div>
       `
       event.target.parentNode.appendChild(errorDiv)
     },
 
     // 处理音频加载错误
     handleAudioError(event) {
-      console.error('音频加载失败:', event)
+      console.error('Audio loading failed:', event)
       
       // 显示错误提示
       const errorDiv = document.createElement('div')
       errorDiv.className = 'media-error'
       errorDiv.innerHTML = `
         <div class="error-icon">🎵</div>
-        <div class="error-text">音频加载失败</div>
+        <div class="error-text">Audio loading failed</div>
       `
       event.target.parentNode.appendChild(errorDiv)
     },
 
     // 处理视频加载错误
     handleVideoError(event) {
-      console.error('视频加载失败:', event)
+      console.error('Video loading failed:', event)
       
       // 显示错误提示
       const errorDiv = document.createElement('div')
       errorDiv.className = 'media-error'
       errorDiv.innerHTML = `
         <div class="error-icon">📹</div>
-        <div class="error-text">视频加载失败</div>
+        <div class="error-text">Video loading failed</div>
       `
       event.target.parentNode.appendChild(errorDiv)
     },
@@ -3314,14 +5348,33 @@ export default {
       if (!this.monitoringWorkflowId) return
       
       try {
-        const workflowAPI = (await import('@/config/api.js')).default
-        const results = await workflowAPI.getResult(this.monitoringWorkflowId)
-        this.workflowResults = results
+        // 获取最终输出节点的结果
+        const finalNode = this.identifyFinalOutputNode()
+        if (finalNode) {
+          const response = await fetch(AI_AGENT_API.RESULT, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+              dag_id: this.monitoringWorkflowId,
+              tenant_id: this.getTenantId(),
+              node_id: finalNode.id
+            })
+          })
+          
+          if (!response.ok) {
+            throw new Error(`HTTP ${response.status}: ${response.statusText}`)
+          }
+          
+          this.workflowResults = await response.json()
+        } else {
+          this.showWarning('Final output node not found')
+          return
+        }
         
-        this.$message?.success?.('结果已刷新')
+        this.showSuccess('Results refreshed successfully')
       } catch (error) {
-        console.error('刷新工作流结果失败:', error)
-        this.$message?.error?.('刷新结果失败: ' + error.message)
+        console.error('Failed to refresh workflow results:', error)
+        this.showError('Failed to refresh results: ' + error.message)
       }
     },
 
@@ -3351,10 +5404,10 @@ export default {
         document.body.removeChild(a)
         URL.revokeObjectURL(url)
         
-        this.$message?.success?.('结果已导出')
+        this.showSuccess('Results exported successfully')
       } catch (error) {
-        console.error('导出结果失败:', error)
-        this.$message?.error?.('导出失败: ' + error.message)
+        console.error('Failed to export results:', error)
+        this.showError('Export failed: ' + error.message)
       }
     },
 
@@ -3377,11 +5430,11 @@ export default {
       const hours = Math.floor(duration / 3600)
       
       if (hours > 0) {
-        return `${hours}小时${minutes}分${seconds}秒`
+        return `${hours}h ${minutes}m ${seconds}s`
       } else if (minutes > 0) {
-        return `${minutes}分${seconds}秒`
+        return `${minutes}m ${seconds}s`
       } else {
-        return `${seconds}秒`
+        return `${seconds}s`
       }
     },
 
@@ -3525,29 +5578,31 @@ export default {
       
       // 验证文件类型
       if (!file.type.startsWith('image/')) {
-        this.$message?.error?.('只支持图片格式的文件')
+        this.showError('只支持图片格式的文件')
         return
       }
       
       // 验证文件大小（10MB限制）
       if (file.size > 10 * 1024 * 1024) {
-        this.$message?.error?.('图片大小不能超过10MB')
+        this.showError('图片大小不能超过10MB')
         return
       }
       
       try {
-        // 将文件转换为base64
-        const reader = new FileReader()
-        reader.onload = (e) => {
-          input.value = e.target.result
-          input.fileName = file.name
-          input.fileSize = file.size
-          input.fileType = file.type
-        }
-        reader.readAsDataURL(file)
+        // 将所有图片格式统一转换为JPEG
+        const jpegData = await this.convertImageToJPEG(file)
+        
+        input.value = jpegData.previewUrl // 用于预览显示
+        input.fileName = this.changeFileExtensionToJPEG(file.name) // 更改文件名扩展名为.jpg
+        input.fileSize = jpegData.size
+        input.fileType = 'image/jpeg' // 统一设置为JPEG
+        input.fileData = jpegData.base64 // 存储JPEG格式的base64数据
+        
+        this.showSuccess(`图片已转换为JPEG格式 (${Math.round(jpegData.size / 1024)}KB)`)
+        
       } catch (error) {
         console.error('图片上传失败:', error)
-        this.$message?.error?.('图片上传失败: ' + error.message)
+        this.showError('图片上传失败: ' + error.message)
       }
     },
 
@@ -3558,29 +5613,35 @@ export default {
       
       // 验证文件类型
       if (!file.type.startsWith('audio/')) {
-        this.$message?.error?.('只支持音频格式的文件')
+        this.showError('只支持音频格式的文件')
         return
       }
       
       // 验证文件大小（50MB限制）
       if (file.size > 50 * 1024 * 1024) {
-        this.$message?.error?.('音频大小不能超过50MB')
+        this.showError('音频大小不能超过50MB')
         return
       }
       
       try {
-        // 将文件转换为base64
+        // 将文件转换为base64用于预览和上传
         const reader = new FileReader()
         reader.onload = (e) => {
-          input.value = e.target.result
+          input.value = e.target.result // 用于预览播放
           input.fileName = file.name
           input.fileSize = file.size
-          input.fileType = file.type
+          
+          // 对于STT服务，统一设置为audio/wav格式
+          // 其他情况保持原格式
+          input.fileType = 'audio/wav' // 与后端STT服务期望的Content-Type一致
+          input.fileData = e.target.result // 存储完整的base64数据用于后续上传
+          
+          console.log(`音频文件已处理: ${file.name} (${Math.round(file.size / 1024)}KB) -> audio/wav`)
         }
         reader.readAsDataURL(file)
       } catch (error) {
         console.error('音频上传失败:', error)
-        this.$message?.error?.('音频上传失败: ' + error.message)
+        this.showError('音频上传失败: ' + error.message)
       }
     },
 
@@ -3591,24 +5652,108 @@ export default {
       
       // 验证文件大小（100MB限制）
       if (file.size > 100 * 1024 * 1024) {
-        this.$message?.error?.('文件大小不能超过100MB')
+        this.showError('文件大小不能超过100MB')
         return
       }
       
       try {
-        // 将文件转换为base64
+        // 将文件转换为base64用于上传
         const reader = new FileReader()
         reader.onload = (e) => {
-          input.value = e.target.result
+          input.value = file.name // 显示文件名
           input.fileName = file.name
           input.fileSize = file.size
           input.fileType = file.type
+          input.fileData = e.target.result // 存储完整的base64数据用于后续上传
         }
         reader.readAsDataURL(file)
       } catch (error) {
         console.error('文件上传失败:', error)
-        this.$message?.error?.('文件上传失败: ' + error.message)
+        this.showError('文件上传失败: ' + error.message)
       }
+    },
+
+    // 将图片转换为JPEG格式
+    async convertImageToJPEG(file, quality = 0.8) {
+      return new Promise((resolve, reject) => {
+        const img = new Image()
+        const canvas = document.createElement('canvas')
+        const ctx = canvas.getContext('2d')
+        
+        img.onload = () => {
+          try {
+            // 设置画布尺寸与图片相同
+            canvas.width = img.width
+            canvas.height = img.height
+            
+            // 如果原图很大，适当缩放以优化性能和文件大小
+            const maxWidth = 2048 // 最大宽度
+            const maxHeight = 2048 // 最大高度
+            
+            let { width, height } = img
+            
+            // 计算缩放比例
+            if (width > maxWidth || height > maxHeight) {
+              const ratio = Math.min(maxWidth / width, maxHeight / height)
+              width = Math.round(width * ratio)
+              height = Math.round(height * ratio)
+              canvas.width = width
+              canvas.height = height
+            }
+            
+            // 填充白色背景（JPEG不支持透明度）
+            ctx.fillStyle = '#FFFFFF'
+            ctx.fillRect(0, 0, canvas.width, canvas.height)
+            
+            // 绘制图片到画布
+            ctx.drawImage(img, 0, 0, canvas.width, canvas.height)
+            
+            // 转换为JPEG格式的base64
+            const jpegBase64 = canvas.toDataURL('image/jpeg', quality)
+            
+            // 计算转换后的文件大小
+            const base64Data = jpegBase64.split(',')[1]
+            const binaryString = atob(base64Data)
+            const size = binaryString.length
+            
+            resolve({
+              base64: jpegBase64,
+              previewUrl: jpegBase64,
+              size: size,
+              width: canvas.width,
+              height: canvas.height,
+              compressed: size < file.size,
+              compressionRatio: file.size > 0 ? (1 - size / file.size) : 0
+            })
+            
+          } catch (error) {
+            reject(new Error('图片转换失败: ' + error.message))
+          }
+        }
+        
+        img.onerror = () => {
+          reject(new Error('Image loading failed, please check file format'))
+        }
+        
+        // 加载图片
+        const reader = new FileReader()
+        reader.onload = (e) => {
+          img.src = e.target.result
+        }
+        reader.onerror = () => {
+          reject(new Error('文件读取失败'))
+        }
+        reader.readAsDataURL(file)
+      })
+    },
+
+    // 更改文件名扩展名为JPEG
+    changeFileExtensionToJPEG(fileName) {
+      if (!fileName) return 'image.jpg'
+      
+      // 移除现有扩展名并添加.jpg
+      const nameWithoutExt = fileName.replace(/\.[^/.]+$/, '')
+      return nameWithoutExt + '.jpg'
     },
 
     // 移除图片
@@ -3617,6 +5762,7 @@ export default {
       input.fileName = null
       input.fileSize = null
       input.fileType = null
+      input.fileData = null
     },
 
     // 移除音频
@@ -3625,6 +5771,7 @@ export default {
       input.fileName = null
       input.fileSize = null
       input.fileType = null
+      input.fileData = null
     },
 
     // 移除文件
@@ -3633,6 +5780,7 @@ export default {
       input.fileName = null
       input.fileSize = null
       input.fileType = null
+      input.fileData = null
     }
   }
 }
@@ -4308,13 +6456,7 @@ export default {
   border-color: #ff6b6b;
 }
 
-.workflow-node.condition-node {
-  border-color: #ffd93d;
-}
 
-.workflow-node.processing-node {
-  border-color: #45b7d1;
-}
 
 .workflow-node.api-node {
   border-color: #a8e6cf;
@@ -6753,6 +8895,16 @@ export default {
   transform: scale(1.3);
 }
 
+.connection-point.incompatible-highlight {
+  background: #ff6b6b !important;
+  border-color: #ffffff !important;
+  box-shadow: 
+    0 0 0 3px rgba(255, 107, 107, 0.4),
+    0 0 15px rgba(255, 107, 107, 0.6);
+  transform: scale(1.1);
+  opacity: 0.7;
+}
+
 .connection-point.dragging {
   background: #ffd93d !important;
   border-color: #ffffff !important;
@@ -6969,9 +9121,27 @@ export default {
 }
 
 .workflow-grid {
-  display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(350px, 1fr));
-  gap: 20px;
+  column-count: 3;
+  column-gap: 20px;
+  column-fill: balance;
+}
+
+@media (max-width: 1400px) {
+  .workflow-grid {
+    column-count: 2;
+    column-gap: 16px;
+  }
+}
+
+@media (max-width: 768px) {
+  .workflow-grid {
+    column-count: 1;
+    column-gap: 0;
+  }
+  
+  .workflow-card {
+    margin-bottom: 16px;
+  }
 }
 
 .workflow-card {
@@ -6983,11 +9153,15 @@ export default {
   border: 1px solid #404040;
   position: relative;
   overflow: hidden;
+  break-inside: avoid;
+  margin-bottom: 20px;
+  width: 100%;
+  display: inline-block;
 }
 
 .workflow-card:hover {
-  transform: translateY(-2px);
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+  transform: translateY(-3px);
+  box-shadow: 0 8px 25px rgba(0, 0, 0, 0.4);
   border-color: #667eea;
 }
 
@@ -7050,6 +9224,34 @@ export default {
 .workflow-status.pending {
   background: linear-gradient(135deg, #ff9800 0%, #ffc107 100%);
   color: white;
+}
+
+.workflow-description {
+  font-size: 14px;
+  color: #b0b0b0;
+  margin-bottom: 12px;
+  line-height: 1.5;
+  display: -webkit-box;
+  -webkit-line-clamp: 3;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+.workflow-tags {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  margin-bottom: 15px;
+}
+
+.tag {
+  padding: 4px 8px;
+  background: rgba(102, 126, 234, 0.2);
+  color: #667eea;
+  border-radius: 12px;
+  font-size: 12px;
+  font-weight: 500;
+  border: 1px solid rgba(102, 126, 234, 0.3);
 }
 
 .workflow-meta {
@@ -7334,6 +9536,80 @@ export default {
   background: #333333;
 }
 
+
+
+.tags-display {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+  margin-top: 0.5rem;
+}
+
+.tag-item {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.25rem;
+  padding: 0.25rem 0.5rem;
+  background: #404040;
+  color: #e0e0e0;
+  border-radius: 4px;
+  font-size: 0.875rem;
+}
+
+.tag-remove {
+  background: none;
+  border: none;
+  color: #ff6b6b;
+  cursor: pointer;
+  font-size: 1rem;
+  padding: 0;
+  width: 16px;
+  height: 16px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 50%;
+  transition: background-color 0.2s ease;
+}
+
+.tag-remove:hover {
+  background: rgba(255, 107, 107, 0.2);
+}
+
+.save-options {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.checkbox-label {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  cursor: pointer;
+}
+
+.checkbox-label input[type="checkbox"] {
+  width: 16px;
+  height: 16px;
+  accent-color: #ff6b6b;
+}
+
+.checkbox-text {
+  color: #e0e0e0;
+  font-size: 0.95rem;
+}
+
+.btn-loading {
+  display: inline-block;
+  animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}
+
 /* 工作流信息区域 */
 .workflow-info-section {
   margin-bottom: 24px;
@@ -7586,6 +9862,200 @@ export default {
   flex: 1;
 }
 
+/* ==================== 全屏输出模态样式 ==================== */
+.fullscreen-output-modal {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(0, 0, 0, 0.9);
+  z-index: 10000;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  animation: fadeIn 0.3s ease;
+}
+
+.fullscreen-content {
+  background: #1a1a1a;
+  border-radius: 16px;
+  width: 90%;
+  height: 90%;
+  max-width: 1200px;
+  max-height: 800px;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.5);
+  border: 1px solid #404040;
+}
+
+.fullscreen-header {
+  background: linear-gradient(135deg, #2a2a2a 0%, #323232 100%);
+  padding: 20px 24px;
+  border-bottom: 1px solid #404040;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.fullscreen-header h3 {
+  color: #e0e0e0;
+  margin: 0;
+  font-size: 18px;
+  font-weight: 600;
+}
+
+.fullscreen-controls {
+  display: flex;
+  gap: 12px;
+  align-items: center;
+}
+
+.fullscreen-btn {
+  background: #404040;
+  color: #e0e0e0;
+  border: none;
+  padding: 8px 12px;
+  border-radius: 6px;
+  cursor: pointer;
+  font-size: 14px;
+  transition: all 0.2s ease;
+}
+
+.fullscreen-btn:hover {
+  background: #555555;
+  transform: translateY(-1px);
+}
+
+.fullscreen-close {
+  background: #ff4444;
+  color: white;
+  border: none;
+  padding: 8px 12px;
+  border-radius: 6px;
+  cursor: pointer;
+  font-size: 16px;
+  font-weight: bold;
+  transition: all 0.2s ease;
+}
+
+.fullscreen-close:hover {
+  background: #ff6666;
+  transform: scale(1.05);
+}
+
+.fullscreen-body {
+  flex: 1;
+  padding: 24px;
+  overflow: auto;
+  background: #1a1a1a;
+}
+
+.fullscreen-footer {
+  background: #2a2a2a;
+  padding: 16px 24px;
+  border-top: 1px solid #404040;
+  text-align: center;
+}
+
+.output-info {
+  color: #b0b0b0;
+  font-size: 14px;
+  font-family: 'Consolas', monospace;
+}
+
+.copy-toast {
+  position: fixed;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  background: #4CAF50;
+  color: white;
+  padding: 12px 24px;
+  border-radius: 8px;
+  z-index: 10001;
+  font-weight: 500;
+  box-shadow: 0 8px 24px rgba(76, 175, 80, 0.3);
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+/* 全屏模式下的内容样式优化 */
+.fullscreen-body img {
+  max-width: 100%;
+  max-height: 100%;
+  object-fit: contain;
+  border-radius: 8px;
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+}
+
+.fullscreen-body audio,
+.fullscreen-body video {
+  width: 100%;
+  border-radius: 8px;
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+}
+
+.fullscreen-body pre {
+  background: #0f0f0f;
+  color: #e0e0e0;
+  padding: 24px;
+  border-radius: 12px;
+  font-family: 'Consolas', 'Monaco', monospace;
+  font-size: 14px;
+  line-height: 1.6;
+  overflow: auto;
+  border: 1px solid #404040;
+  white-space: pre-wrap;
+  word-wrap: break-word;
+}
+
+.fullscreen-markdown-container {
+  color: #e0e0e0;
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  font-size: 16px;
+  line-height: 1.8;
+  max-width: none;
+}
+
+.fullscreen-markdown-container h1,
+.fullscreen-markdown-container h2,
+.fullscreen-markdown-container h3 {
+  color: #ffffff;
+  margin-top: 32px;
+  margin-bottom: 20px;
+  border-bottom: 2px solid #404040;
+  padding-bottom: 12px;
+}
+
+.fullscreen-markdown-container p {
+  margin-bottom: 20px;
+  text-align: justify;
+}
+
+.fullscreen-markdown-container a {
+  color: #667eea;
+  text-decoration: none;
+  font-weight: 500;
+  border-bottom: 1px solid transparent;
+  transition: all 0.2s ease;
+  padding: 2px 4px;
+  border-radius: 4px;
+}
+
+.fullscreen-markdown-container a:hover {
+  color: #ffffff;
+  background: #667eea;
+  text-decoration: none;
+  transform: translateY(-1px);
+  box-shadow: 0 4px 12px rgba(102, 126, 234, 0.3);
+}
+
 /* ==================== 最终输出样式 ==================== */
 .final-output-section {
   background: linear-gradient(135deg, #2a2a2a 0%, #323232 100%);
@@ -7703,6 +10173,152 @@ export default {
   margin: 0;
   white-space: pre-wrap;
   word-wrap: break-word;
+}
+
+/* Markdown渲染样式 */
+.markdown-container {
+  color: #e0e0e0;
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  font-size: 14px;
+  line-height: 1.6;
+}
+
+.markdown-container h1,
+.markdown-container h2,
+.markdown-container h3,
+.markdown-container h4,
+.markdown-container h5,
+.markdown-container h6 {
+  color: #ffffff;
+  margin-top: 24px;
+  margin-bottom: 16px;
+  font-weight: 600;
+  border-bottom: 1px solid #404040;
+  padding-bottom: 8px;
+}
+
+.markdown-container h1 {
+  font-size: 24px;
+}
+
+.markdown-container h2 {
+  font-size: 20px;
+}
+
+.markdown-container h3 {
+  font-size: 16px;
+}
+
+.markdown-container p {
+  margin-bottom: 16px;
+  color: #e0e0e0;
+}
+
+.markdown-container ul,
+.markdown-container ol {
+  margin-bottom: 16px;
+  padding-left: 24px;
+}
+
+.markdown-container li {
+  margin-bottom: 8px;
+}
+
+.markdown-container blockquote {
+  border-left: 4px solid #667eea;
+  padding-left: 16px;
+  margin: 16px 0;
+  color: #b0b0b0;
+  font-style: italic;
+  background: #2a2a2a;
+  border-radius: 4px;
+}
+
+.markdown-container code {
+  background: #404040;
+  color: #98d982;
+  padding: 2px 6px;
+  border-radius: 4px;
+  font-family: 'Consolas', 'Monaco', monospace;
+  font-size: 13px;
+}
+
+.markdown-container .code-block {
+  background: #1a1a1a;
+  border: 1px solid #404040;
+  border-radius: 8px;
+  padding: 16px;
+  margin: 16px 0;
+  overflow-x: auto;
+}
+
+.markdown-container .code-block code {
+  background: transparent;
+  color: #98d982;
+  font-family: 'Consolas', 'Monaco', monospace;
+  font-size: 14px;
+  line-height: 1.5;
+  padding: 0;
+}
+
+.markdown-container table {
+  border-collapse: collapse;
+  width: 100%;
+  margin: 16px 0;
+  border: 1px solid #404040;
+}
+
+.markdown-container th,
+.markdown-container td {
+  border: 1px solid #404040;
+  padding: 8px 12px;
+  text-align: left;
+}
+
+.markdown-container th {
+  background: #333333;
+  font-weight: 600;
+  color: #ffffff;
+}
+
+/* 🔗 常规模式下的链接样式 - 增强美观性和可用性 */
+.markdown-container a {
+  color: #667eea;
+  text-decoration: none;
+  font-weight: 500;
+  border-bottom: 1px solid transparent;
+  transition: all 0.2s ease;
+  padding: 2px 4px;
+  border-radius: 4px;
+}
+
+.markdown-container a:hover {
+  color: #ffffff;
+  background: #667eea;
+  border-bottom-color: #667eea;
+  text-decoration: none;
+  transform: translateY(-1px);
+  box-shadow: 0 2px 8px rgba(102, 126, 234, 0.3);
+}
+
+.markdown-container a:active {
+  transform: translateY(0);
+}
+
+.markdown-container hr {
+  border: none;
+  border-top: 1px solid #404040;
+  margin: 24px 0;
+}
+
+.markdown-container strong {
+  color: #ffffff;
+  font-weight: 600;
+}
+
+.markdown-container em {
+  color: #b0b0b0;
+  font-style: italic;
 }
 
 .final-output-display.json pre {
@@ -8167,6 +10783,160 @@ export default {
   font-size: 16px;
   line-height: 1.6;
   margin: 0;
+}
+
+/* 全屏模式下的Markdown容器样式 */
+.fullscreen-markdown-container {
+  background: #1a1a1a;
+  color: #e0e0e0;
+  padding: 24px;
+  border-radius: 12px;
+  border: 1px solid #404040;
+  overflow: auto;
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  font-size: 16px;
+  line-height: 1.6;
+  margin: 0;
+}
+
+/* 全屏模式下的Markdown元素样式 */
+.fullscreen-markdown-container h1,
+.fullscreen-markdown-container h2,
+.fullscreen-markdown-container h3,
+.fullscreen-markdown-container h4,
+.fullscreen-markdown-container h5,
+.fullscreen-markdown-container h6 {
+  color: #ffffff;
+  margin-top: 24px;
+  margin-bottom: 16px;
+  font-weight: 600;
+  border-bottom: 1px solid #404040;
+  padding-bottom: 8px;
+}
+
+.fullscreen-markdown-container h1 {
+  font-size: 28px;
+}
+
+.fullscreen-markdown-container h2 {
+  font-size: 24px;
+}
+
+.fullscreen-markdown-container h3 {
+  font-size: 20px;
+}
+
+.fullscreen-markdown-container p {
+  margin-bottom: 16px;
+  color: #e0e0e0;
+}
+
+.fullscreen-markdown-container ul,
+.fullscreen-markdown-container ol {
+  margin-bottom: 16px;
+  padding-left: 24px;
+}
+
+.fullscreen-markdown-container li {
+  margin-bottom: 8px;
+}
+
+.fullscreen-markdown-container blockquote {
+  border-left: 4px solid #667eea;
+  padding-left: 16px;
+  margin: 16px 0;
+  color: #b0b0b0;
+  font-style: italic;
+  background: #2a2a2a;
+  border-radius: 4px;
+  padding: 16px;
+}
+
+.fullscreen-markdown-container code {
+  background: #404040;
+  color: #98d982;
+  padding: 4px 8px;
+  border-radius: 4px;
+  font-family: 'Consolas', 'Monaco', monospace;
+  font-size: 15px;
+}
+
+.fullscreen-markdown-container .code-block {
+  background: #1a1a1a;
+  border: 1px solid #404040;
+  border-radius: 8px;
+  padding: 20px;
+  margin: 20px 0;
+  overflow-x: auto;
+}
+
+.fullscreen-markdown-container .code-block code {
+  background: transparent;
+  color: #98d982;
+  font-family: 'Consolas', 'Monaco', monospace;
+  font-size: 16px;
+  line-height: 1.5;
+  padding: 0;
+}
+
+.fullscreen-markdown-container table {
+  border-collapse: collapse;
+  width: 100%;
+  margin: 20px 0;
+  border: 1px solid #404040;
+}
+
+.fullscreen-markdown-container th,
+.fullscreen-markdown-container td {
+  border: 1px solid #404040;
+  padding: 12px 16px;
+  text-align: left;
+}
+
+.fullscreen-markdown-container th {
+  background: #333333;
+  font-weight: 600;
+  color: #ffffff;
+}
+
+/* 🔗 全屏模式下的链接样式 - 增强美观性和可用性 */
+.fullscreen-markdown-container a {
+  color: #667eea;
+  text-decoration: none;
+  font-weight: 500;
+  border-bottom: 1px solid transparent;
+  transition: all 0.2s ease;
+  padding: 2px 4px;
+  border-radius: 4px;
+}
+
+.fullscreen-markdown-container a:hover {
+  color: #ffffff;
+  background: #667eea;
+  border-bottom-color: #667eea;
+  text-decoration: none;
+  transform: translateY(-1px);
+  box-shadow: 0 2px 8px rgba(102, 126, 234, 0.3);
+}
+
+.fullscreen-markdown-container a:active {
+  transform: translateY(0);
+}
+
+.fullscreen-markdown-container hr {
+  border: none;
+  border-top: 1px solid #404040;
+  margin: 24px 0;
+}
+
+.fullscreen-markdown-container strong {
+  color: #ffffff;
+  font-weight: 600;
+}
+
+.fullscreen-markdown-container em {
+  color: #b0b0b0;
+  font-style: italic;
 }
 
 /* 响应式适配 */

@@ -6,12 +6,13 @@ import (
 	"fmt"
 	"log"
 	"math"
+	"net"
 	"net/http"
 	"os"
 	"strings"
 	"time"
 
-	"github.com/go-redis/redis/v8"
+	"github.com/redis/go-redis/v9"
 )
 
 type DependencyController struct {
@@ -27,10 +28,34 @@ type NodeCompletionEvent struct {
 }
 
 func NewDependencyController() *DependencyController {
+	addrs := strings.Split(os.Getenv("REDIS_ADDRS"), ",")
+
+	var resolvedAddrs []string
+    for i := 0; i < 30; i++ {
+        for _, addr := range addrs {
+            host, port, _ := net.SplitHostPort(addr)
+            ips, err := net.LookupHost(host)
+            if err == nil && len(ips) > 0 {
+                resolvedAddrs = append(resolvedAddrs, net.JoinHostPort(ips[0], port))
+            }
+        }
+        if len(resolvedAddrs) == len(addrs) {
+            break
+        }
+        time.Sleep(2 * time.Second)
+    }
+    
+    if len(resolvedAddrs) == 0 {
+        resolvedAddrs = addrs 
+    }
+	
 	return &DependencyController{
 		rdb: redis.NewClusterClient(&redis.ClusterOptions{
-			Addrs:    []string{os.Getenv("REDIS_ADDR")},
+			Addrs:    resolvedAddrs,
 			PoolSize: 100,
+			DialTimeout:  10 * time.Second,
+			ReadTimeout:  5 * time.Second,
+			WriteTimeout: 5 * time.Second,
 		}),
 	}
 }
@@ -94,7 +119,7 @@ func (c *DependencyController) handleNodeCompletion(event NodeCompletionEvent) {
 	weight, _ := c.rdb.HGet(ctx, "weight", event.TenantID).Float64()
 	if weight <= 0 {
 		log.Printf("Error decoding weight: %v", weight)
-		return
+		weight = 1
 	}
 	// Fetch global virtual time for every service
 	globVtLlm, _ := c.rdb.Get(ctx, "globalVT_LLM").Float64()
@@ -132,7 +157,7 @@ func (c *DependencyController) handleNodeCompletion(event NodeCompletionEvent) {
 					log.Printf("Error decoding nodes: %v", nodes[edge.To].Service)
 				}
 				queueKey := fmt.Sprintf("queue:%s", nodes[edge.To].Service)
-				pipe.ZAdd(ctx, queueKey, &redis.Z{
+				pipe.ZAdd(ctx, queueKey, redis.Z{
 					Score:  vft,
 					Member: fmt.Sprintf("%s:%s:%s", event.TenantID, event.DagID, edge.To),
 				})

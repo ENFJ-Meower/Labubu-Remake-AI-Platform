@@ -32,12 +32,12 @@
               {{ $t('home.subtitle', 'Create, Share, and Explore AI-Generated Content') }}
             </p>
             <div class="hero-buttons">
-              <router-link to="/frontend/ai-agent" class="btn btn-primary btn-large ripple-effect">
+              <button @click="navigateToAIAgent" class="btn btn-primary btn-large ripple-effect">
                 {{ $t('home.buildAgent', 'Build Agent') }}
-              </router-link>
-              <router-link to="/frontend/community" class="btn btn-secondary btn-large ripple-effect">
+              </button>
+              <button @click="navigateToCommunity" class="btn btn-secondary btn-large ripple-effect">
                 {{ $t('home.learnMore', 'Learn More') }}
-              </router-link>
+              </button>
             </div>
           </div>
         </div>
@@ -63,7 +63,7 @@
         </div>
         <div class="scroll-content-wrapper">
           <div class="scroll-text-content">
-            <h2 class="scroll-title">{{ $t('home.features.aiAgent', 'AI Agent Studio') }}</h2>
+            <h2 class="scroll-title clickable-title" @click="navigateToAIAgent">{{ $t('home.features.aiAgent', 'AI Agent Studio') }}</h2>
             <p class="scroll-description">
               {{ $t('home.descriptions.aiAgent', 'Build and customize intelligent AI agents with our intuitive drag-and-drop workflow editor. Create personalized chatbots, automate complex tasks, and integrate multiple AI services including LLM, image generation, speech synthesis, and more. Perfect for businesses, creators, and developers.') }}
             </p>
@@ -94,7 +94,7 @@
         </div>
         <div class="scroll-content-wrapper">
           <div class="scroll-text-content">
-            <h2 class="scroll-title">{{ $t('home.features.community', 'Creative Community') }}</h2>
+            <h2 class="scroll-title clickable-title" @click="navigateToCommunity">{{ $t('home.features.community', 'Creative Community') }}</h2>
             <p class="scroll-description">
               {{ $t('home.descriptions.community', 'Join a vibrant community of creators, artists, and AI enthusiasts. Share your creations, discover amazing works, participate in challenges, collaborate on projects, and learn from fellow creators. Connect, inspire, and be inspired in our creative ecosystem.') }}
             </p>
@@ -125,7 +125,7 @@
         </div>
         <div class="scroll-content-wrapper">
           <div class="scroll-text-content">
-            <h2 class="scroll-title">{{ $t('home.features.marketplace', 'Digital Marketplace') }}</h2>
+            <h2 class="scroll-title clickable-title" @click="navigateToMarketplace">{{ $t('home.features.marketplace', 'Digital Marketplace') }}</h2>
             <p class="scroll-description">
               {{ $t('home.descriptions.marketplace', 'Discover and trade unique digital creations, custom AI agents, templates, and creative assets. Buy professional tools, sell your innovations, commission custom work, and find everything you need to enhance your creative projects in our secure marketplace.') }}
             </p>
@@ -156,7 +156,7 @@
         </div>
         <div class="scroll-content-wrapper">
           <div class="scroll-text-content">
-            <h2 class="scroll-title">{{ $t('about.title', 'About Labubu AI Platform') }}</h2>
+            <h2 class="scroll-title clickable-title" @click="navigateToAbout">{{ $t('about.title', 'About Labubu AI Platform') }}</h2>
             <p class="scroll-description">
               {{ $t('home.descriptions.about', 'Labubu AI Platform is the ultimate creative ecosystem that combines cutting-edge AI technology with community collaboration. We empower creators to build, share, and monetize their innovations while fostering a supportive environment for learning and growth.') }}
             </p>
@@ -179,21 +179,56 @@
       </div>
     </section>
 
-    <!-- 联系我们 -->
-    <section class="section contact">
+    <!-- 团队介绍 -->
+    <section class="section team-section">
       <div class="container">
-        <div class="contact-content">
-          <h2 class="section-title animate-fade-in-up gradient-text">{{ $t('home.contact.title', 'Get in Touch') }}</h2>
+        <div class="team-content">
+          <h2 class="section-title animate-fade-in-up gradient-text">{{ $t('home.team.title', '我们的团队') }}</h2>
           <p class="section-subtitle animate-fade-in-up">
-            {{ $t('home.contact.subtitle', 'Ready to start your creative journey? We\'re here to help!') }}
+            {{ $t('home.team.subtitle', '充满激情的创新团队，致力于打造最优秀的AI创作平台') }}
           </p>
-          <div class="contact-buttons animate-fade-in-up">
-            <a href="#" class="btn btn-primary ripple-effect">
-              {{ $t('home.contact.support', 'Contact Support') }}
-            </a>
-            <a href="#" class="btn btn-secondary ripple-effect">
-              {{ $t('home.contact.discord', 'Join Discord') }}
-            </a>
+          
+          <!-- 团队照片区域 -->
+          <div class="team-photo-section animate-fade-in-up">
+            <div class="team-photo-placeholder">
+              <div class="photo-icon">📸</div>
+              <p>{{ $t('home.team.photoPlaceholder', '团队照片即将上传...') }}</p>
+            </div>
+          </div>
+
+          <!-- 团队介绍 -->
+          <div class="team-description animate-fade-in-up">
+            <h3>{{ $t('home.team.descriptionTitle', '关于我们') }}</h3>
+            <p class="team-intro-placeholder">
+              {{ $t('home.team.descriptionPlaceholder', '我们是一支由5名充满创新精神的成员组成的团队，专注于AI技术与创意的完美结合。每个成员都带来了独特的专业技能和创新视角，共同致力于打造革命性的AI创作平台。团队介绍内容即将更新...') }}
+            </p>
+          </div>
+
+          <!-- 团队成员 -->
+          <div class="team-members animate-fade-in-up">
+            <h3>{{ $t('home.team.membersTitle', '团队成员') }}</h3>
+            <div class="members-grid">
+              <div class="member-card" v-for="member in teamMembers" :key="member.id">
+                <div class="member-avatar">
+                  <img 
+                    :src="member.avatar" 
+                    :alt="member.name" 
+                    class="avatar-image"
+                    @error="handleImageError"
+                  />
+                </div>
+                <div class="member-info">
+                  <h4 class="member-name">{{ member.name }}</h4>
+                  <p class="member-role">{{ member.role }}</p>
+                  <p class="member-description">
+                    {{ member.description }}
+                    <span v-if="member.school" class="school-info">
+                      <br>🎓 {{ member.school }}
+                    </span>
+                  </p>
+                </div>
+              </div>
+            </div>
           </div>
         </div>
       </div>
@@ -204,6 +239,52 @@
 <script>
 export default {
   name: 'Home',
+  data() {
+    return {
+      teamMembers: [
+        { 
+          id: 1, 
+          name: 'HU XIAOXIAO',
+          role: 'Full Stack Developer',
+          description: 'Passionate developer specializing in AI integration and platform architecture',
+          avatar: '/src/assets/images/HU XIAOXIAO.jpg',
+          school: 'Beijing Institute of Technology'
+        },
+        { 
+          id: 2, 
+          name: 'LIU YI',
+          role: 'AI Engineer', 
+          description: 'Expert in machine learning and AI model optimization for creative applications',
+          avatar: '/src/assets/images/avatar2.jpg',
+          school: null
+        },
+        { 
+          id: 3, 
+          name: 'SRIYA SURISETTY',
+          role: 'Product Manager',
+          description: 'Dedicated to creating user-centered AI products and community experiences', 
+          avatar: '/src/assets/images/avatar3.jpg',
+          school: null
+        },
+        { 
+          id: 4, 
+          name: 'WEI MENGZE',
+          role: 'Backend Developer',
+          description: 'Focused on scalable infrastructure and AI service integration',
+          avatar: '/src/assets/images/avatar4.jpg', 
+          school: null
+        },
+        { 
+          id: 5, 
+          name: 'WU ANRAN',
+          role: 'Frontend Developer',
+          description: 'Dedicated to creating intuitive and beautiful user interfaces with modern web technologies',
+          avatar: '/src/assets/images/WU ANRAN.jpg',
+          school: 'Beijing University of Posts and Telecommunications'
+        }
+      ]
+    }
+  },
   mounted() {
     // 添加滚动动画观察者
     this.observeAnimations()
@@ -215,6 +296,60 @@ export default {
     this.initScrollAnimations()
   },
   methods: {
+    // 处理头像图片加载错误
+    handleImageError(event) {
+      console.warn('头像图片加载失败:', event.target.src)
+      // 设置一个默认的占位符图片或样式
+      event.target.style.display = 'none'
+      const placeholder = document.createElement('div')
+      placeholder.className = 'avatar-placeholder error-placeholder'
+      placeholder.innerHTML = '<span class="avatar-icon">👤</span>'
+      event.target.parentNode.appendChild(placeholder)
+    },
+    
+    // 检查用户是否已登录
+    checkAuthAndNavigate(targetRoute) {
+      const token = localStorage.getItem('labubu_token')
+      const userInfo = localStorage.getItem('userInfo')
+      
+      if (!token || !userInfo) {
+        // 用户未登录，保存目标页面并跳转到登录页
+        localStorage.setItem('redirect_after_login', targetRoute)
+        this.$router.push('/frontend/login')
+        return false
+      }
+      
+      return true
+    },
+    
+    // 导航到AI Agent Studio
+    navigateToAIAgent() {
+      // 暂时注释身份验证，方便前端布局调试
+      // if (this.checkAuthAndNavigate('/frontend/ai-agent')) {
+        this.$router.push('/frontend/ai-agent')
+      // }
+    },
+    
+    // 导航到社区
+    navigateToCommunity() {
+      // 暂时注释身份验证，方便前端布局调试
+      // if (this.checkAuthAndNavigate('/frontend/community')) {
+        this.$router.push('/frontend/community')
+      // }
+    },
+    
+    // 导航到市场
+    navigateToMarketplace() {
+      // 暂时注释身份验证，方便前端布局调试
+      // if (this.checkAuthAndNavigate('/frontend/marketplace')) {
+        this.$router.push('/frontend/marketplace')
+      // }
+    },
+    
+    // 导航到关于页面（无需登录）
+    navigateToAbout() {
+      this.$router.push('/frontend/about')
+    },
     observeAnimations() {
       const observer = new IntersectionObserver(
         (entries) => {
@@ -1499,6 +1634,39 @@ export default {
   line-height: 1.2;
 }
 
+/* 可点击标题样式 */
+.clickable-title {
+  cursor: pointer;
+  position: relative;
+  transition: all 0.3s ease;
+  display: inline-block;
+}
+
+.clickable-title::after {
+  content: '';
+  position: absolute;
+  bottom: -5px;
+  left: 0;
+  width: 0;
+  height: 3px;
+  background: linear-gradient(45deg, #ff6b6b, #4ecdc4);
+  transition: width 0.3s ease;
+}
+
+.clickable-title:hover::after {
+  width: 100%;
+}
+
+.clickable-title:hover {
+  transform: translateY(-2px);
+  filter: brightness(1.1) drop-shadow(0 5px 15px rgba(255, 107, 107, 0.3));
+}
+
+.clickable-title:active {
+  transform: translateY(0);
+  transition: transform 0.1s ease;
+}
+
 .scroll-description {
   font-size: 1.1rem;
   line-height: 1.6;
@@ -1790,25 +1958,235 @@ export default {
   }
 }
 
-/* 联系我们样式 */
-.contact {
+/* 团队介绍样式 */
+.team-section {
   background: linear-gradient(135deg, #1a1a1a 0%, #2d2d2d 100%);
-}
-
-.contact {
   position: relative;
   z-index: 5;
+  padding: 80px 0;
 }
 
-.contact-content {
+.team-content {
+  text-align: center;
+  max-width: 1200px;
+  margin: 0 auto;
+}
+
+/* 团队照片区域 */
+.team-photo-section {
+  margin: 4rem 0;
+}
+
+.team-photo-placeholder {
+  background: rgba(255, 255, 255, 0.05);
+  border: 2px dashed rgba(255, 107, 107, 0.3);
+  border-radius: 20px;
+  padding: 3rem 2rem;
+  text-align: center;
+  transition: all 0.3s ease;
+}
+
+.team-photo-placeholder:hover {
+  border-color: rgba(255, 107, 107, 0.5);
+  background: rgba(255, 255, 255, 0.08);
+}
+
+.photo-icon {
+  font-size: 3rem;
+  margin-bottom: 1rem;
+  opacity: 0.7;
+}
+
+.team-photo-placeholder p {
+  color: #b0b0b0;
+  font-size: 1.1rem;
+  margin: 0;
+}
+
+/* 团队介绍 */
+.team-description {
+  margin: 4rem 0;
+  text-align: left;
+  max-width: 800px;
+  margin-left: auto;
+  margin-right: auto;
+}
+
+.team-description h3 {
+  font-size: 2rem;
+  font-weight: 600;
+  margin-bottom: 1.5rem;
+  background: linear-gradient(45deg, #ff6b6b, #4ecdc4);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
   text-align: center;
 }
 
-.contact-buttons {
-  display: flex;
-  gap: 1rem;
+.team-intro-placeholder {
+  color: #e0e0e0;
+  font-size: 1.1rem;
+  line-height: 1.8;
+  text-align: center;
+  background: rgba(255, 255, 255, 0.05);
+  padding: 2rem;
+  border-radius: 15px;
+  border-left: 4px solid #ff6b6b;
+}
+
+/* 团队成员 */
+.team-members {
+  margin: 4rem 0;
+}
+
+.team-members h3 {
+  font-size: 2rem;
+  font-weight: 600;
+  margin-bottom: 3rem;
+  background: linear-gradient(45deg, #ff6b6b, #4ecdc4);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+.members-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+  gap: 2rem;
+  margin-top: 2rem;
   justify-content: center;
-  flex-wrap: wrap;
+  max-width: 1200px;
+  margin-left: auto;
+  margin-right: auto;
+}
+
+.member-card {
+  background: rgba(255, 255, 255, 0.05);
+  border-radius: 20px;
+  padding: 2rem;
+  text-align: center;
+  transition: all 0.3s ease;
+  border: 1px solid rgba(255, 107, 107, 0.2);
+  position: relative;
+  overflow: hidden;
+}
+
+.member-card::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: -100%;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(90deg, transparent, rgba(255, 107, 107, 0.1), transparent);
+  transition: left 0.5s ease;
+}
+
+.member-card:hover::before {
+  left: 100%;
+}
+
+.member-card:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 15px 40px rgba(255, 107, 107, 0.2);
+  border-color: rgba(255, 107, 107, 0.4);
+}
+
+.member-avatar {
+  margin-bottom: 1.5rem;
+}
+
+.avatar-placeholder {
+  width: 100px;
+  height: 100px;
+  background: linear-gradient(135deg, #ff6b6b, #4ecdc4);
+  border-radius: 50%;
+  margin: 0 auto;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  position: relative;
+  overflow: hidden;
+}
+
+.avatar-placeholder::after {
+  content: '';
+  position: absolute;
+  top: 2px;
+  left: 2px;
+  right: 2px;
+  bottom: 2px;
+  background: #1a1a1a;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.avatar-icon {
+  font-size: 2.5rem;
+  position: relative;
+  z-index: 1;
+  opacity: 0.7;
+}
+
+.member-info {
+  position: relative;
+  z-index: 1;
+}
+
+.member-name {
+  font-size: 1.3rem;
+  font-weight: 600;
+  color: #fff;
+  margin-bottom: 0.5rem;
+  background: linear-gradient(45deg, #ff6b6b, #4ecdc4);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+.member-role {
+  color: #4ecdc4;
+  font-weight: 500;
+  margin-bottom: 1rem;
+  font-size: 1rem;
+}
+
+.member-description {
+  color: #b0b0b0;
+  font-size: 0.9rem;
+  line-height: 1.6;
+  margin: 0;
+  font-style: italic;
+}
+
+.school-info {
+  color: #b0b0b0;
+  font-size: 0.85rem;
+  font-style: italic;
+}
+
+.avatar-image {
+  width: 100px;
+  height: 100px;
+  border-radius: 50%;
+  object-fit: cover;
+  transition: all 0.3s ease;
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3);
+}
+
+.avatar-image:hover {
+  transform: scale(1.05);
+  box-shadow: 0 6px 20px rgba(255, 107, 107, 0.4);
+}
+
+.error-placeholder {
+  background: linear-gradient(135deg, #666, #999);
+}
+
+.error-placeholder .avatar-icon {
+  opacity: 0.5;
 }
 
 /* 3D卡片悬停效果 */
@@ -2084,6 +2462,81 @@ export default {
   .scroll-animation-line {
     height: 20px;
     margin-top: 0.8rem;
+  }
+  
+  /* 团队部分移动端适配 */
+  .team-section {
+    padding: 40px 0;
+  }
+  
+  .team-photo-placeholder {
+    padding: 2rem 1rem;
+  }
+  
+  .photo-icon {
+    font-size: 2.5rem;
+  }
+  
+  .team-description {
+    margin: 2rem 0;
+    text-align: center;
+  }
+  
+  .team-description h3 {
+    font-size: 1.5rem;
+  }
+  
+  .team-intro-placeholder {
+    padding: 1.5rem;
+    font-size: 1rem;
+  }
+  
+  .team-members h3 {
+    font-size: 1.5rem;
+    margin-bottom: 2rem;
+  }
+  
+  .members-grid {
+    grid-template-columns: 1fr;
+    gap: 1.5rem;
+    max-width: 400px;
+    margin-left: auto;
+    margin-right: auto;
+  }
+  
+  .member-card {
+    padding: 1.5rem;
+  }
+  
+  .avatar-placeholder {
+    width: 80px;
+    height: 80px;
+  }
+  
+  .avatar-icon {
+    font-size: 2rem;
+  }
+  
+  .member-name {
+    font-size: 1.1rem;
+  }
+  
+  .avatar-image {
+    width: 80px;
+    height: 80px;
+    border-width: 2px;
+  }
+  
+  .school-info {
+    font-size: 0.75rem;
+  }
+  
+  .member-description {
+    font-size: 0.85rem;
+  }
+  
+  .member-role {
+    font-size: 0.9rem;
   }
   
   /* 滚动动画布局响应式 */

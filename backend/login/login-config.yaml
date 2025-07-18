@@ -4,7 +4,13 @@ metadata:
   name: login-config
   namespace: dag-system
 data:
-  SPRING_DATA_REDIS_CLUSTER_NODES: "redis-cluster.dag-system.svc.cluster.local:6379"
+  SPRING_DATA_REDIS_CLUSTER_NODES: |
+    redis-cluster-0.redis-cluster.dag-system.svc.cluster.local:6379,
+    redis-cluster-1.redis-cluster.dag-system.svc.cluster.local:6379,
+    redis-cluster-2.redis-cluster.dag-system.svc.cluster.local:6379,
+    redis-cluster-3.redis-cluster.dag-system.svc.cluster.local:6379,
+    redis-cluster-4.redis-cluster.dag-system.svc.cluster.local:6379,
+    redis-cluster-5.redis-cluster.dag-system.svc.cluster.local:6379
   SPRING_DATA_REDIS_CLUSTER_MAX_REDIRECTS: "3"
   SPRING_DATA_REDIS_TIMEOUT: "5000ms"
   SPRING_MAIL_HOST: "smtp.gmail.com"

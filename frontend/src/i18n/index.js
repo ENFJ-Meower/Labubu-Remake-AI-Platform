@@ -29,6 +29,7 @@ const translations = reactive({
       aiAgent: 'AI Agent',
       community: 'Community',
       marketplace: 'Marketplace',
+      profile: 'Profile',
       about: 'About',
       login: 'Login',
       register: 'Register',
@@ -85,6 +86,16 @@ const translations = reactive({
         subtitle: 'Ready to start your creative journey? We\'re here to help!',
         support: 'Contact Support',
         discord: 'Join Discord'
+      },
+      team: {
+        title: 'Our Team',
+        subtitle: 'A passionate innovation team dedicated to building the best AI creative platform',
+        photoPlaceholder: 'Team photo coming soon...',
+        descriptionTitle: 'About Us',
+        descriptionPlaceholder: 'We are a team of 5 innovative members focused on the perfect combination of AI technology and creativity. Each member brings unique professional skills and innovative perspectives, working together to create a revolutionary AI creative platform. Team description coming soon...',
+        membersTitle: 'Team Members',
+        rolePlaceholder: 'Role to be updated',
+        memberPlaceholder: 'Personal introduction coming soon...'
       }
     },
 
@@ -173,7 +184,7 @@ const translations = reactive({
         saveFailed: 'Failed to save workflow',
         testStarted: 'Workflow test started',
         testFailed: 'Failed to test workflow',
-        deploySuccess: 'Workflow deployed successfully',
+        deploySuccess: 'Workflow deployed and saved to records successfully',
         deployFailed: 'Failed to deploy workflow',
 
         // 默认提示词
@@ -369,8 +380,8 @@ const translations = reactive({
         clickToUpload: 'Click to upload image',
         clickToUploadAudio: 'Click to upload audio',
         clickToUploadFile: 'Click to upload file',
-        supportedFormats: 'Supports JPG, PNG, GIF formats',
-        audioFormats: 'Supports MP3, WAV, OGG formats',
+        supportedFormats: 'Supports JPG, PNG, GIF, BMP, WEBP, SVG formats, auto-converted to JPEG',
+        audioFormats: 'Supports MP3, WAV, OGG formats, auto-set to WAV format',
         inputJson: 'JSON Data',
         jsonPlaceholder: 'Enter JSON format data...',
         jsonHint: 'Please enter valid JSON format data',
@@ -428,6 +439,7 @@ const translations = reactive({
           saveWorkflow: 'Save Workflow',
           testWorkflow: 'Test Workflow',
           deployWorkflow: 'Deploy Workflow',
+          redeployWorkflow: 'Redeploy',
           designer: 'Designer',
           dagWorkflow: 'DAG Workflow'
         },
@@ -498,13 +510,96 @@ const translations = reactive({
         connectionDescription: 'Connection Description',
         connectionDescPlaceholder: 'Describe this connection\'s purpose...',
         saveConnection: 'Save Connection',
-        deleteConnection: 'Delete Connection'
+        deleteConnection: 'Delete Connection',
+        // 错误消息
+        errors: {
+          dataTypeIncompatible: 'Data type incompatible: {outputNode} outputs {outputType} type, but {inputNode} only accepts {inputType} type input'
+        }
       }
     },
     // 社区
     community: {
       title: 'Creative Community',
       subtitle: 'Share your creativity with the world',
+      heroTitle: 'Creative Notes Community',
+      heroSubtitle: 'Share your creative ideas and discover more inspiration',
+      totalNotes: 'Total Notes',
+      todayNotes: 'Today',
+      activeTags: 'Active Tags',
+      searchPlaceholder: 'Search note content, tags, or authors...',
+      trendingTags: 'Trending Tags',
+      shareNote: 'Share your creative note...',
+      noNotes: 'No Notes',
+      noNotesDesc: 'Come and publish your first note!',
+      loading: 'Loading...',
+      publish: 'Publish Note',
+      selectWorkflow: 'Select AI Agent Workflow',
+      addComment: 'Add comment...',
+      send: 'Send',
+      tryWorkflow: 'Try',
+      loadMore: 'Load More',
+      // Labubu介绍
+      labubu: {
+        welcomeTitle: 'Welcome to Labubu\'s Creative World!',
+        welcomeText: 'Here, every creative idea is as charming and surprising as Labubu. Let\'s explore the infinite possibilities of AI together and light up every corner of the digital world with warm creativity.',
+        features: {
+          creativity: 'Unlimited Creativity',
+          sharing: 'Inspiration Sharing',
+          ai: 'AI Powered',
+          community: 'Warm Community'
+        }
+      },
+      // 时间显示
+      timeAgo: {
+        minutesAgo: '{count} minutes ago',
+        minuteAgo: '1 minute ago',
+        hoursAgo: '{count} hours ago',
+        hourAgo: '1 hour ago',
+        daysAgo: '{count} days ago',
+        dayAgo: '1 day ago',
+        weeksAgo: '{count} weeks ago',
+        weekAgo: '1 week ago',
+        monthsAgo: '{count} months ago',
+        monthAgo: '1 month ago',
+        yearsAgo: '{count} years ago',
+        yearAgo: '1 year ago',
+        justNow: 'Just now'
+      },
+      filters: {
+        all: 'All',
+        text: 'Text',
+        image: 'Image', 
+        video: 'Video',
+        workflow: 'Workflow'
+      },
+      noteTypes: {
+        text: 'Text Note',
+        image: 'Image Share',
+        video: 'Video Share',
+        workflow: 'AI Workflow'
+      },
+      tags: {
+        aiCreation: 'AI Creation',
+        labubu: 'Labubu',
+        designInspiration: 'Design Inspiration',
+        photographyTips: 'Photography Tips',
+        programmingNotes: 'Programming Notes',
+        lifeRecords: 'Life Records',
+        learningInsights: 'Learning Insights',
+        workflows: 'Workflows',
+        creativeIdeas: 'Creative Ideas',
+        techSharing: 'Tech Sharing'
+      },
+      placeholders: {
+        text: 'Share your thoughts, experiences, or inspiration...',
+        image: 'Add description for your images...',
+        video: 'Add description for your video...',
+        workflow: 'Introduce your AI workflow functions and uses...'
+      },
+      uploadTexts: {
+        image: 'Click or drag to upload images',
+        video: 'Click or drag to upload video'
+      },
       tabs: {
         feed: 'Feed',
         gallery: 'Gallery',
@@ -567,18 +662,24 @@ const translations = reactive({
     // 登录
     login: {
       title: 'LABUBU AI',
-      username: 'Username/Email',
+      username: 'Username',
       password: 'Password',
-      usernamePlaceholder: 'Enter username or email',
+      usernamePlaceholder: 'Enter username',
       passwordPlaceholder: 'Enter password',
       rememberMe: 'Remember me',
       forgotPassword: 'Forgot password?',
       loginButton: 'Login',
+      loggingIn: 'Logging In',
+      loadingTip: 'Login verification may take some time, please wait patiently...',
       noAccount: 'Don\'t have an account?',
       registerNow: 'Register now',
       passwordError: 'Password must be at least 8 characters with letters and special characters',
       forgotMessage: 'Please contact admin to reset password.',
-      registerMessage: 'Registration feature is not yet open.'
+      registerMessage: 'Registration feature is not yet open.',
+      loginFailed: 'Login failed',
+      loginSuccess: 'Login successful',
+      usernameRequired: 'Please enter username',
+      passwordRequired: 'Please enter password'
     },
     // 注册
     register: {
@@ -591,10 +692,13 @@ const translations = reactive({
       usernamePlaceholder: 'Enter username',
       emailPlaceholder: 'Enter email',
       passwordPlaceholder: 'Enter password',
+      passwordHint: 'Password requirements: 8-16 characters, including at least two of: uppercase letters, lowercase letters, digits',
       confirmPasswordPlaceholder: 'Enter password again',
       codePlaceholder: 'Enter verification code',
       getCode: 'Get Code',
       registerButton: 'Register',
+      registering: 'Registering',
+      registeringTip: 'Account registration verification may take some time, please wait patiently...',
       hasAccount: 'Already have an account?',
       goLogin: 'Go to login',
       completeInfo: 'Please fill in complete information',
@@ -613,12 +717,100 @@ const translations = reactive({
       codeSuccess: 'Verification code has been sent to your email, please check!',
       emailFormatError: 'Invalid email format',
       usernameRequired: 'Please enter username',
-      usernameLength: 'Username should be 3-20 characters',
-      passwordLength: 'Password should be at least 8 characters',
+      usernameLength: 'Username must be longer than 2 characters',
+      passwordLength: 'Password length must be 8-16 characters',
+      passwordComplexity: 'Password must include at least two of: uppercase letters, lowercase letters, digits',
       passwordMismatch: 'The two passwords do not match',
       invalidCode: 'Verification code is invalid or expired',
       serverError: 'Server error, please try again later',
-      sendCodeError: 'Failed to send verification code'
+      sendCodeError: 'Failed to send verification code',
+      sendCodeFailed: 'Failed to send verification code',
+      registerFailed: 'Registration failed'
+    },
+    // 个人中心
+    profile: {
+      aiAgents: 'AI Agents',
+      posts: 'Posts',
+      transactions: 'Transactions',
+      editProfile: 'Edit Profile',
+      share: 'Share',
+      myAIAgents: 'My AI Agents',
+      createAgent: 'Create New Agent',
+      myCommunityContent: 'My Community Content',
+      createPost: 'Create Post',
+      marketplace: 'Marketplace',
+      settings: 'Settings',
+      community: 'Community',
+      mySelling: 'My Products',
+      purchases: 'Purchases',
+      sales: 'Sales',
+      myProducts: 'My Products',
+      addProduct: 'Add Product',
+      purchaseHistory: 'Purchase History',
+      salesHistory: 'Sales History',
+      accountSettings: 'Account Settings',
+      privacy: 'Privacy Settings',
+      notifications: 'Notification Settings',
+      username: 'Username',
+      email: 'Email',
+      bio: 'Bio',
+      bioPlaceholder: 'Tell us about yourself...',
+      publicProfile: 'Public Profile',
+      publicProfileDesc: 'Allow others to view your profile',
+      showActivity: 'Show Activity',
+      showActivityDesc: 'Display your recent activities',
+      emailNotifications: 'Email Notifications',
+      emailNotificationsDesc: 'Receive notifications via email',
+      marketingEmails: 'Marketing Emails',
+      marketingEmailsDesc: 'Receive promotional content',
+      saveChanges: 'Save Changes',
+      deleteAccount: 'Delete Account',
+      deleteAccountConfirm: 'Are you sure you want to delete your account? This action cannot be undone!',
+      runs: 'Runs',
+      success: 'Success Rate',
+      edit: 'Edit',
+      run: 'Run',
+      delete: 'Delete',
+      view: 'View',
+      stats: 'Stats',
+      seller: 'Seller',
+      buyer: 'Buyer',
+      viewOrder: 'View Order',
+      review: 'Review',
+      process: 'Process',
+      selectAvatar: 'Select Avatar',
+      avatarTip: 'Choose a favorite avatar as your personal image',
+      cancel: 'Cancel',
+      confirm: 'Confirm',
+      avatarUpdated: 'Avatar updated successfully!',
+      avatarUpdateFailed: 'Failed to update avatar, please try again',
+      avatarEditMsg: 'Avatar editing feature coming soon',
+      profileEditMsg: 'Profile editing feature coming soon',
+      linkCopied: 'Link copied to clipboard',
+      settingsSaved: 'Settings saved',
+      deleteAccountMsg: 'Account deletion requires contacting customer service',
+      status: {
+        active: 'Active',
+        draft: 'Draft',
+        inactive: 'Inactive'
+      },
+      postType: {
+        artwork: 'Artwork',
+        tutorial: 'Tutorial',
+        discussion: 'Discussion',
+        showcase: 'Showcase'
+      },
+      productStatus: {
+        active: 'Active',
+        sold_out: 'Sold Out',
+        draft: 'Draft'
+      },
+      transactionStatus: {
+        pending: 'Pending',
+        completed: 'Completed',
+        delivered: 'Delivered',
+        cancelled: 'Cancelled'
+      }
     }
   },
   zh: {
@@ -628,6 +820,7 @@ const translations = reactive({
       aiAgent: 'AI智能体',
       community: '社区',
       marketplace: '市场',
+      profile: '个人中心',
       about: '关于',
       login: '登录',
       register: '注册',
@@ -684,6 +877,16 @@ const translations = reactive({
         subtitle: '准备开始您的创意之旅了吗？我们随时为您提供帮助！',
         support: '联系支持',
         discord: '加入Discord'
+      },
+      team: {
+        title: '我们的团队',
+        subtitle: '充满激情的创新团队，致力于打造最优秀的AI创作平台',
+        photoPlaceholder: '团队照片即将上传...',
+        descriptionTitle: '关于我们',
+        descriptionPlaceholder: '我们是一支由5名充满创新精神的成员组成的团队，专注于AI技术与创意的完美结合。每个成员都带来了独特的专业技能和创新视角，共同致力于打造革命性的AI创作平台。团队介绍内容即将更新...',
+        membersTitle: '团队成员',
+        rolePlaceholder: '职位待更新',
+        memberPlaceholder: '个人介绍即将更新...'
       }
     },
 
@@ -772,7 +975,7 @@ const translations = reactive({
         saveFailed: '保存工作流失败',
         testStarted: '工作流测试已启动',
         testFailed: '测试工作流失败',
-        deploySuccess: '工作流部署成功',
+        deploySuccess: '工作流部署成功并已保存到记录中',
         deployFailed: '部署工作流失败',
 
         // 默认提示词
@@ -795,6 +998,7 @@ const translations = reactive({
         saveWorkflow: '保存工作流',
         testWorkflow: '测试运行',
         deployWorkflow: '部署',
+        redeployWorkflow: '重新部署',
         zoomIn: '放大',
         zoomOut: '缩小',
         resetZoom: '重置缩放',
@@ -968,8 +1172,8 @@ const translations = reactive({
         clickToUpload: '点击上传图片',
         clickToUploadAudio: '点击上传音频',
         clickToUploadFile: '点击上传文件',
-        supportedFormats: '支持 JPG、PNG、GIF 格式',
-        audioFormats: '支持 MP3、WAV、OGG 格式',
+        supportedFormats: '支持 JPG、PNG、GIF、BMP、WEBP、SVG 格式，自动转换为JPEG',
+        audioFormats: '支持 MP3、WAV、OGG 格式，自动设置为WAV格式',
         inputJson: 'JSON数据',
         jsonPlaceholder: '输入JSON格式数据...',
         jsonHint: '请输入有效的JSON格式数据',
@@ -1027,6 +1231,7 @@ const translations = reactive({
           saveWorkflow: '保存工作流',
           testWorkflow: '测试工作流',
           deployWorkflow: '部署工作流',
+          redeployWorkflow: '重新部署',
           designer: '设计器',
           dagWorkflow: 'DAG工作流'
         },
@@ -1097,13 +1302,96 @@ const translations = reactive({
         connectionDescription: '连接描述',
         connectionDescPlaceholder: '描述此连接的作用...',
         saveConnection: '保存连接',
-        deleteConnection: '删除连接'
+        deleteConnection: '删除连接',
+        // 错误消息
+        errors: {
+          dataTypeIncompatible: '数据类型不兼容：{outputNode} 输出 {outputType} 类型，但 {inputNode} 只接受 {inputType} 类型输入'
+        }
       }
     },
     // 社区
     community: {
       title: '创意社区',
       subtitle: '与世界分享您的创意',
+      heroTitle: '创意笔记社区',
+      heroSubtitle: '分享你的创意想法，发现更多灵感',
+      totalNotes: '总笔记数',
+      todayNotes: '今日新增',
+      activeTags: '活跃标签',
+      searchPlaceholder: '搜索笔记内容、标签或作者...',
+      trendingTags: '热门标签',
+      shareNote: '分享你的创意笔记...',
+      noNotes: '暂无笔记',
+      noNotesDesc: '快来发布第一篇笔记吧！',
+      loading: '加载中...',
+      publish: '发布笔记',
+      selectWorkflow: '选择AI Agent工作流',
+      addComment: '添加评论...',
+      send: '发送',
+      tryWorkflow: '试用',
+      loadMore: '加载更多',
+      // Labubu介绍
+      labubu: {
+        welcomeTitle: '欢迎来到Labubu的创意世界！',
+        welcomeText: '在这里，每一个创意都像Labubu一样充满魅力和惊喜。让我们一起探索AI的无限可能，用温暖的创意点亮数字世界的每一个角落。',
+        features: {
+          creativity: '创意无限',
+          sharing: '灵感共享',
+          ai: 'AI驱动',
+          community: '温暖社区'
+        }
+      },
+      // 时间显示
+      timeAgo: {
+        minutesAgo: '{count}分钟前',
+        minuteAgo: '1分钟前',
+        hoursAgo: '{count}小时前',
+        hourAgo: '1小时前',
+        daysAgo: '{count}天前',
+        dayAgo: '1天前',
+        weeksAgo: '{count}周前',
+        weekAgo: '1周前',
+        monthsAgo: '{count}个月前',
+        monthAgo: '1个月前',
+        yearsAgo: '{count}年前',
+        yearAgo: '1年前',
+        justNow: '刚刚'
+      },
+      filters: {
+        all: '全部',
+        text: '文字',
+        image: '图片',
+        video: '视频',
+        workflow: '工作流'
+      },
+      noteTypes: {
+        text: '文字笔记',
+        image: '图片分享',
+        video: '视频分享',
+        workflow: 'AI工作流'
+      },
+      tags: {
+        aiCreation: 'AI创作',
+        labubu: 'Labubu',
+        designInspiration: '设计灵感',
+        photographyTips: '摄影技巧',
+        programmingNotes: '编程笔记',
+        lifeRecords: '生活记录',
+        learningInsights: '学习心得',
+        workflows: '工作流程',
+        creativeIdeas: '创意想法',
+        techSharing: '技术分享'
+      },
+      placeholders: {
+        text: '分享你的想法、经验或灵感...',
+        image: '为你的图片添加描述...',
+        video: '为你的视频添加说明...',
+        workflow: '介绍你的AI工作流功能和用途...'
+      },
+      uploadTexts: {
+        image: '点击或拖拽上传图片',
+        video: '点击或拖拽上传视频'
+      },
       tabs: {
         feed: '动态',
         gallery: '作品集',
@@ -1166,18 +1454,24 @@ const translations = reactive({
     // 登录
     login: {
       title: 'LABUBU AI',
-      username: '用户名/邮箱',
+      username: '用户名',
       password: '密码',
-      usernamePlaceholder: '请输入用户名或邮箱',
+      usernamePlaceholder: '请输入用户名',
       passwordPlaceholder: '请输入密码',
       rememberMe: '记住我',
       forgotPassword: '忘记密码？',
       loginButton: '登录',
+      loggingIn: '登录中',
+      loadingTip: '登录验证可能需要一些时间，请耐心等待...',
       noAccount: '还没有账号？',
       registerNow: '注册新账号',
       passwordError: '密码需至少8位，且包含英文和特殊字符',
       forgotMessage: '请联系管理员重置密码。',
-      registerMessage: '注册功能暂未开放。'
+      registerMessage: '注册功能暂未开放。',
+      loginFailed: '登录失败',
+      loginSuccess: '登录成功',
+      usernameRequired: '请输入用户名',
+      passwordRequired: '请输入密码'
     },
     // 注册
     register: {
@@ -1190,10 +1484,13 @@ const translations = reactive({
       usernamePlaceholder: '请输入用户名',
       emailPlaceholder: '请输入邮箱',
       passwordPlaceholder: '请输入密码',
+      passwordHint: '密码要求：8-16位，至少包含大写字母、小写字母、数字中的两种',
       confirmPasswordPlaceholder: '请再次输入密码',
       codePlaceholder: '请输入验证码',
       getCode: '获取验证码',
       registerButton: '注册',
+      registering: '注册中',
+      registeringTip: '账户注册验证可能需要一些时间，请耐心等待...',
       hasAccount: '已有账号？',
       goLogin: '去登录',
       completeInfo: '请填写完整信息',
@@ -1212,12 +1509,100 @@ const translations = reactive({
       codeSuccess: '验证码已发送到您的邮箱，请查收！',
       emailFormatError: '邮箱格式不正确',
       usernameRequired: '请输入用户名',
-      usernameLength: '用户名长度应为3-20个字符',
-      passwordLength: '密码长度不能少于8位',
+      usernameLength: '用户名长度必须大于2个字符',
+      passwordLength: '密码长度必须为8-16位',
+      passwordComplexity: '密码必须包含大写字母、小写字母、数字中至少两类',
       passwordMismatch: '两次输入的密码不一致',
       invalidCode: '验证码错误或已过期',
       serverError: '服务器错误，请稍后重试',
-      sendCodeError: '验证码发送失败'
+      sendCodeError: '验证码发送失败',
+      sendCodeFailed: '验证码发送失败',
+      registerFailed: '注册失败'
+    },
+    // 个人中心
+    profile: {
+      aiAgents: 'AI智能体',
+      posts: '帖子',
+      transactions: '交易',
+      editProfile: '编辑资料',
+      share: '分享',
+      myAIAgents: '我的AI智能体',
+      createAgent: '创建新智能体',
+      myCommunityContent: '我的社区内容',
+      createPost: '创建帖子',
+      marketplace: '市场',
+      settings: '设置',
+      community: '社区',
+      mySelling: '我的商品',
+      purchases: '购买记录',
+      sales: '销售记录',
+      myProducts: '我的商品',
+      addProduct: '添加商品',
+      purchaseHistory: '购买历史',
+      salesHistory: '销售历史',
+      accountSettings: '账户设置',
+      privacy: '隐私设置',
+      notifications: '通知设置',
+      username: '用户名',
+      email: '邮箱',
+      bio: '个人简介',
+      bioPlaceholder: '介绍一下自己...',
+      publicProfile: '公开资料',
+      publicProfileDesc: '允许他人查看你的资料',
+      showActivity: '显示活动',
+      showActivityDesc: '显示你的最近活动',
+      emailNotifications: '邮件通知',
+      emailNotificationsDesc: '通过邮件接收通知',
+      marketingEmails: '营销邮件',
+      marketingEmailsDesc: '接收推广内容',
+      saveChanges: '保存更改',
+      deleteAccount: '删除账户',
+      deleteAccountConfirm: '确定要删除账户吗？此操作无法撤销！',
+      runs: '运行次数',
+      success: '成功率',
+      edit: '编辑',
+      run: '运行',
+      delete: '删除',
+      view: '查看',
+      stats: '统计',
+      seller: '卖家',
+      buyer: '买家',
+      viewOrder: '查看订单',
+      review: '评价',
+      process: '处理',
+      selectAvatar: '选择头像',
+      avatarTip: '选择一个你喜欢的头像作为你的个人形象',
+      cancel: '取消',
+      confirm: '确认',
+      avatarUpdated: '头像更新成功！',
+      avatarUpdateFailed: '头像更新失败，请重试',
+      avatarEditMsg: '头像编辑功能即将推出',
+      profileEditMsg: '个人资料编辑功能即将推出',
+      linkCopied: '链接已复制到剪贴板',
+      settingsSaved: '设置已保存',
+      deleteAccountMsg: '账户删除需要联系客服',
+      status: {
+        active: '活跃',
+        draft: '草稿',
+        inactive: '未激活'
+      },
+      postType: {
+        artwork: '艺术作品',
+        tutorial: '教程',
+        discussion: '讨论',
+        showcase: '展示'
+      },
+      productStatus: {
+        active: '在售',
+        sold_out: '售罄',
+        draft: '草稿'
+      },
+      transactionStatus: {
+        pending: '待处理',
+        completed: '已完成',
+        delivered: '已送达',
+        cancelled: '已取消'
+      }
     }
   }
 })

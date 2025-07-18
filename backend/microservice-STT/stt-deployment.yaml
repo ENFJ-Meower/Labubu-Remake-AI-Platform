@@ -30,6 +30,6 @@ spec:
               value: "us-east-1"
           envFrom:
             - secretRef:
-              name: google-secret
+                name: google-secret
             - secretRef:
-              name: aws-secret    
+                name: aws-secret    

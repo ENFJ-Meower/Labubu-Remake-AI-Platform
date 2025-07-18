@@ -18,10 +18,10 @@ spec:
     spec:
       containers:
         - name: controller
-          image: docker.io/weimengze/cloud-computing-dependency:v2
+          image: docker.io/weimengze/cloud-computing-dependency:v5
           env:
-            - name: REDIS_ADDR
-              value: "redis-cluster.dag-system.svc.cluster.local:6379"
+            - name: REDIS_ADDRS
+              value: "redis-cluster-0.redis-cluster.dag-system.svc.cluster.local:6379,redis-cluster-1.redis-cluster.dag-system.svc.cluster.local:6379,redis-cluster-2.redis-cluster.dag-system.svc.cluster.local:6379,redis-cluster-3.redis-cluster.dag-system.svc.cluster.local:6379,redis-cluster-4.redis-cluster.dag-system.svc.cluster.local:6379,redis-cluster-5.redis-cluster.dag-system.svc.cluster.local:6379"
             - name: CONCURRENT_HANDLERS
               value: "100"
           ports:

@@ -29,6 +29,11 @@
             <i class="icon-marketplace"></i>
             <span>{{ $t('nav.marketplace') || '市场' }}</span>
           </router-link>
+          <!-- 只有登录后才显示个人中心 -->
+          <router-link v-if="isUserAuthenticated" to="/frontend/profile" class="nav-link">
+            <i class="icon-profile"></i>
+            <span>{{ $t('nav.profile') || '个人中心' }}</span>
+          </router-link>
         </div>
         
         <!-- 用户操作区域 -->
@@ -295,7 +300,7 @@ export default {
 .nav-menu {
   display: flex;
   align-items: center;
-  gap: 1.5rem;
+  gap: 2.5rem;
   flex-shrink: 0;
 }
 
@@ -307,13 +312,13 @@ export default {
   text-decoration: none;
   color: #b0b0b0;
   font-weight: 500;
-  padding: 0.5rem 0.8rem;
+  padding: 0.7rem 1.2rem;
   border-radius: 25px;
   transition: all 0.3s ease;
   position: relative;
   white-space: nowrap;
-  min-width: 100px;
-  width: 100px;
+  min-width: 140px;
+  width: auto;
   font-size: 0.95rem;
   text-align: center;
 }
@@ -334,6 +339,7 @@ export default {
 .icon-robot::before { content: "🤖"; }
 .icon-community::before { content: "👥"; }
 .icon-marketplace::before { content: "🛍️"; }
+.icon-profile::before { content: "👤"; }
 .icon-login::before { content: "🔑"; }
 .icon-register::before { content: "📝"; }
 .icon-logout::before { content: "🚪"; }
@@ -481,9 +487,13 @@ export default {
     padding: 1rem 1rem;
   }
   
+  .nav-menu {
+    gap: 2rem;
+  }
+  
   .nav-link {
-    min-width: 90px;
-    width: 90px;
+    min-width: 110px;
+    padding: 0.6rem 0.8rem;
     font-size: 0.9rem;
   }
   
@@ -511,14 +521,13 @@ export default {
   }
   
   .nav-menu {
-    gap: 1rem;
+    gap: 1.5rem;
   }
   
   .nav-link {
-    min-width: 80px;
-    width: 80px;
+    min-width: 90px;
     font-size: 0.85rem;
-    padding: 0.5rem 0.5rem;
+    padding: 0.6rem 0.6rem;
   }
   
   .login-btn, .register-btn, .logout-btn {

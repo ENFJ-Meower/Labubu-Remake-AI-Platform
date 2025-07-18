@@ -4,40 +4,72 @@
     <section class="hero-section">
       <div class="container">
         <div class="hero-content">
-          <h1 class="hero-title">{{ $t('community.heroTitle', 'Creative Community') }}</h1>
-          <p class="hero-subtitle">{{ $t('community.heroSubtitle', 'Share your creativity with the world') }}</p>
+          <h1 class="hero-title">{{ $t('community.heroTitle', '创意笔记社区') }}</h1>
+          <p class="hero-subtitle">{{ $t('community.heroSubtitle', '分享你的创意想法，发现更多灵感') }}</p>
           <div class="community-stats">
             <div class="stat-item">
-              <span class="stat-number">15K+</span>
-              <span class="stat-label">{{ $t('community.activeCreators', 'Active Creators') }}</span>
+              <span class="stat-number">{{ noteStats.total }}+</span>
+              <span class="stat-label">{{ $t('community.totalNotes', '总笔记数') }}</span>
             </div>
             <div class="stat-item">
-              <span class="stat-number">50K+</span>
-              <span class="stat-label">{{ $t('community.artworks', 'Artworks') }}</span>
+              <span class="stat-number">{{ noteStats.today }}+</span>
+              <span class="stat-label">{{ $t('community.todayNotes', '今日新增') }}</span>
             </div>
             <div class="stat-item">
-              <span class="stat-number">2K+</span>
-              <span class="stat-label">{{ $t('community.dailyPosts', 'Daily Posts') }}</span>
+              <span class="stat-number">{{ noteStats.tags }}+</span>
+              <span class="stat-label">{{ $t('community.activeTags', '活跃标签') }}</span>
             </div>
           </div>
         </div>
       </div>
     </section>
 
-    <!-- 社区导航 -->
-    <section class="community-nav">
+    <!-- 搜索和筛选区域 -->
+    <section class="search-section">
       <div class="container">
-        <div class="nav-tabs">
-          <button 
-            v-for="tab in navTabs" 
-            :key="tab.id"
-            class="nav-tab"
-            :class="{ active: activeTab === tab.id }"
-            @click="setActiveTab(tab.id)"
-          >
-            <span class="tab-icon">{{ tab.icon }}</span>
-            <span class="tab-text">{{ tab.title }}</span>
-          </button>
+        <div class="search-container">
+          <!-- 搜索框 -->
+          <div class="search-box">
+            <i class="search-icon">🔍</i>
+            <input 
+              v-model="searchQuery"
+              type="text" 
+              :placeholder="$t('community.searchPlaceholder', '搜索笔记内容、标签或作者...')"
+              @input="handleSearch"
+              @keydown.enter="performSearch"
+            />
+            <button v-if="searchQuery" class="clear-search" @click="clearSearch">✕</button>
+          </div>
+          
+          <!-- 筛选器 -->
+          <div class="filter-tabs">
+            <button 
+              v-for="filter in filterOptions" 
+              :key="filter.id"
+              class="filter-tab"
+              :class="{ active: activeFilter === filter.id }"
+              @click="setActiveFilter(filter.id)"
+            >
+              <span class="filter-icon">{{ filter.icon }}</span>
+              <span class="filter-text">{{ $t(`community.filter.${filter.id}`, filter.label) }}</span>
+            </button>
+          </div>
+          
+          <!-- 热门标签 -->
+          <div class="trending-tags">
+            <span class="tags-label">{{ $t('community.trendingTags', '热门标签') }}:</span>
+            <div class="tags-list">
+              <button 
+                v-for="tag in trendingTags" 
+                :key="tag"
+                class="trending-tag"
+                :class="{ active: selectedTags.includes(tag) }"
+                @click="toggleTag(tag)"
+              >
+                #{{ tag }}
+              </button>
+            </div>
+          </div>
         </div>
       </div>
     </section>
@@ -46,459 +78,826 @@
     <section class="main-content">
       <div class="container">
         <div class="content-layout">
-          <!-- 左侧内容 -->
-          <div class="content-main">
-
-
-            <!-- 动态内容切换 -->
-            <div class="tab-content">
-              <!-- 动态信息流 - 瀑布流布局 -->
-              <div v-if="activeTab === 'feed'" class="feed-section">
-                <div class="masonry-grid">
-                  <!-- 发布创意卡片 -->
-                  <div class="masonry-item creative-card">
-                    <div class="card-header">
-                      <span class="card-icon">✨</span>
-                      <h3>{{ $t('community.shareCreation', 'Share Your Creation') }}</h3>
-                    </div>
-                    <div class="card-content">
-                      <textarea 
-                        v-model="newPost"
-                        :placeholder="$t('community.whatsOnCreativeMind', 'What\'s on your creative mind?')"
-                        rows="3"
-                      ></textarea>
-                      <div class="quick-actions">
-                        <button class="quick-btn">{{ $t('community.photo', '📷') }}</button>
-                        <button class="quick-btn">{{ $t('community.art', '🎨') }}</button>
-                        <button class="quick-btn">{{ $t('community.music', '🎵') }}</button>
-                        <button class="share-btn" @click="publishPost">{{ $t('community.share', 'Share') }}</button>
-                      </div>
-                    </div>
-                  </div>
-
-                  <!-- 热门话题卡片 -->
-                  <div class="masonry-item trending-card">
-                    <div class="card-header">
-                      <span class="card-icon">🔥</span>
-                      <h3>{{ $t('community.trendingTopics', 'Trending Topics') }}</h3>
-                    </div>
-                    <div class="card-content">
-                      <div class="trending-list">
-                        <div v-for="(tag, index) in trendingTags" :key="tag" class="trending-item">
-                          <span class="trend-rank">#{{ index + 1 }}</span>
-                          <span class="trend-tag">{{ $t('community.trendingTag.' + tag, tag) }}</span>
-                        </div>
-                      </div>
-                    </div>
-                  </div>
-
-                  <!-- 社区动态卡片 -->
-                  <div v-for="post in communityPosts" :key="post.id" class="masonry-item post-card" :class="{ 'has-image': post.image }">
-                    <div class="card-header">
-                      <div class="user-info">
-                        <div class="user-avatar">
-                          <img :src="post.userAvatar" :alt="post.userName" />
-                        </div>
-                        <div class="user-details">
-                          <h4 class="user-name">{{ post.userName }}</h4>
-                          <span class="post-time">{{ post.timestamp }}</span>
-                        </div>
-                      </div>
-                      <button class="post-menu">{{ $t('community.moreOptions', '⋯') }}</button>
-                    </div>
-                    
-                    <div class="card-content">
-                      <p class="post-text">{{ post.content }}</p>
-                      <div v-if="post.image" class="post-media">
-                        <img :src="post.image" :alt="post.imageAlt" />
-                      </div>
-                    </div>
-                    
-                    <div class="card-actions">
-                      <button class="action-btn" :class="{ liked: post.liked }" @click="toggleLike(post)">
-                        <span class="action-icon">❤️</span>
-                        <span class="action-count">{{ post.likes }}</span>
-                      </button>
-                      <button class="action-btn" @click="toggleComments(post)">
-                        <span class="action-icon">💬</span>
-                        <span class="action-count">{{ post.comments.length }}</span>
-                      </button>
-                      <button class="action-btn">
-                        <span class="action-icon">🔄</span>
-                        <span class="action-count">{{ post.shares }}</span>
-                      </button>
-                    </div>
-
-                    <!-- 评论区 -->
-                    <div v-if="post.showComments" class="comments-section">
-                      <div v-for="comment in post.comments" :key="comment.id" class="comment-item">
-                        <div class="comment-avatar">
-                          <img :src="comment.userAvatar" :alt="comment.userName" />
-                        </div>
-                        <div class="comment-content">
-                          <span class="comment-user">{{ comment.userName }}</span>
-                          <p class="comment-text">{{ comment.text }}</p>
-                          <span class="comment-time">{{ comment.timestamp }}</span>
-                        </div>
-                      </div>
-                    </div>
-                  </div>
-
-                  <!-- 推荐用户卡片 -->
-                  <div class="masonry-item users-card">
-                    <div class="card-header">
-                      <span class="card-icon">👥</span>
-                      <h3>{{ $t('community.suggestedCreators', 'Suggested Creators') }}</h3>
-                    </div>
-                    <div class="card-content">
-                      <div v-for="user in suggestedUsers" :key="user.id" class="user-suggestion">
-                        <div class="user-avatar">
-                          <img :src="user.avatar" :alt="user.name" />
-                        </div>
-                        <div class="user-info">
-                          <h4 class="user-name">{{ user.name }}</h4>
-                          <p class="user-specialty">{{ user.specialty }}</p>
-                        </div>
-                        <button class="follow-btn">{{ $t('community.follow', 'Follow') }}</button>
-                      </div>
-                    </div>
-                  </div>
-
-                  <!-- 最新活动卡片 -->
-                  <div class="masonry-item events-card">
-                    <div class="card-header">
-                      <span class="card-icon">📅</span>
-                      <h3>{{ $t('community.upcomingEvents', 'Upcoming Events') }}</h3>
-                    </div>
-                    <div class="card-content">
-                      <div v-for="event in recentEvents" :key="event.id" class="event-preview">
-                        <div class="event-date">{{ event.date }}</div>
-                        <div class="event-name">{{ event.name }}</div>
-                      </div>
-                    </div>
-                  </div>
+          <!-- 发布笔记按钮 -->
+          <div class="publish-trigger">
+            <button class="publish-trigger-btn" @click="showPublishModal = true">
+              <div class="trigger-content">
+                <div class="trigger-avatar">
+                  <img :src="currentUserAvatar" alt="用户头像" />
                 </div>
+                <div class="trigger-text">{{ $t('community.shareNote', '分享你的创意笔记...') }}</div>
+                <div class="trigger-icon">✨</div>
               </div>
-
-              <!-- 艺术画廊 - 瀑布流布局 -->
-              <div v-else-if="activeTab === 'gallery'" class="gallery-section">
-                <div class="masonry-grid">
-                  <div v-for="artwork in artworks" :key="artwork.id" class="masonry-item artwork-card" :class="getArtworkClass(artwork)">
-                    <div class="artwork-image">
-                      <img :src="artwork.image" :alt="artwork.title" />
-                      <div class="artwork-overlay">
-                        <button class="overlay-btn">{{ $t('community.view', '👁️ View') }}</button>
-                        <button class="overlay-btn">❤️ {{ artwork.likes }}</button>
-                      </div>
-                    </div>
-                    <div class="artwork-info">
-                      <h3 class="artwork-title">{{ artwork.title }}</h3>
-                      <p class="artwork-artist">{{ $t('community.by', 'by') }} {{ artwork.artist }}</p>
-                      <div class="artwork-stats">
-                        <span class="stat-item">❤️ {{ artwork.likes }}</span>
-                        <span class="stat-item">👁️ {{ artwork.views || Math.floor(artwork.likes * 5) }}</span>
-                      </div>
-                    </div>
-                  </div>
-                </div>
-              </div>
-
-              <!-- 活动页面 -->
-              <div v-else-if="activeTab === 'events'" class="events-section">
-                <div class="events-grid">
-                  <div v-for="event in upcomingEvents" :key="event.id" class="event-card">
-                    <div class="event-date">
-                      <span class="event-day">{{ event.day }}</span>
-                      <span class="event-month">{{ event.month }}</span>
-                    </div>
-                    <div class="event-content">
-                      <h3 class="event-title">{{ event.title }}</h3>
-                      <p class="event-description">{{ event.description }}</p>
-                      <div class="event-meta">
-                        <span class="event-time">🕐 {{ event.time }}</span>
-                        <span class="event-participants">👥 {{ event.participants }}</span>
-                      </div>
-                      <button class="event-join-btn">{{ $t('community.joinEvent', 'Join Event') }}</button>
-                    </div>
-                  </div>
-                </div>
-              </div>
-
-              <!-- 群组页面 -->
-              <div v-else-if="activeTab === 'groups'" class="groups-section">
-                <div class="groups-grid">
-                  <div v-for="group in communityGroups" :key="group.id" class="group-card">
-                    <div class="group-header">
-                      <div class="group-icon">{{ group.icon }}</div>
-                      <div class="group-info">
-                        <h3 class="group-name">{{ group.name }}</h3>
-                        <p class="group-members">{{ group.members }} {{ $t('community.members', 'members') }}</p>
-                      </div>
-                    </div>
-                    <p class="group-description">{{ group.description }}</p>
-                    <div class="group-actions">
-                      <button class="group-btn" :class="{ joined: group.joined }" @click="toggleGroupJoin(group)">
-                        {{ group.joined ? $t('community.joined', 'Joined') : $t('community.joinGroup', 'Join Group') }}
-                      </button>
-                    </div>
-                  </div>
-                </div>
-              </div>
-            </div>
+            </button>
           </div>
-
-          <!-- 右侧边栏 -->
-          <div class="sidebar">
-            <!-- 热门标签 -->
-            <div class="sidebar-widget">
-              <h3 class="widget-title">{{ $t('community.trendingTopics', 'Trending Topics') }}</h3>
-              <div class="trending-tags">
-                <span v-for="tag in trendingTags" :key="tag" class="trending-tag">#{{ tag }}</span>
-              </div>
+          
+          <!-- 笔记列表区域 -->
+          <div class="notes-section">
+            <!-- 加载状态 -->
+            <div v-if="loading" class="loading-state">
+              <div class="loading-spinner"></div>
+              <p>{{ $t('community.loading', '加载中...') }}</p>
             </div>
-
-            <!-- 推荐用户 -->
-            <div class="sidebar-widget">
-              <h3 class="widget-title">{{ $t('community.suggestedCreators', 'Suggested Creators') }}</h3>
-              <div class="suggested-users">
-                <div v-for="user in suggestedUsers" :key="user.id" class="suggested-user">
-                  <div class="user-avatar">
-                    <img :src="user.avatar" :alt="user.name" />
+            
+            <!-- 空状态 -->
+            <div v-else-if="filteredNotes.length === 0" class="empty-state">
+              <div class="empty-icon">📝</div>
+              <h3>{{ $t('community.noNotes', '暂无笔记') }}</h3>
+              <p>{{ $t('community.noNotesDesc', '快来发布第一篇笔记吧！') }}</p>
+            </div>
+            
+            <!-- 笔记瀑布流 -->
+            <div v-else class="notes-grid">
+              <div 
+                v-for="note in filteredNotes" 
+                :key="note.id"
+                class="note-card"
+                :class="[`note-${note.type}`, { 'has-media': note.media && note.media.length > 0 }]"
+              >
+                <!-- 笔记头部 -->
+                <div class="note-header">
+                  <div class="author-info">
+                    <div class="author-avatar">
+                      <img :src="note.author.avatar" :alt="note.author.name" />
+                    </div>
+                    <div class="author-details">
+                      <h4 class="author-name">{{ note.author.name }}</h4>
+                      <span class="publish-time">{{ formatTime(note.createdAt) }}</span>
+                    </div>
                   </div>
-                  <div class="user-info">
-                    <h4 class="user-name">{{ user.name }}</h4>
-                    <p class="user-specialty">{{ user.specialty }}</p>
+                  <div class="note-type-badge">
+                    <span class="type-icon">{{ getNoteTypeIcon(note.type) }}</span>
                   </div>
-                  <button class="follow-btn">{{ $t('community.follow', 'Follow') }}</button>
+                </div>
+                
+                <!-- 笔记内容 -->
+                <div class="note-content">
+                  <p class="note-text">{{ note.content }}</p>
+                  
+                  <!-- 媒体内容 -->
+                  <div v-if="note.media && note.media.length > 0" class="note-media">
+                    <div v-if="note.type === 'image'" class="image-gallery">
+                      <img 
+                        v-for="(image, index) in note.media" 
+                        :key="index"
+                        :src="image.url" 
+                        :alt="image.alt"
+                        @click="openImageViewer(note.media, index)"
+                      />
+                    </div>
+                    <video v-else-if="note.type === 'video'" :src="note.media[0].url" controls></video>
+                  </div>
+                  
+                  <!-- 工作流内容 -->
+                  <div v-if="note.type === 'workflow' && note.workflow" class="workflow-content">
+                    <div class="workflow-preview">
+                      <div class="workflow-icon">{{ note.workflow.icon || '🤖' }}</div>
+                      <div class="workflow-info">
+                        <h5>{{ note.workflow.name }}</h5>
+                        <p>{{ note.workflow.description }}</p>
+                      </div>
+                      <button class="try-workflow-btn">{{ $t('community.tryWorkflow', '试用') }}</button>
+                    </div>
+                  </div>
+                </div>
+                
+                <!-- 标签 -->
+                <div v-if="note.tags && note.tags.length > 0" class="note-tags">
+                  <span 
+                    v-for="tag in note.tags" 
+                    :key="tag"
+                    class="note-tag"
+                    @click="searchByTag(tag)"
+                  >
+                    #{{ tag }}
+                  </span>
+                </div>
+                
+                <!-- 笔记操作 -->
+                <div class="note-actions">
+                  <button 
+                    class="action-btn like-btn"
+                    :class="{ liked: note.isLiked }"
+                    @click="toggleLike(note)"
+                  >
+                    <span class="action-icon">❤️</span>
+                    <span class="action-count">{{ note.likes }}</span>
+                  </button>
+                  <button class="action-btn comment-btn" @click="toggleComments(note)">
+                    <span class="action-icon">💬</span>
+                    <span class="action-count">{{ note.comments.length }}</span>
+                  </button>
+                  <button class="action-btn share-btn" @click="shareNote(note)">
+                    <span class="action-icon">🔄</span>
+                    <span class="action-count">{{ note.shares || 0 }}</span>
+                  </button>
+                </div>
+                
+                <!-- 评论区域 -->
+                <div v-if="note.showComments" class="comments-section">
+                  <div class="comment-input">
+                    <input 
+                      v-model="note.newComment"
+                      type="text" 
+                      :placeholder="$t('community.addComment', '添加评论...')"
+                      @keydown.enter="addComment(note)"
+                    />
+                    <button @click="addComment(note)">{{ $t('community.send', '发送') }}</button>
+                  </div>
+                  <div class="comments-list">
+                    <div v-for="comment in note.comments" :key="comment.id" class="comment-item">
+                      <div class="comment-avatar">
+                        <img :src="comment.author.avatar" :alt="comment.author.name" />
+                      </div>
+                      <div class="comment-content">
+                        <span class="comment-author">{{ comment.author.name }}</span>
+                        <p class="comment-text">{{ comment.content }}</p>
+                        <span class="comment-time">{{ formatTime(comment.createdAt) }}</span>
+                      </div>
+                    </div>
+                  </div>
                 </div>
               </div>
             </div>
-
-            <!-- 最新活动 -->
-            <div class="sidebar-widget">
-              <h3 class="widget-title">{{ $t('community.latestEvents', 'Latest Events') }}</h3>
-              <div class="latest-events">
-                <div v-for="event in recentEvents" :key="event.id" class="event-item">
-                  <div class="event-info">
-                    <h4 class="event-name">{{ event.name }}</h4>
-                    <p class="event-date">{{ event.date }}</p>
-                  </div>
-                </div>
-              </div>
+            
+            <!-- 加载更多 -->
+            <div v-if="hasMore && !loading" class="load-more">
+              <button class="load-more-btn" @click="loadMoreNotes">
+                {{ $t('community.loadMore', '加载更多') }}
+              </button>
             </div>
           </div>
         </div>
       </div>
     </section>
+    
+    <!-- 发布笔记弹窗 -->
+    <div v-if="showPublishModal" class="publish-modal" @click="closePublishModal">
+      <div class="modal-content" @click.stop>
+        <div class="modal-header">
+          <h3>{{ $t('community.shareNote', '分享你的创意笔记') }}</h3>
+          <button class="modal-close" @click="closePublishModal">✕</button>
+        </div>
+        
+        <div class="modal-body">
+          <!-- 笔记类型选择 -->
+          <div class="note-type-selector">
+            <button 
+              v-for="type in noteTypes" 
+              :key="type.id"
+              class="type-btn"
+              :class="{ active: selectedNoteType === type.id }"
+              @click="selectNoteType(type.id)"
+            >
+              <span class="type-icon">{{ type.icon }}</span>
+              <span class="type-label">{{ $t(`community.noteType.${type.id}`, type.label) }}</span>
+            </button>
+          </div>
+          
+          <!-- 内容输入区域 -->
+          <div class="content-input">
+            <textarea 
+              v-model="newNote.content"
+              :placeholder="getContentPlaceholder()"
+              rows="4"
+              maxlength="2000"
+            ></textarea>
+            <div class="input-counter">{{ newNote.content.length }}/2000</div>
+          </div>
+          
+          <!-- 媒体上传区域 -->
+          <div v-if="selectedNoteType !== 'text'" class="media-upload">
+            <div class="upload-area" @click="triggerFileUpload" @drop="handleFileDrop" @dragover.prevent>
+              <input 
+                ref="fileInput" 
+                type="file" 
+                :accept="getFileAccept()"
+                @change="handleFileSelect"
+                multiple
+                hidden
+              />
+              <div v-if="newNote.media.length === 0" class="upload-placeholder">
+                <i class="upload-icon">📁</i>
+                <p>{{ getUploadText() }}</p>
+                <small>{{ getUploadHint() }}</small>
+              </div>
+              <div v-else class="media-preview">
+                <div v-for="(media, index) in newNote.media" :key="index" class="media-item">
+                  <img v-if="media.type === 'image'" :src="media.url" :alt="media.name" />
+                  <video v-else-if="media.type === 'video'" :src="media.url" controls></video>
+                  <div v-else class="file-preview">
+                    <i class="file-icon">📄</i>
+                    <span class="file-name">{{ media.name }}</span>
+                  </div>
+                  <button class="remove-media" @click="removeMedia(index)">✕</button>
+                </div>
+              </div>
+            </div>
+          </div>
+          
+          <!-- AI Agent工作流选择器 -->
+          <div v-if="selectedNoteType === 'workflow'" class="workflow-selector">
+            <h4>{{ $t('community.selectWorkflow', '选择AI Agent工作流') }}</h4>
+            <div class="workflow-list">
+              <div 
+                v-for="workflow in userWorkflows" 
+                :key="workflow.id"
+                class="workflow-item"
+                :class="{ selected: newNote.workflowId === workflow.id }"
+                @click="selectWorkflow(workflow.id)"
+              >
+                <div class="workflow-icon">{{ workflow.icon || '🤖' }}</div>
+                <div class="workflow-info">
+                  <h5>{{ workflow.name }}</h5>
+                  <p>{{ workflow.description }}</p>
+                </div>
+              </div>
+            </div>
+          </div>
+          
+          <!-- 标签输入 -->
+          <div class="tags-input">
+            <label>{{ $t('community.addTags', '添加标签') }}</label>
+            <div class="tags-container">
+              <div class="selected-tags">
+                <span 
+                  v-for="tag in newNote.tags" 
+                  :key="tag"
+                  class="selected-tag"
+                >
+                  #{{ tag }}
+                  <button @click="removeTag(tag)">✕</button>
+                </span>
+              </div>
+              <input 
+                v-model="tagInput"
+                type="text" 
+                :placeholder="$t('community.tagsPlaceholder', '输入标签后按回车添加')"
+                @keydown.enter.prevent="addTag"
+                @keydown.space.prevent="addTag"
+              />
+            </div>
+            <div class="tags-suggestions">
+              <button 
+                v-for="suggestion in tagSuggestions" 
+                :key="suggestion"
+                class="tag-suggestion"
+                @click="addSuggestedTag(suggestion)"
+              >
+                #{{ suggestion }}
+              </button>
+            </div>
+          </div>
+        </div>
+        
+        <!-- 发布按钮 -->
+        <div class="modal-footer">
+          <button class="cancel-btn" @click="resetForm(); closePublishModal()">{{ $t('community.cancel', '取消') }}</button>
+          <button 
+            class="publish-btn" 
+            :disabled="!canPublish"
+            @click="publishNote"
+          >
+            {{ $t('community.publish', '发布笔记') }}
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <!-- 图片查看器 -->
+    <div v-if="imageViewer.show" class="image-viewer" @click="closeImageViewer">
+      <div class="viewer-content" @click.stop>
+        <img :src="imageViewer.images[imageViewer.currentIndex].url" :alt="imageViewer.images[imageViewer.currentIndex].alt" />
+        <button class="viewer-close" @click="closeImageViewer">✕</button>
+        <button v-if="imageViewer.currentIndex > 0" class="viewer-prev" @click="prevImage">‹</button>
+        <button v-if="imageViewer.currentIndex < imageViewer.images.length - 1" class="viewer-next" @click="nextImage">›</button>
+      </div>
+    </div>
   </div>
 </template>
 
 <script>
+import { ref, reactive, computed, onMounted } from 'vue'
+
 export default {
   name: 'Community',
-  data() {
-    return {
-      activeTab: 'feed',
-      newPost: '',
-      navTabs: [
-        { id: 'feed', icon: '📰', title: this.$t('community.feed', 'Feed') },
-        { id: 'gallery', icon: '🎨', title: this.$t('community.gallery', 'Gallery') },
-        { id: 'events', icon: '📅', title: this.$t('community.events', 'Events') },
-        { id: 'groups', icon: '👥', title: this.$t('community.groups', 'Groups') }
-      ],
-      communityPosts: [
-        {
+  setup() {
+    // 响应式数据
+    const loading = ref(false)
+    const searchQuery = ref('')
+    const activeFilter = ref('all')
+    const selectedTags = ref([])
+    const selectedNoteType = ref('text')
+    const tagInput = ref('')
+    const hasMore = ref(true)
+    const showPublishModal = ref(false)
+    
+    // 笔记统计
+    const noteStats = reactive({
+      total: 1248,
+      today: 56,
+      tags: 234
+    })
+    
+    // 新笔记数据
+    const newNote = reactive({
+      content: '',
+      type: 'text',
+      media: [],
+      workflowId: null,
+      tags: []
+    })
+    
+    // 图片查看器
+    const imageViewer = reactive({
+      show: false,
+      images: [],
+      currentIndex: 0
+    })
+    
+    // 筛选选项
+    const filterOptions = [
+      { id: 'all', label: '全部', icon: '📋' },
+      { id: 'text', label: '文字', icon: '📝' },
+      { id: 'image', label: '图片', icon: '🖼️' },
+      { id: 'video', label: '视频', icon: '🎥' },
+      { id: 'workflow', label: '工作流', icon: '🤖' }
+    ]
+    
+    // 笔记类型
+    const noteTypes = [
+      { id: 'text', label: '文字笔记', icon: '📝' },
+      { id: 'image', label: '图片分享', icon: '🖼️' },
+      { id: 'video', label: '视频分享', icon: '🎥' },
+      { id: 'workflow', label: 'AI工作流', icon: '🤖' }
+    ]
+    
+    // 热门标签
+    const trendingTags = ref([
+      'AI创作', 'Labubu', '设计灵感', '摄影技巧', '编程笔记', 
+      '生活记录', '学习心得', '工作流程', '创意想法', '技术分享'
+    ])
+    
+    // 标签建议
+    const tagSuggestions = computed(() => {
+      if (!tagInput.value) return []
+      return trendingTags.value.filter(tag => 
+        tag.includes(tagInput.value) && !newNote.tags.includes(tag)
+      ).slice(0, 5)
+    })
+    
+    // 模拟笔记数据
+    const notes = ref([
+      {
+        id: 1,
+        type: 'text',
+        content: '今天学习了Vue 3的Composition API，感觉比之前的Options API更加灵活，特别是在复杂组件的状态管理方面。分享一些学习心得...',
+        author: {
           id: 1,
-          userName: this.$t('community.posts.creativeArtist', 'CreativeArtist'),
-          userAvatar: '/src/assets/images/logo.png',
-          timestamp: this.$t('community.posts.twoHoursAgo', '2 hours ago'),
-          content: this.$t('community.posts.content1', 'Just finished my latest Labubu AI artwork! The new generation tools are incredible 🎨'),
-          image: '/src/assets/images/home1.jpg',
-          imageAlt: this.$t('community.posts.imageAlt1', 'AI Generated Artwork'),
-          likes: 24,
-          liked: false,
-          shares: 5,
-          showComments: false,
-          comments: [
-            {
-              id: 1,
-              userName: this.$t('community.posts.artLover', 'ArtLover'),
-              userAvatar: '/src/assets/images/logo.png',
-              text: this.$t('community.posts.comment1', 'Amazing work! The colors are so vibrant.'),
-              timestamp: this.$t('community.posts.oneHourAgo', '1 hour ago')
-            }
-          ]
+          name: '前端小白',
+          avatar: '/src/assets/images/logo.png'
         },
-        {
-          id: 2,
-          userName: this.$t('community.posts.aiEnthusiast', 'AIEnthusiast'),
-          userAvatar: '/src/assets/images/logo.png',
-          timestamp: this.$t('community.posts.fourHoursAgo', '4 hours ago'),
-          content: this.$t('community.posts.content2', 'New tutorial series on advanced AI agent configuration is now live! Check it out 📚'),
-          image: null,
-          likes: 42,
-          liked: true,
-          shares: 12,
-          showComments: false,
-          comments: []
-        },
-        {
-          id: 3,
-          userName: this.$t('community.posts.designMaster', 'DesignMaster'),
-          userAvatar: '/src/assets/images/logo.png',
-          timestamp: this.$t('community.posts.sixHoursAgo', '6 hours ago'),
-          content: this.$t('community.posts.content3', 'Hosting a live design session tomorrow at 3 PM! Join us for some creative inspiration ✨'),
-          image: '/src/assets/images/home2.png',
-          imageAlt: this.$t('community.posts.imageAlt2', 'Design Session Preview'),
-          likes: 67,
-          liked: false,
-          shares: 18,
-          showComments: false,
-          comments: []
-        }
-      ],
-      artworks: [
-        { id: 1, title: this.$t('community.artworks.digitalDreams', 'Digital Dreams'), artist: this.$t('community.artists.creativeAI', 'CreativeAI'), image: '/src/assets/images/home1.jpg', likes: 156, size: 'large' },
-        { id: 2, title: this.$t('community.artworks.neonFantasy', 'Neon Fantasy'), artist: this.$t('community.artists.pixelMaster', 'PixelMaster'), image: '/src/assets/images/home2.png', likes: 203, size: 'medium' },
-        { id: 3, title: this.$t('community.artworks.abstractReality', 'Abstract Reality'), artist: this.$t('community.artists.visionArt', 'VisionArt'), image: '/src/assets/images/home3.png', likes: 89, size: 'small' },
-        { id: 4, title: this.$t('community.artworks.futureScape', 'FutureScape'), artist: this.$t('community.artists.techArtist', 'TechArtist'), image: '/src/assets/images/home1.jpg', likes: 134, size: 'medium' },
-        { id: 5, title: this.$t('community.artworks.colorBurst', 'Color Burst'), artist: this.$t('community.artists.chromaCreator', 'ChromaCreator'), image: '/src/assets/images/home2.png', likes: 267, size: 'large' },
-        { id: 6, title: this.$t('community.artworks.digitalNature', 'Digital Nature'), artist: this.$t('community.artists.ecoDesigner', 'EcoDesigner'), image: '/src/assets/images/home3.png', likes: 98, size: 'small' },
-        { id: 7, title: this.$t('community.artworks.cyberPunk', 'Cyber Punk'), artist: this.$t('community.artists.neonArtist', 'NeonArtist'), image: '/src/assets/images/home1.jpg', likes: 178, size: 'medium' },
-        { id: 8, title: this.$t('community.artworks.minimalFlow', 'Minimal Flow'), artist: this.$t('community.artists.simpleDesign', 'SimpleDesign'), image: '/src/assets/images/home2.png', likes: 145, size: 'small' },
-        { id: 9, title: this.$t('community.artworks.oceanWaves', 'Ocean Waves'), artist: this.$t('community.artists.waterPainter', 'WaterPainter'), image: '/src/assets/images/home3.png', likes: 189, size: 'large' }
-      ],
-      upcomingEvents: [
-        {
-          id: 1,
-          title: this.$t('community.events.aiArtWorkshop', 'AI Art Workshop'),
-          description: this.$t('community.events.aiArtWorkshopDesc', 'Learn advanced techniques for creating stunning AI artwork'),
-          day: '15',
-          month: this.$t('community.events.dec', 'DEC'),
-          time: this.$t('community.events.twoPM', '2:00 PM'),
-          participants: this.$t('community.events.fiftySlots', '50 slots')
-        },
-        {
-          id: 2,
-          title: this.$t('community.events.creativeChallenge', 'Creative Challenge'),
-          description: this.$t('community.events.creativeChallengeDesc', 'Monthly theme-based creative challenge with amazing prizes'),
-          day: '20',
-          month: this.$t('community.events.dec', 'DEC'),
-          time: this.$t('community.events.allDay', 'All Day'),
-          participants: this.$t('community.events.open', 'Open')
-        },
-        {
-          id: 3,
-          title: this.$t('community.events.communityMeetup', 'Community Meetup'),
-          description: this.$t('community.events.communityMeetupDesc', 'Virtual meetup for creators to share ideas and network'),
-          day: '25',
-          month: this.$t('community.events.dec', 'DEC'),
-          time: this.$t('community.events.sevenPM', '7:00 PM'),
-          participants: this.$t('community.events.unlimited', 'Unlimited')
-        }
-      ],
-      communityGroups: [
-        {
-          id: 1,
-          name: this.$t('community.groups.aiArtists', 'AI Artists'),
-          icon: '🎨',
-          members: '1.2K',
-          description: this.$t('community.groups.aiArtistsDesc', 'A community for artists exploring AI-generated art'),
-          joined: false
-        },
-        {
-          id: 2,
-          name: this.$t('community.groups.labubuFans', 'Labubu Fans'),
-          icon: '🌟',
-          members: '2.5K',
-          description: this.$t('community.groups.labubuFansDesc', 'Everything about Labubu culture and creativity'),
-          joined: true
-        },
-        {
-          id: 3,
-          name: this.$t('community.groups.creativeChallenges', 'Creative Challenges'),
-          icon: '🔥',
-          members: '800',
-          description: this.$t('community.groups.creativeChallengesDesc', 'Weekly challenges to boost your creativity'),
-          joined: false
-        },
-        {
-          id: 4,
-          name: this.$t('community.groups.techInnovators', 'Tech Innovators'),
-          icon: '⚡',
-          members: '950',
-          description: this.$t('community.groups.techInnovatorsDesc', 'Discussing the latest in AI and creative technology'),
-          joined: false
-        }
-      ],
-      trendingTags: ['LabubuArt', 'AIGenerated', 'Creative', 'Digital', 'Innovation', 'Community'],
-      suggestedUsers: [
-        { id: 1, name: this.$t('community.users.artMaster', 'ArtMaster'), specialty: this.$t('community.specialties.digitalArtist', 'Digital Artist'), avatar: '/src/assets/images/logo.png' },
-        { id: 2, name: this.$t('community.users.creativeMind', 'CreativeMind'), specialty: this.$t('community.specialties.aiSpecialist', 'AI Specialist'), avatar: '/src/assets/images/logo.png' },
-        { id: 3, name: this.$t('community.users.designGuru', 'DesignGuru'), specialty: this.$t('community.specialties.uxDesigner', 'UX Designer'), avatar: '/src/assets/images/logo.png' }
-      ],
-      recentEvents: [
-        { id: 1, name: this.$t('community.recentEvents.digitalArtExpo', 'Digital Art Expo'), date: this.$t('community.recentEvents.dec18', 'Dec 18') },
-        { id: 2, name: this.$t('community.recentEvents.aiWorkshop', 'AI Workshop'), date: this.$t('community.recentEvents.dec22', 'Dec 22') },
-        { id: 3, name: this.$t('community.recentEvents.creatorMeetup', 'Creator Meetup'), date: this.$t('community.recentEvents.dec28', 'Dec 28') }
-      ]
-    }
-  },
-  methods: {
-    setActiveTab(tabId) {
-      this.activeTab = tabId
-    },
-    publishPost() {
-      if (!this.newPost.trim()) return
-      
-      const newPost = {
-        id: Date.now(),
-        userName: this.$t('community.posts.you', 'You'),
-        userAvatar: '/src/assets/images/logo.png',
-        timestamp: this.$t('community.posts.justNow', 'Just now'),
-        content: this.newPost,
-        image: null,
-        likes: 0,
-        liked: false,
-        shares: 0,
+        tags: ['Vue3', '前端开发', '学习笔记'],
+        likes: 24,
+        isLiked: false,
+        shares: 5,
+        comments: [
+          {
+            id: 1,
+            author: { name: '代码爱好者', avatar: '/src/assets/images/logo.png' },
+            content: '写得很好，我也在学习Vue3',
+            createdAt: new Date(Date.now() - 3600000)
+          }
+        ],
+        createdAt: new Date(Date.now() - 7200000),
         showComments: false,
-        comments: []
+        newComment: ''
+      },
+      {
+        id: 2,
+        type: 'image',
+        content: '分享一些用AI生成的Labubu创意图片，这些小家伙真的太可爱了！',
+        media: [
+          { url: '/src/assets/images/home1.jpg', alt: 'Labubu创意图1' },
+          { url: '/src/assets/images/home2.png', alt: 'Labubu创意图2' }
+        ],
+        author: {
+          id: 2,
+          name: 'AI艺术家',
+          avatar: '/src/assets/images/logo.png'
+        },
+        tags: ['Labubu', 'AI创作', '可爱'],
+        likes: 67,
+        isLiked: true,
+        shares: 12,
+        comments: [],
+        createdAt: new Date(Date.now() - 14400000),
+        showComments: false,
+        newComment: ''
+      },
+      {
+        id: 3,
+        type: 'workflow',
+        content: '分享我创建的AI图像生成工作流，可以快速生成高质量的插画作品',
+        workflow: {
+          id: 'workflow_1',
+          name: '智能插画生成器',
+          description: '基于文本描述生成精美插画',
+          icon: '🎨'
+        },
+        author: {
+          id: 3,
+          name: '工作流大师',
+          avatar: '/src/assets/images/logo.png'
+        },
+        tags: ['AI工作流', '插画生成', '自动化'],
+        likes: 89,
+        isLiked: false,
+        shares: 23,
+        comments: [],
+        createdAt: new Date(Date.now() - 21600000),
+        showComments: false,
+        newComment: ''
+      }
+    ])
+    
+    // 用户工作流（模拟数据）
+    const userWorkflows = ref([
+      {
+        id: 'workflow_1',
+        name: '智能插画生成器',
+        description: '基于文本描述生成精美插画',
+        icon: '🎨'
+      },
+      {
+        id: 'workflow_2',
+        name: '文章摘要生成器',
+        description: '快速生成文章摘要和关键词',
+        icon: '📄'
+      }
+    ])
+    
+    // 计算属性
+    const filteredNotes = computed(() => {
+      let filtered = notes.value
+      
+      // 按类型筛选
+      if (activeFilter.value !== 'all') {
+        filtered = filtered.filter(note => note.type === activeFilter.value)
       }
       
-      this.communityPosts.unshift(newPost)
-      this.newPost = ''
-    },
-    toggleLike(post) {
-      post.liked = !post.liked
-      post.likes += post.liked ? 1 : -1
-    },
-    toggleComments(post) {
-      post.showComments = !post.showComments
-    },
-    addComment(post, event) {
-      const commentText = event.target.value.trim()
-      if (!commentText) return
+      // 按标签筛选
+      if (selectedTags.value.length > 0) {
+        filtered = filtered.filter(note => 
+          note.tags && note.tags.some(tag => selectedTags.value.includes(tag))
+        )
+      }
       
-      const newComment = {
+      // 按搜索词筛选
+      if (searchQuery.value.trim()) {
+        const query = searchQuery.value.toLowerCase()
+        filtered = filtered.filter(note => 
+          note.content.toLowerCase().includes(query) ||
+          note.author.name.toLowerCase().includes(query) ||
+          (note.tags && note.tags.some(tag => tag.toLowerCase().includes(query)))
+        )
+      }
+      
+      return filtered
+    })
+    
+    const canPublish = computed(() => {
+      return newNote.content.trim().length > 0 && (
+        selectedNoteType.value === 'text' ||
+        (selectedNoteType.value === 'workflow' && newNote.workflowId) ||
+        newNote.media.length > 0
+      )
+    })
+    
+    const currentUserAvatar = computed(() => '/src/assets/images/logo.png')
+    
+    // 方法
+    const setActiveFilter = (filterId) => {
+      activeFilter.value = filterId
+    }
+    
+    const toggleTag = (tag) => {
+      const index = selectedTags.value.indexOf(tag)
+      if (index > -1) {
+        selectedTags.value.splice(index, 1)
+      } else {
+        selectedTags.value.push(tag)
+      }
+    }
+    
+    const selectNoteType = (type) => {
+      selectedNoteType.value = type
+      newNote.type = type
+      newNote.media = []
+      newNote.workflowId = null
+    }
+    
+    const addTag = () => {
+      const tag = tagInput.value.trim()
+      if (tag && !newNote.tags.includes(tag) && newNote.tags.length < 10) {
+        newNote.tags.push(tag)
+        tagInput.value = ''
+      }
+    }
+    
+    const addSuggestedTag = (tag) => {
+      if (!newNote.tags.includes(tag) && newNote.tags.length < 10) {
+        newNote.tags.push(tag)
+      }
+    }
+    
+    const removeTag = (tag) => {
+      const index = newNote.tags.indexOf(tag)
+      if (index > -1) {
+        newNote.tags.splice(index, 1)
+      }
+    }
+    
+    const selectWorkflow = (workflowId) => {
+      newNote.workflowId = workflowId
+    }
+    
+    const publishNote = async () => {
+      if (!canPublish.value) return
+      
+      loading.value = true
+      try {
+        // 这里会调用API发布笔记
+        const noteData = {
+          content: newNote.content,
+          type: newNote.type,
+          media: newNote.media,
+          workflowId: newNote.workflowId,
+          tags: newNote.tags
+        }
+        
+        // 模拟API调用
+        await new Promise(resolve => setTimeout(resolve, 1000))
+        
+        // 添加到本地列表（实际应该从API返回）
+        const publishedNote = {
+          id: Date.now(),
+          ...noteData,
+          author: {
+            id: 'current_user',
+            name: '我',
+            avatar: currentUserAvatar.value
+          },
+          likes: 0,
+          isLiked: false,
+          shares: 0,
+          comments: [],
+          createdAt: new Date(),
+          showComments: false,
+          newComment: ''
+        }
+        
+        notes.value.unshift(publishedNote)
+        resetForm()
+        showPublishModal.value = false
+        
+        // 显示成功消息
+        console.log('笔记发布成功')
+      } catch (error) {
+        console.error('发布失败:', error)
+      } finally {
+        loading.value = false
+      }
+    }
+    
+    const closePublishModal = () => {
+      showPublishModal.value = false
+      // 注意：这里不调用resetForm，因为用户可能只是暂时关闭弹窗
+      // resetForm只在发布成功或用户明确取消时调用
+    }
+    
+    const resetForm = () => {
+      newNote.content = ''
+      newNote.type = 'text'
+      newNote.media = []
+      newNote.workflowId = null
+      newNote.tags = []
+      selectedNoteType.value = 'text'
+      tagInput.value = ''
+    }
+    
+    const toggleLike = (note) => {
+      note.isLiked = !note.isLiked
+      note.likes += note.isLiked ? 1 : -1
+    }
+    
+    const toggleComments = (note) => {
+      note.showComments = !note.showComments
+    }
+    
+    const addComment = (note) => {
+      if (!note.newComment.trim()) return
+      
+      const comment = {
         id: Date.now(),
-        userName: this.$t('community.posts.you', 'You'),
-        userAvatar: '/src/assets/images/logo.png',
-        text: commentText,
-        timestamp: this.$t('community.posts.justNow', 'Just now')
+        author: { name: '我', avatar: currentUserAvatar.value },
+        content: note.newComment,
+        createdAt: new Date()
       }
       
-      post.comments.push(newComment)
-      event.target.value = ''
-    },
-    toggleGroupJoin(group) {
-      group.joined = !group.joined
-      const memberCount = parseInt(group.members.replace('K', '000').replace('.', ''))
-      group.members = group.joined 
-        ? `${((memberCount + 1) / 1000).toFixed(1)}K`
-        : `${((memberCount - 1) / 1000).toFixed(1)}K`
-    },
-    getArtworkClass(artwork) {
-      return `size-${artwork.size}`
+      note.comments.push(comment)
+      note.newComment = ''
+    }
+    
+    const shareNote = (note) => {
+      // 实现分享功能
+      console.log('分享笔记:', note.id)
+    }
+    
+    const searchByTag = (tag) => {
+      if (!selectedTags.value.includes(tag)) {
+        selectedTags.value.push(tag)
+      }
+    }
+    
+    const handleSearch = () => {
+      // 实时搜索逻辑
+    }
+    
+    const performSearch = () => {
+      // 执行搜索
+    }
+    
+    const clearSearch = () => {
+      searchQuery.value = ''
+    }
+    
+    const loadMoreNotes = async () => {
+      loading.value = true
+      try {
+        // 模拟加载更多
+        await new Promise(resolve => setTimeout(resolve, 1000))
+        // 实际应该调用API加载更多笔记
+      } finally {
+        loading.value = false
+      }
+    }
+    
+    const openImageViewer = (images, index) => {
+      imageViewer.images = images
+      imageViewer.currentIndex = index
+      imageViewer.show = true
+    }
+    
+    const closeImageViewer = () => {
+      imageViewer.show = false
+    }
+    
+    const prevImage = () => {
+      if (imageViewer.currentIndex > 0) {
+        imageViewer.currentIndex--
+      }
+    }
+    
+    const nextImage = () => {
+      if (imageViewer.currentIndex < imageViewer.images.length - 1) {
+        imageViewer.currentIndex++
+      }
+    }
+    
+    const formatTime = (date) => {
+      const now = new Date()
+      const diff = now - date
+      const minutes = Math.floor(diff / 60000)
+      const hours = Math.floor(diff / 3600000)
+      const days = Math.floor(diff / 86400000)
+      
+      if (minutes < 60) return `${minutes}分钟前`
+      if (hours < 24) return `${hours}小时前`
+      if (days < 7) return `${days}天前`
+      return date.toLocaleDateString()
+    }
+    
+    const getNoteTypeIcon = (type) => {
+      const icons = {
+        text: '📝',
+        image: '🖼️',
+        video: '🎥',
+        workflow: '🤖'
+      }
+      return icons[type] || '📝'
+    }
+    
+    const getContentPlaceholder = () => {
+      const placeholders = {
+        text: '分享你的想法、经验或灵感...',
+        image: '为你的图片添加描述...',
+        video: '为你的视频添加说明...',
+        workflow: '介绍你的AI工作流功能和用途...'
+      }
+      return placeholders[selectedNoteType.value] || '写点什么...'
+    }
+    
+    const getFileAccept = () => {
+      if (selectedNoteType.value === 'image') return 'image/*'
+      if (selectedNoteType.value === 'video') return 'video/*'
+      return '*/*'
+    }
+    
+    const getUploadText = () => {
+      if (selectedNoteType.value === 'image') return '点击或拖拽上传图片'
+      if (selectedNoteType.value === 'video') return '点击或拖拽上传视频'
+      return '点击或拖拽上传文件'
+    }
+    
+    const getUploadHint = () => {
+      if (selectedNoteType.value === 'image') return '支持 JPG、PNG、GIF 格式，单个文件不超过10MB'
+      if (selectedNoteType.value === 'video') return '支持 MP4、MOV、AVI 格式，单个文件不超过100MB'
+      return '请选择合适的文件格式'
+    }
+    
+    // 文件处理方法
+    const triggerFileUpload = () => {
+      // 实现文件上传触发
+    }
+    
+    const handleFileDrop = (event) => {
+      // 实现拖拽上传
+    }
+    
+    const handleFileSelect = (event) => {
+      // 实现文件选择处理
+    }
+    
+    const removeMedia = (index) => {
+      newNote.media.splice(index, 1)
+    }
+    
+    // 生命周期
+    onMounted(() => {
+      // 组件挂载后的初始化操作
+    })
+    
+    return {
+      // 响应式数据
+      loading,
+      searchQuery,
+      activeFilter,
+      selectedTags,
+      selectedNoteType,
+      tagInput,
+      hasMore,
+      showPublishModal,
+      noteStats,
+      newNote,
+      imageViewer,
+      
+      // 选项数据
+      filterOptions,
+      noteTypes,
+      trendingTags,
+      userWorkflows,
+      
+      // 计算属性
+      filteredNotes,
+      canPublish,
+      currentUserAvatar,
+      tagSuggestions,
+      
+      // 方法
+      setActiveFilter,
+      toggleTag,
+      selectNoteType,
+      addTag,
+      addSuggestedTag,
+      removeTag,
+      selectWorkflow,
+      publishNote,
+      resetForm,
+      closePublishModal,
+      toggleLike,
+      toggleComments,
+      addComment,
+      shareNote,
+      searchByTag,
+      handleSearch,
+      performSearch,
+      clearSearch,
+      loadMoreNotes,
+      openImageViewer,
+      closeImageViewer,
+      prevImage,
+      nextImage,
+      formatTime,
+      getNoteTypeIcon,
+      getContentPlaceholder,
+      getFileAccept,
+      getUploadText,
+      getUploadHint,
+      triggerFileUpload,
+      handleFileDrop,
+      handleFileSelect,
+      removeMedia
     }
   }
 }
@@ -514,7 +913,7 @@ export default {
 /* 英雄区样式 */
 .hero-section {
   background: linear-gradient(135deg, #ff6b6b 0%, #4ecdc4 100%);
-  padding: 6rem 0 4rem;
+  padding: 4rem 0 3rem;
   color: white;
 }
 
@@ -525,15 +924,15 @@ export default {
 }
 
 .hero-title {
-  font-size: 3.5rem;
+  font-size: 3rem;
   font-weight: 700;
   margin-bottom: 1rem;
   text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.3);
 }
 
 .hero-subtitle {
-  font-size: 1.3rem;
-  margin-bottom: 3rem;
+  font-size: 1.2rem;
+  margin-bottom: 2rem;
   opacity: 0.9;
 }
 
@@ -550,233 +949,179 @@ export default {
 
 .stat-number {
   display: block;
-  font-size: 2.5rem;
+  font-size: 2rem;
   font-weight: 700;
   margin-bottom: 0.5rem;
 }
 
 .stat-label {
-  font-size: 1rem;
+  font-size: 0.9rem;
   opacity: 0.8;
 }
 
-/* 导航标签样式 */
-.community-nav {
+/* 搜索区域样式 */
+.search-section {
   background: #2d2d2d;
-  padding: 0;
+  padding: 2rem 0;
   border-bottom: 1px solid #404040;
-  position: sticky;
-  top: 80px;
-  z-index: 100;
 }
 
-.nav-tabs {
-  display: flex;
-  gap: 0;
+.search-container {
+  max-width: 1200px;
+  margin: 0 auto;
 }
 
-.nav-tab {
-  display: flex;
-  align-items: center;
-  gap: 0.5rem;
-  padding: 1rem 2rem;
+.search-box {
+  position: relative;
+  max-width: 600px;
+  margin: 0 auto 1.5rem;
+}
+
+.search-icon {
+  position: absolute;
+  left: 1rem;
+  top: 50%;
+  transform: translateY(-50%);
+  font-size: 1.2rem;
+  color: #b0b0b0;
+}
+
+.search-box input {
+  width: 100%;
+  padding: 1rem 1rem 1rem 3rem;
+  background: #3a3a3a;
+  border: 1px solid #404040;
+  border-radius: 25px;
+  color: #e0e0e0;
+  font-size: 1rem;
+  transition: all 0.3s ease;
+}
+
+.search-box input:focus {
+  outline: none;
+  border-color: #ff6b6b;
+  box-shadow: 0 0 0 3px rgba(255, 107, 107, 0.1);
+}
+
+.clear-search {
+  position: absolute;
+  right: 1rem;
+  top: 50%;
+  transform: translateY(-50%);
   background: none;
   border: none;
   color: #b0b0b0;
   cursor: pointer;
-  transition: all 0.3s ease;
-  border-bottom: 3px solid transparent;
-}
-
-.nav-tab:hover {
-  background: #3a3a3a;
-  color: #e0e0e0;
-}
-
-.nav-tab.active {
-  color: #ff6b6b;
-  border-bottom-color: #ff6b6b;
-  background: #3a3a3a;
-}
-
-.tab-icon {
   font-size: 1.2rem;
 }
 
-.tab-text {
-  font-weight: 500;
+/* 筛选标签样式 */
+.filter-tabs {
+  display: flex;
+  justify-content: center;
+  gap: 1rem;
+  margin-bottom: 1.5rem;
+  flex-wrap: wrap;
 }
 
-/* 主要内容布局 */
+.filter-tab {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.7rem 1.5rem;
+  background: #3a3a3a;
+  border: 1px solid #404040;
+  border-radius: 20px;
+  color: #b0b0b0;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.filter-tab:hover,
+.filter-tab.active {
+  background: linear-gradient(135deg, #ff6b6b, #4ecdc4);
+  color: white;
+  border-color: transparent;
+}
+
+/* 热门标签样式 */
+.trending-tags {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 1rem;
+  flex-wrap: wrap;
+}
+
+.tags-label {
+  font-weight: 600;
+  color: #e0e0e0;
+  margin-right: 0.5rem;
+}
+
+.tags-list {
+  display: flex;
+  gap: 0.5rem;
+  flex-wrap: wrap;
+}
+
+.trending-tag {
+  background: #3a3a3a;
+  border: 1px solid #404040;
+  color: #b0b0b0;
+  padding: 0.4rem 1rem;
+  border-radius: 15px;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  font-size: 0.9rem;
+}
+
+.trending-tag:hover,
+.trending-tag.active {
+  background: linear-gradient(135deg, #ff6b6b, #4ecdc4);
+  color: white;
+  border-color: transparent;
+}
+
+/* 主要内容样式 */
 .main-content {
   padding: 2rem 0;
 }
 
 .content-layout {
-  display: grid;
-  grid-template-columns: 1fr 320px;
-  gap: 2rem;
+  max-width: 800px;
+  margin: 0 auto;
 }
 
-.content-main {
-  background: transparent;
-  border-radius: 12px;
-  overflow: visible;
+/* 发布触发按钮样式 */
+.publish-trigger {
+  margin-bottom: 2rem;
 }
 
-/* 瀑布流布局 */
-.masonry-grid {
-  display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
-  gap: 1rem;
-  padding: 0.3rem;
-}
-
-.masonry-item {
-  background: #2d2d2d;
-  border-radius: 16px;
-  overflow: hidden;
-  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.15);
-  transition: all 0.3s ease;
-  border: 1px solid #404040;
-}
-
-.masonry-item:hover {
-  transform: translateY(-5px);
-  box-shadow: 0 8px 30px rgba(0, 0, 0, 0.25);
-}
-
-/* 卡片头部样式 */
-.card-header {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  padding: 1rem 1.5rem;
-  border-bottom: 1px solid #404040;
-}
-
-.card-header h3 {
-  margin: 0;
-  font-size: 1.1rem;
-  font-weight: 600;
-  color: #e0e0e0;
-  display: flex;
-  align-items: center;
-  gap: 0.5rem;
-}
-
-.card-icon {
-  font-size: 1.2rem;
-}
-
-.card-content {
-  padding: 1.5rem;
-}
-
-.card-actions {
-  display: flex;
-  gap: 1rem;
-  padding: 1rem 1.5rem;
-  border-top: 1px solid #404040;
-}
-
-/* 创意发布卡片 */
-.creative-card {
-  background: linear-gradient(135deg, #ff6b6b, #4ecdc4);
-  color: white;
-  border: none;
-}
-
-.creative-card .card-header {
-  border-bottom: 1px solid rgba(255, 255, 255, 0.2);
-}
-
-.creative-card textarea {
+.publish-trigger-btn {
   width: 100%;
-  background: rgba(255, 255, 255, 0.1);
-  border: 1px solid rgba(255, 255, 255, 0.2);
-  border-radius: 8px;
-  padding: 1rem;
-  color: white;
-  resize: vertical;
-  font-family: inherit;
-  margin-bottom: 1rem;
-}
-
-.creative-card textarea::placeholder {
-  color: rgba(255, 255, 255, 0.7);
-}
-
-.quick-actions {
-  display: flex;
-  gap: 0.5rem;
-  align-items: center;
-}
-
-.quick-btn {
-  background: rgba(255, 255, 255, 0.2);
-  border: none;
-  color: white;
-  padding: 0.5rem;
-  border-radius: 6px;
+  background: #2d2d2d;
+  border: 1px solid #404040;
+  border-radius: 16px;
+  padding: 1.2rem;
   cursor: pointer;
-  font-size: 1rem;
   transition: all 0.3s ease;
 }
 
-.quick-btn:hover {
-  background: rgba(255, 255, 255, 0.3);
-}
-
-.share-btn {
-  background: rgba(255, 255, 255, 0.9);
-  color: #ff6b6b;
-  border: none;
-  padding: 0.5rem 1.5rem;
-  border-radius: 20px;
-  cursor: pointer;
-  font-weight: 600;
-  margin-left: auto;
-  transition: all 0.3s ease;
-}
-
-.share-btn:hover {
-  background: white;
-  transform: translateY(-2px);
-}
-
-/* 热门话题卡片 */
-.trending-card {
+.publish-trigger-btn:hover {
   background: #3a3a3a;
+  border-color: #ff6b6b;
+  transform: translateY(-2px);
+  box-shadow: 0 4px 15px rgba(255, 107, 107, 0.2);
 }
 
-.trending-list {
-  display: flex;
-  flex-direction: column;
-  gap: 0.8rem;
-}
-
-.trending-item {
+.trigger-content {
   display: flex;
   align-items: center;
   gap: 1rem;
-  padding: 0.5rem 0;
 }
 
-.trend-rank {
-  font-weight: 700;
-  color: #ff6b6b;
-  font-size: 1.1rem;
-  min-width: 30px;
-}
-
-.trend-tag {
-  color: #e0e0e0;
-  font-weight: 500;
-}
-
-/* 用户头像通用样式 */
-.user-avatar {
+.trigger-avatar {
   width: 40px;
   height: 40px;
   border-radius: 50%;
@@ -784,88 +1129,581 @@ export default {
   flex-shrink: 0;
 }
 
-.user-avatar img {
+.trigger-avatar img {
   width: 100%;
   height: 100%;
   object-fit: cover;
 }
 
-/* 动态卡片样式 */
-.post-card {
-  background: #3a3a3a;
-  border: 1px solid #404040;
+.trigger-text {
+  flex: 1;
+  text-align: left;
+  color: #b0b0b0;
+  font-size: 1rem;
+  transition: color 0.3s ease;
 }
 
-.post-card.has-image {
-  grid-row: span 2;
+.publish-trigger-btn:hover .trigger-text {
+  color: #e0e0e0;
 }
 
-.post-card .card-header {
-  padding: 1rem;
-  border-bottom: 1px solid #404040;
+.trigger-icon {
+  font-size: 1.2rem;
+  transition: transform 0.3s ease;
 }
 
-.post-card .user-info {
+.publish-trigger-btn:hover .trigger-icon {
+  transform: scale(1.2);
+}
+
+/* 笔记类型选择器 */
+.note-type-selector {
+  display: flex;
+  gap: 1rem;
+  margin-bottom: 1.5rem;
+  flex-wrap: wrap;
+}
+
+.type-btn {
   display: flex;
   align-items: center;
-  gap: 1rem;
-  flex: 1;
+  gap: 0.5rem;
+  padding: 0.7rem 1.2rem;
+  background: #3a3a3a;
+  border: 1px solid #404040;
+  border-radius: 12px;
+  color: #b0b0b0;
+  cursor: pointer;
+  transition: all 0.3s ease;
 }
 
-.post-card .user-details h4 {
-  margin: 0;
-  font-weight: 600;
+.type-btn:hover,
+.type-btn.active {
+  background: linear-gradient(135deg, #ff6b6b, #4ecdc4);
+  color: white;
+  border-color: transparent;
+}
+
+/* 内容输入区域 */
+.content-input {
+  position: relative;
+  margin-bottom: 1.5rem;
+}
+
+.content-input textarea {
+  width: 100%;
+  background: #3a3a3a;
+  border: 1px solid #404040;
+  border-radius: 12px;
+  padding: 1rem;
   color: #e0e0e0;
-  font-size: 0.9rem;
+  resize: vertical;
+  font-family: inherit;
+  line-height: 1.6;
 }
 
-.post-time {
+.content-input textarea:focus {
+  outline: none;
+  border-color: #ff6b6b;
+}
+
+.input-counter {
+  position: absolute;
+  bottom: 0.5rem;
+  right: 1rem;
   font-size: 0.8rem;
   color: #b0b0b0;
 }
 
-.post-menu {
-  background: none;
-  border: none;
-  color: #b0b0b0;
+/* 媒体上传区域 */
+.media-upload {
+  margin-bottom: 1.5rem;
+}
+
+.upload-area {
+  border: 2px dashed #404040;
+  border-radius: 12px;
+  padding: 2rem;
+  text-align: center;
   cursor: pointer;
-  padding: 0.5rem;
-  border-radius: 4px;
   transition: all 0.3s ease;
 }
 
-.post-menu:hover {
+.upload-area:hover {
+  border-color: #ff6b6b;
+  background: rgba(255, 107, 107, 0.05);
+}
+
+.upload-placeholder .upload-icon {
+  font-size: 3rem;
+  margin-bottom: 1rem;
+  display: block;
+}
+
+.media-preview {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(120px, 1fr));
+  gap: 1rem;
+}
+
+.media-item {
+  position: relative;
+  border-radius: 8px;
+  overflow: hidden;
+}
+
+.media-item img,
+.media-item video {
+  width: 100%;
+  height: 100px;
+  object-fit: cover;
+}
+
+.remove-media {
+  position: absolute;
+  top: 0.3rem;
+  right: 0.3rem;
+  background: rgba(0, 0, 0, 0.7);
+  color: white;
+  border: none;
+  border-radius: 50%;
+  width: 24px;
+  height: 24px;
+  cursor: pointer;
+  font-size: 0.8rem;
+}
+
+/* 工作流选择器 */
+.workflow-selector {
+  margin-bottom: 1.5rem;
+}
+
+.workflow-selector h4 {
+  margin: 0 0 1rem 0;
+  color: #e0e0e0;
+}
+
+.workflow-list {
+  display: grid;
+  gap: 1rem;
+}
+
+.workflow-item {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  padding: 1rem;
+  background: #3a3a3a;
+  border: 1px solid #404040;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.workflow-item:hover,
+.workflow-item.selected {
+  border-color: #ff6b6b;
+  background: rgba(255, 107, 107, 0.1);
+}
+
+.workflow-icon {
+  font-size: 2rem;
+  width: 50px;
+  height: 50px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: linear-gradient(135deg, #ff6b6b, #4ecdc4);
+  border-radius: 8px;
+}
+
+.workflow-info h5 {
+  margin: 0 0 0.3rem 0;
+  color: #e0e0e0;
+}
+
+.workflow-info p {
+  margin: 0;
+  color: #b0b0b0;
+  font-size: 0.9rem;
+}
+
+/* 标签输入样式 */
+.tags-input {
+  margin-bottom: 1.5rem;
+}
+
+.tags-input label {
+  display: block;
+  margin-bottom: 0.5rem;
+  font-weight: 600;
+  color: #e0e0e0;
+}
+
+.tags-container {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+  align-items: center;
+  padding: 0.8rem;
+  background: #3a3a3a;
+  border: 1px solid #404040;
+  border-radius: 8px;
+  min-height: 45px;
+}
+
+.selected-tags {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+}
+
+.selected-tag {
+  display: flex;
+  align-items: center;
+  gap: 0.3rem;
+  background: linear-gradient(135deg, #ff6b6b, #4ecdc4);
+  color: white;
+  padding: 0.3rem 0.8rem;
+  border-radius: 15px;
+  font-size: 0.9rem;
+}
+
+.selected-tag button {
+  background: none;
+  border: none;
+  color: white;
+  cursor: pointer;
+  margin-left: 0.3rem;
+}
+
+.tags-container input {
+  flex: 1;
+  background: none;
+  border: none;
+  color: #e0e0e0;
+  outline: none;
+  min-width: 150px;
+}
+
+.tags-suggestions {
+  display: flex;
+  gap: 0.5rem;
+  margin-top: 0.5rem;
+  flex-wrap: wrap;
+}
+
+.tag-suggestion {
+  background: #3a3a3a;
+  border: 1px solid #404040;
+  color: #b0b0b0;
+  padding: 0.3rem 0.8rem;
+  border-radius: 12px;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  font-size: 0.8rem;
+}
+
+.tag-suggestion:hover {
+  background: linear-gradient(135deg, #ff6b6b, #4ecdc4);
+  color: white;
+  border-color: transparent;
+}
+
+/* 发布按钮样式 */
+.publish-actions {
+  display: flex;
+  gap: 1rem;
+  justify-content: flex-end;
+}
+
+.cancel-btn,
+.publish-btn {
+  padding: 0.8rem 2rem;
+  border-radius: 8px;
+  cursor: pointer;
+  font-weight: 600;
+  transition: all 0.3s ease;
+}
+
+.cancel-btn {
+  background: #3a3a3a;
+  border: 1px solid #404040;
+  color: #b0b0b0;
+}
+
+.cancel-btn:hover {
   background: #2d2d2d;
   color: #e0e0e0;
 }
 
-.post-card .card-content {
-  padding: 1rem;
+.publish-btn {
+  background: linear-gradient(135deg, #ff6b6b, #4ecdc4);
+  border: none;
+  color: white;
 }
 
-.post-text {
-  line-height: 1.6;
+.publish-btn:hover:not(:disabled) {
+  transform: translateY(-2px);
+  box-shadow: 0 5px 15px rgba(255, 107, 107, 0.3);
+}
+
+.publish-btn:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+/* 笔记列表样式 */
+.notes-section {
+  max-width: 800px;
+  margin: 0 auto;
+}
+
+.loading-state,
+.empty-state {
+  text-align: center;
+  padding: 3rem;
+  color: #b0b0b0;
+}
+
+.loading-spinner {
+  width: 40px;
+  height: 40px;
+  border: 3px solid #404040;
+  border-top: 3px solid #ff6b6b;
+  border-radius: 50%;
+  animation: spin 1s linear infinite;
+  margin: 0 auto 1rem;
+}
+
+@keyframes spin {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}
+
+.empty-icon {
+  font-size: 4rem;
   margin-bottom: 1rem;
-  color: #e0e0e0;
 }
 
-.post-media {
-  border-radius: 8px;
+.notes-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 1.5rem;
+  padding: 0;
+}
+
+/* 笔记卡片样式 */
+.note-card {
+  background: #2d2d2d;
+  border-radius: 12px;
+  border: 1px solid #404040;
   overflow: hidden;
-  margin-top: 1rem;
-}
-
-.post-media img {
+  transition: all 0.3s ease;
   width: 100%;
-  height: auto;
-  display: block;
+  display: flex;
+  flex-direction: column;
 }
 
-.post-card .card-actions {
+.note-card:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 20px rgba(0, 0, 0, 0.2);
+}
+
+.note-header {
   display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0.8rem;
+  border-bottom: 1px solid #404040;
+}
+
+.author-info {
+  display: flex;
+  align-items: center;
   gap: 1rem;
-  padding: 1rem;
+}
+
+.author-avatar {
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  overflow: hidden;
+}
+
+.author-avatar img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.author-name {
+  margin: 0;
+  font-weight: 600;
+  color: #e0e0e0;
+  font-size: 0.85rem;
+}
+
+.publish-time {
+  font-size: 0.75rem;
+  color: #b0b0b0;
+}
+
+.note-type-badge {
+  background: linear-gradient(135deg, #ff6b6b, #4ecdc4);
+  color: white;
+  padding: 0.2rem 0.6rem;
+  border-radius: 10px;
+  font-size: 0.75rem;
+}
+
+.note-content {
+  padding: 0.8rem;
+  flex: 1;
+}
+
+.note-text {
+  line-height: 1.5;
+  margin-bottom: 0.8rem;
+  color: #e0e0e0;
+  font-size: 0.9rem;
+  display: -webkit-box;
+  -webkit-line-clamp: 3;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+.note-media {
+  margin-top: 0.8rem;
+}
+
+.image-gallery {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 0.3rem;
+  border-radius: 6px;
+  overflow: hidden;
+  max-height: 180px;
+}
+
+.image-gallery img {
+  width: 100%;
+  height: 85px;
+  object-fit: cover;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  border-radius: 4px;
+}
+
+.image-gallery img:hover {
+  transform: scale(1.02);
+}
+
+/* 单张图片时占满宽度 */
+.image-gallery:has(img:only-child) {
+  grid-template-columns: 1fr;
+}
+
+.image-gallery:has(img:only-child) img {
+  height: 120px;
+}
+
+.note-media video {
+  width: 100%;
+  height: 120px;
+  object-fit: cover;
+  border-radius: 6px;
+}
+
+.workflow-content {
+  margin-top: 0.8rem;
+}
+
+.workflow-preview {
+  display: flex;
+  align-items: center;
+  gap: 0.8rem;
+  padding: 0.8rem;
+  background: #3a3a3a;
+  border-radius: 6px;
+  border: 1px solid #404040;
+}
+
+.workflow-preview .workflow-icon {
+  font-size: 1.5rem;
+  width: 40px;
+  height: 40px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: linear-gradient(135deg, #ff6b6b, #4ecdc4);
+  border-radius: 6px;
+}
+
+.workflow-preview .workflow-info {
+  flex: 1;
+}
+
+.workflow-preview h5 {
+  margin: 0 0 0.2rem 0;
+  color: #e0e0e0;
+  font-size: 0.9rem;
+}
+
+.workflow-preview p {
+  margin: 0;
+  color: #b0b0b0;
+  font-size: 0.8rem;
+}
+
+.try-workflow-btn {
+  background: linear-gradient(135deg, #ff6b6b, #4ecdc4);
+  color: white;
+  border: none;
+  padding: 0.5rem 1rem;
+  border-radius: 6px;
+  cursor: pointer;
+  font-weight: 600;
+  transition: all 0.3s ease;
+}
+
+.try-workflow-btn:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 3px 10px rgba(255, 107, 107, 0.3);
+}
+
+/* 标签样式 */
+.note-tags {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.3rem;
+  padding: 0 0.8rem 0.8rem;
+}
+
+.note-tag {
+  background: #3a3a3a;
+  color: #b0b0b0;
+  padding: 0.2rem 0.6rem;
+  border-radius: 10px;
+  font-size: 0.75rem;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  border: 1px solid #404040;
+}
+
+.note-tag:hover {
+  background: linear-gradient(135deg, #ff6b6b, #4ecdc4);
+  color: white;
+  border-color: transparent;
+}
+
+/* 笔记操作样式 */
+.note-actions {
+  display: flex;
+  gap: 0.8rem;
+  padding: 0.8rem;
   border-top: 1px solid #404040;
+  margin-top: auto;
 }
 
 .action-btn {
@@ -882,7 +1720,7 @@ export default {
 }
 
 .action-btn:hover {
-  background: #2d2d2d;
+  background: #3a3a3a;
   color: #e0e0e0;
 }
 
@@ -890,101 +1728,47 @@ export default {
   color: #ff6b6b;
 }
 
-/* 推荐用户卡片 */
-.users-card {
-  background: #3a3a3a;
+/* 评论区域样式 */
+.comments-section {
+  padding: 1rem;
+  border-top: 1px solid #404040;
+  background: #252525;
 }
 
-.user-suggestion {
+.comment-input {
   display: flex;
-  align-items: center;
-  gap: 1rem;
-  padding: 0.8rem 0;
-  border-bottom: 1px solid #404040;
+  gap: 0.5rem;
+  margin-bottom: 1rem;
 }
 
-.user-suggestion:last-child {
-  border-bottom: none;
-}
-
-.user-suggestion .user-info {
+.comment-input input {
   flex: 1;
-}
-
-.user-suggestion .user-name {
-  margin: 0;
-  font-weight: 600;
+  background: #3a3a3a;
+  border: 1px solid #404040;
+  border-radius: 20px;
+  padding: 0.5rem 1rem;
   color: #e0e0e0;
-  font-size: 0.9rem;
 }
 
-.user-suggestion .user-specialty {
-  margin: 0;
-  color: #b0b0b0;
-  font-size: 0.8rem;
-}
-
-.user-suggestion .follow-btn {
+.comment-input button {
   background: linear-gradient(135deg, #ff6b6b, #4ecdc4);
   color: white;
   border: none;
-  padding: 0.3rem 1rem;
-  border-radius: 15px;
-  cursor: pointer;
-  font-size: 0.8rem;
-  font-weight: 600;
-  transition: all 0.3s ease;
-}
-
-.user-suggestion .follow-btn:hover {
-  transform: translateY(-1px);
-  box-shadow: 0 3px 10px rgba(255, 107, 107, 0.3);
-}
-
-/* 活动预览卡片 */
-.events-card {
-  background: #3a3a3a;
-}
-
-.event-preview {
-  display: flex;
-  align-items: center;
-  gap: 1rem;
-  padding: 0.8rem 0;
-  border-bottom: 1px solid #404040;
-}
-
-.event-preview:last-child {
-  border-bottom: none;
-}
-
-.event-date {
-  background: linear-gradient(135deg, #ff6b6b, #4ecdc4);
-  color: white;
   padding: 0.5rem 1rem;
-  border-radius: 8px;
-  font-size: 0.8rem;
+  border-radius: 6px;
+  cursor: pointer;
   font-weight: 600;
-  white-space: nowrap;
 }
 
-.event-name {
-  color: #e0e0e0;
-  font-weight: 500;
-  font-size: 0.9rem;
-}
-
-/* 评论样式 */
-.comments-section {
-  margin-top: 1rem;
-  padding-top: 1rem;
-  border-top: 1px solid #404040;
+.comments-list {
+  display: flex;
+  flex-direction: column;
+  gap: 0.8rem;
 }
 
 .comment-item {
   display: flex;
-  gap: 0.5rem;
-  margin-bottom: 1rem;
+  gap: 0.8rem;
 }
 
 .comment-avatar {
@@ -992,7 +1776,6 @@ export default {
   height: 32px;
   border-radius: 50%;
   overflow: hidden;
-  flex-shrink: 0;
 }
 
 .comment-avatar img {
@@ -1005,7 +1788,7 @@ export default {
   flex: 1;
 }
 
-.comment-user {
+.comment-author {
   font-weight: 600;
   color: #e0e0e0;
   margin-right: 0.5rem;
@@ -1014,6 +1797,7 @@ export default {
 .comment-text {
   margin: 0.2rem 0;
   line-height: 1.4;
+  color: #e0e0e0;
 }
 
 .comment-time {
@@ -1021,445 +1805,181 @@ export default {
   color: #b0b0b0;
 }
 
-.comment-composer {
-  display: flex;
-  gap: 0.5rem;
-  margin-top: 1rem;
+/* 加载更多按钮 */
+.load-more {
+  text-align: center;
+  padding: 2rem;
 }
 
-.comment-composer input {
-  flex: 1;
-  background: #2d2d2d;
-  border: 1px solid #404040;
-  border-radius: 20px;
-  padding: 0.5rem 1rem;
-  color: #e0e0e0;
-}
-
-/* 画廊样式 - 瀑布流布局 */
-.gallery-section .masonry-grid {
-  grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
-}
-
-.artwork-card {
+.load-more-btn {
   background: #3a3a3a;
   border: 1px solid #404040;
+  color: #e0e0e0;
+  padding: 0.8rem 2rem;
+  border-radius: 8px;
+  cursor: pointer;
   transition: all 0.3s ease;
 }
 
-.artwork-card:hover {
-  transform: translateY(-5px);
-  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+.load-more-btn:hover {
+  background: linear-gradient(135deg, #ff6b6b, #4ecdc4);
+  color: white;
+  border-color: transparent;
 }
 
-/* 不同尺寸的艺术作品卡片 */
-.artwork-card.size-small {
-  grid-row: span 1;
-}
-
-.artwork-card.size-medium {
-  grid-row: span 2;
-}
-
-.artwork-card.size-large {
-  grid-row: span 3;
-}
-
-.artwork-image {
-  position: relative;
-  overflow: hidden;
-}
-
-.artwork-card.size-small .artwork-image {
-  aspect-ratio: 1;
-}
-
-.artwork-card.size-medium .artwork-image {
-  aspect-ratio: 3/4;
-}
-
-.artwork-card.size-large .artwork-image {
-  aspect-ratio: 2/3;
-}
-
-.artwork-image img {
-  width: 100%;
-  height: 100%;
-  object-fit: cover;
-  transition: all 0.3s ease;
-}
-
-.artwork-card:hover .artwork-image img {
-  transform: scale(1.05);
-}
-
-.artwork-overlay {
-  position: absolute;
+/* 图片查看器样式 */
+.image-viewer {
+  position: fixed;
   top: 0;
   left: 0;
   right: 0;
   bottom: 0;
-  background: linear-gradient(to bottom, transparent, rgba(0, 0, 0, 0.8));
+  background: rgba(0, 0, 0, 0.9);
   display: flex;
   align-items: center;
   justify-content: center;
-  gap: 1rem;
-  opacity: 0;
-  transition: all 0.3s ease;
+  z-index: 1000;
 }
 
-.artwork-card:hover .artwork-overlay {
-  opacity: 1;
+.viewer-content {
+  position: relative;
+  max-width: 90vw;
+  max-height: 90vh;
 }
 
-.overlay-btn {
-  background: rgba(255, 255, 255, 0.2);
-  border: 1px solid rgba(255, 255, 255, 0.3);
-  color: white;
-  padding: 0.5rem 1rem;
-  border-radius: 20px;
-  cursor: pointer;
-  transition: all 0.3s ease;
-  font-size: 0.9rem;
-  font-weight: 500;
+.viewer-content img {
+  max-width: 100%;
+  max-height: 100%;
+  object-fit: contain;
 }
 
-.overlay-btn:hover {
-  background: rgba(255, 255, 255, 0.3);
-  transform: translateY(-2px);
-}
-
-.artwork-info {
-  padding: 1rem;
-}
-
-.artwork-title {
-  margin: 0 0 0.5rem 0;
-  font-weight: 600;
-  color: #e0e0e0;
-  font-size: 1rem;
-}
-
-.artwork-artist {
-  margin: 0 0 0.8rem 0;
-  color: #b0b0b0;
-  font-size: 0.9rem;
-}
-
-.artwork-stats {
-  display: flex;
-  gap: 1rem;
-  margin-top: 0.5rem;
-}
-
-.stat-item {
-  display: flex;
-  align-items: center;
-  gap: 0.3rem;
-  color: #b0b0b0;
-  font-size: 0.8rem;
-}
-
-/* 活动样式 */
-.events-grid {
-  display: grid;
-  gap: 1rem;
-  padding: 0.5rem;
-}
-
-.event-card {
-  display: flex;
-  background: #3a3a3a;
-  border-radius: 12px;
-  padding: 1.5rem;
-  transition: all 0.3s ease;
-}
-
-.event-card:hover {
-  transform: translateY(-3px);
-  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
-}
-
-.event-date {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  background: linear-gradient(135deg, #ff6b6b, #4ecdc4);
-  color: white;
-  border-radius: 8px;
-  padding: 1rem;
-  margin-right: 1.5rem;
-  min-width: 80px;
-}
-
-.event-day {
-  font-size: 1.5rem;
-  font-weight: 700;
-}
-
-.event-month {
-  font-size: 0.9rem;
-}
-
-.event-content {
-  flex: 1;
-}
-
-.event-title {
-  margin: 0 0 0.5rem 0;
-  font-size: 1.3rem;
-  font-weight: 600;
-  color: #e0e0e0;
-}
-
-.event-description {
-  margin: 0 0 1rem 0;
-  color: #b0b0b0;
-  line-height: 1.5;
-}
-
-.event-meta {
-  display: flex;
-  gap: 1rem;
-  margin-bottom: 1rem;
-  font-size: 0.9rem;
-  color: #b0b0b0;
-}
-
-.event-join-btn {
-  background: linear-gradient(135deg, #ff6b6b, #4ecdc4);
+.viewer-close,
+.viewer-prev,
+.viewer-next {
+  position: absolute;
+  background: rgba(0, 0, 0, 0.7);
   color: white;
   border: none;
-  padding: 0.5rem 1.5rem;
-  border-radius: 6px;
+  padding: 1rem;
   cursor: pointer;
-  font-weight: 600;
-  transition: all 0.3s ease;
-}
-
-.event-join-btn:hover {
-  transform: translateY(-2px);
-  box-shadow: 0 5px 15px rgba(255, 107, 107, 0.3);
-}
-
-/* 群组样式 */
-.groups-grid {
-  display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
-  gap: 0.8rem;
-  padding: 0.3rem;
-}
-
-.group-card {
-  background: #3a3a3a;
-  border-radius: 12px;
-  padding: 1.5rem;
-  transition: all 0.3s ease;
-}
-
-.group-card:hover {
-  transform: translateY(-3px);
-  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
-}
-
-.group-header {
-  display: flex;
-  align-items: center;
-  gap: 1rem;
-  margin-bottom: 1rem;
-}
-
-.group-icon {
-  font-size: 2rem;
-  width: 50px;
-  height: 50px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  background: linear-gradient(135deg, #ff6b6b, #4ecdc4);
-  border-radius: 12px;
-}
-
-.group-name {
-  margin: 0;
   font-size: 1.2rem;
-  font-weight: 600;
-  color: #e0e0e0;
-}
-
-.group-members {
-  margin: 0;
-  color: #b0b0b0;
-  font-size: 0.9rem;
-}
-
-.group-description {
-  margin: 0 0 1.5rem 0;
-  color: #b0b0b0;
-  line-height: 1.5;
-}
-
-.group-btn {
-  background: linear-gradient(135deg, #ff6b6b, #4ecdc4);
-  color: white;
-  border: none;
-  padding: 0.5rem 1.5rem;
-  border-radius: 6px;
-  cursor: pointer;
-  font-weight: 600;
+  border-radius: 4px;
   transition: all 0.3s ease;
-  width: 100%;
 }
 
-.group-btn.joined {
-  background: #4caf50;
+.viewer-close {
+  top: 1rem;
+  right: 1rem;
 }
 
-.group-btn:hover {
-  transform: translateY(-2px);
-  box-shadow: 0 5px 15px rgba(255, 107, 107, 0.3);
+.viewer-prev {
+  left: 1rem;
+  top: 50%;
+  transform: translateY(-50%);
 }
 
-/* 侧边栏样式 */
-.sidebar {
+.viewer-next {
+  right: 1rem;
+  top: 50%;
+  transform: translateY(-50%);
+}
+
+.viewer-close:hover,
+.viewer-prev:hover,
+.viewer-next:hover {
+  background: rgba(0, 0, 0, 0.9);
+}
+
+/* 发布笔记弹窗样式 */
+.publish-modal {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0, 0, 0, 0.7);
   display: flex;
-  flex-direction: column;
-  gap: 1.5rem;
+  align-items: center;
+  justify-content: center;
+  z-index: 1000;
+  padding: 1rem;
 }
 
-.sidebar-widget {
+.modal-content {
   background: #2d2d2d;
   border-radius: 16px;
-  padding: 1.5rem;
+  max-width: 600px;
+  width: 100%;
+  max-height: 90vh;
+  overflow-y: auto;
   border: 1px solid #404040;
-  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.15);
+  box-shadow: 0 10px 40px rgba(0, 0, 0, 0.4);
 }
 
-.widget-title {
-  margin: 0 0 1rem 0;
-  font-size: 1.1rem;
-  font-weight: 600;
-  color: #e0e0e0;
-}
-
-.trending-tags {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 0.5rem;
-}
-
-.trending-tag {
-  background: linear-gradient(135deg, #ff6b6b, #4ecdc4);
-  color: white;
-  padding: 0.3rem 0.8rem;
-  border-radius: 15px;
-  font-size: 0.8rem;
-  cursor: pointer;
-  transition: all 0.3s ease;
-}
-
-.trending-tag:hover {
-  transform: translateY(-2px);
-  box-shadow: 0 3px 10px rgba(255, 107, 107, 0.3);
-}
-
-.suggested-users {
-  display: flex;
-  flex-direction: column;
-  gap: 1rem;
-}
-
-.suggested-user {
+.modal-header {
   display: flex;
   align-items: center;
-  gap: 1rem;
+  justify-content: space-between;
+  padding: 1.5rem;
+  border-bottom: 1px solid #404040;
 }
 
-.suggested-user .user-avatar {
-  width: 40px;
-  height: 40px;
-}
-
-.suggested-user .user-info {
-  flex: 1;
-}
-
-.user-name {
+.modal-header h3 {
   margin: 0;
-  font-weight: 600;
   color: #e0e0e0;
-  font-size: 0.9rem;
+  font-size: 1.2rem;
 }
 
-.user-specialty {
-  margin: 0;
-  color: #b0b0b0;
-  font-size: 0.8rem;
-}
-
-.follow-btn {
-  background: linear-gradient(135deg, #ff6b6b, #4ecdc4);
-  color: white;
+.modal-close {
+  background: none;
   border: none;
-  padding: 0.3rem 1rem;
-  border-radius: 15px;
+  color: #b0b0b0;
+  font-size: 1.5rem;
   cursor: pointer;
-  font-size: 0.8rem;
-  font-weight: 600;
+  padding: 0.5rem;
+  border-radius: 4px;
   transition: all 0.3s ease;
 }
 
-.follow-btn:hover {
-  transform: translateY(-1px);
-  box-shadow: 0 3px 10px rgba(255, 107, 107, 0.3);
-}
-
-.latest-events {
-  display: flex;
-  flex-direction: column;
-  gap: 0.8rem;
-}
-
-.event-item {
-  padding: 0.8rem;
+.modal-close:hover {
   background: #3a3a3a;
-  border-radius: 8px;
-}
-
-.event-name {
-  margin: 0 0 0.3rem 0;
-  font-weight: 600;
   color: #e0e0e0;
-  font-size: 0.9rem;
 }
 
-.event-date {
-  margin: 0;
-  color: #b0b0b0;
-  font-size: 0.8rem;
+.modal-body {
+  padding: 1.5rem;
+}
+
+.modal-footer {
+  display: flex;
+  gap: 1rem;
+  justify-content: flex-end;
+  padding: 1.5rem;
+  border-top: 1px solid #404040;
 }
 
 /* 响应式设计 */
-@media (max-width: 1024px) {
-  .masonry-grid {
-    grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
-    gap: 0.8rem;
+@media (max-width: 1200px) {
+  .notes-grid {
+    grid-template-columns: repeat(2, 1fr);
+    gap: 1.2rem;
   }
   
-  .gallery-section .masonry-grid {
-    grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+  .content-layout {
+    padding: 0 1rem;
+  }
+}
+
+@media (max-width: 900px) {
+  .notes-grid {
+    grid-template-columns: repeat(2, 1fr);
+    gap: 1rem;
   }
 }
 
 @media (max-width: 768px) {
-  .content-layout {
-    grid-template-columns: 1fr;
-    gap: 1rem;
-  }
-  
-  .sidebar {
-    order: -1;
+  .hero-title {
+    font-size: 2.5rem;
   }
   
   .community-stats {
@@ -1467,78 +1987,89 @@ export default {
     gap: 1rem;
   }
   
-  .hero-title {
-    font-size: 2.5rem;
+  .filter-tabs {
+    flex-direction: column;
+    align-items: center;
   }
   
-  .nav-tabs {
-    overflow-x: auto;
-    -webkit-overflow-scrolling: touch;
+  .trending-tags {
+    flex-direction: column;
+    align-items: center;
   }
   
-  .nav-tab {
-    white-space: nowrap;
-    min-width: 120px;
+  .note-type-selector {
+    grid-template-columns: repeat(2, 1fr);
   }
   
-  .masonry-grid {
-    grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
-    gap: 0.8rem;
-    padding: 0.2rem;
+  .notes-grid {
+    grid-template-columns: 1fr;
+    gap: 1rem;
   }
   
-  .gallery-section .masonry-grid {
-    grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
+  .image-gallery {
+    grid-template-columns: 1fr;
   }
   
-  .groups-grid {
-    grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
-    gap: 0.8rem;
+  .workflow-preview {
+    flex-direction: column;
+    text-align: center;
   }
   
-  .card-header {
+  .note-actions {
+    justify-content: space-between;
+  }
+  
+  /* 弹窗在移动端的优化 */
+  .publish-modal {
+    padding: 0.5rem;
+  }
+  
+  .modal-content {
+    max-height: 95vh;
+    border-radius: 12px;
+  }
+  
+  .modal-header,
+  .modal-body,
+  .modal-footer {
     padding: 1rem;
   }
   
-  .card-content {
-    padding: 1rem;
+  .modal-footer {
+    flex-direction: column;
   }
 }
 
 @media (max-width: 480px) {
-  .masonry-grid {
-    grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
-    gap: 0.8rem;
-  }
-  
-  .gallery-section .masonry-grid {
-    grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
-  }
-  
   .hero-title {
     font-size: 2rem;
   }
   
-  .community-stats {
-    flex-wrap: wrap;
-    justify-content: center;
+  .search-box {
+    margin: 0 1rem 1.5rem;
   }
   
-  .stat-item {
-    min-width: 100px;
+  .publish-card {
+    margin: 0 1rem;
+    padding: 1rem;
   }
   
-  .nav-tab {
-    min-width: 100px;
-    padding: 0.8rem 1rem;
+  .note-card {
+    margin: 0 1rem;
   }
-  
-  .tab-icon {
-    font-size: 1rem;
-  }
-  
-  .tab-text {
-    font-size: 0.9rem;
-  }
+}
+
+/* 容器样式 */
+.container {
+  max-width: 1400px;
+  margin: 0 auto;
+  padding: 0 1rem;
+}
+
+/* 社区专用容器 - 更宽的布局 */
+.content-layout {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 0 0.5rem;
 }
 </style> 

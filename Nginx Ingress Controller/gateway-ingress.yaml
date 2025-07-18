@@ -16,3 +16,13 @@ spec:
             name: auth-gateway
             port:
               number: 80
+  - host: a81a0b8ecea214f2bbb45420363aba7d-463387886.us-east-1.elb.amazonaws.com # your aws loadbalancer (only for test)
+    http:
+      paths:
+      - path: /
+        pathType: Prefix
+        backend:
+          service:
+            name: auth-gateway
+            port:
+              number: 80              
