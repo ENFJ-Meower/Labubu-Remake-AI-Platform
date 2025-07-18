@@ -131,12 +131,18 @@ graph TD
     F --> G[LLM Scheduler]
     F --> H[STT Scheduler]
     F --> I[TTS Scheduler]
+    F --> N[pic2text Scheduler]   
+    F --> P[text2pic Scheduler]   
     G --> J[LLM Worker]
     H --> K[STT Worker]
     I --> L[TTS Worker]
+    N --> O[pic2text Worker]     
+    P --> Q[text2pic Worker]      
     J --> M[PostgreSQL]
     K --> M
     L --> M
+    O --> M
+    Q --> M  
 ```
 
 ### 🛠️ Tech Stack
@@ -350,12 +356,18 @@ graph TD
     F --> G[LLM调度器]
     F --> H[STT调度器]
     F --> I[TTS调度器]
+    F --> N[pic2text调度器]   
+    F --> P[text2pic调度器]   
     G --> J[LLM工作器]
     H --> K[STT工作器]
     I --> L[TTS工作器]
+    N --> O[pic2text工作器]     
+    P --> Q[text2pic工作器]      
     J --> M[PostgreSQL]
     K --> M
     L --> M
+    O --> M
+    Q --> M  
 ```
 
 ### 🛠️ 技术栈
