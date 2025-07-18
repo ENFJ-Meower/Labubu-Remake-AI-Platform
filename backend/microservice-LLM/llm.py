@@ -16,7 +16,6 @@ app = FastAPI(title="AI Agent Microservice API", description="LLM API")
 default_model = "gemini-2.5-flash"
 
 # Gemini API config
-# Recommended to use the environment variable GOOGLE_API_KEY
 GOOGLE_API_KEY = os.getenv("GOOGLE_API_KEY")
 AWS_ACCESS_KEY_ID = os.getenv("AWS_ACCESS_KEY_ID")
 AWS_SECRET_ACCESS_KEY = os.getenv("AWS_SECRET_ACCESS_KEY")
