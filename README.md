@@ -28,21 +28,32 @@ Frontend/
 #### Backend (Kubernetes Microservices)
 ```
 Backend/
-├── ai-agent-ingress/           # API gateway ingress
+├── ai-agent-contrller/         # DAG submit
 ├── dependency/                 # Service dependencies
 ├── login/                      # Authentication service
 ├── microservice-*/             # AI processing services
-│   ├── main/
-│   │   ├── *-deployment.yaml   # K8s deployment
-│   │   └── *-service.yaml      # K8s service
+│   ├── main/                   # source code
+│   ├── *-deployment.yaml       # K8s deployment
+│   └── *-service.yaml          # K8s service
 ├── scheduler/                  # Task schedulers
-│   ├── main/
-│   │   ├── scheduler-*-deployment.yaml
-│   │   └── scheduler-*-hpa.yaml
+│   ├── main/                   # source code
+│   ├── scheduler-*-deployment.yaml
+│   └── scheduler-*-hpa.yaml
 ├── postgres/                   # Database
 ├── redis/                      # Redis cluster
 ├── secret/                     # Secret management
 └── system/                     # System components
+```
+#### Gateway (Service Distribution and Permission Authentication)
+
+```
+Nginx Ingress Controller/
+├── main/                       # source code
+├── gateway-deployment.yaml     
+├── gateway-ingress.yaml        
+├── gateway-service.yaml 
+├── ingress-controller.yaml       
+└── jwt-secret.yaml             # JWT secret
 ```
 
 ### ⚙️ Core Technologies
@@ -237,21 +248,31 @@ Frontend/
 #### 后端 (Kubernetes 微服务)
 ```
 Backend/
-├── ai-agent-ingress/           # API 网关入口
+├── ai-agent-controller/        # DAG分发，统一接口
 ├── dependency/                 # 服务依赖
 ├── login/                      # 认证服务
 ├── microservice-*/             # AI处理服务
-│   ├── main/
-│   │   ├── *-deployment.yaml   # K8s部署配置
-│   │   └── *-service.yaml      # K8s服务配置
+│   ├── main/                   # 源代码
+│   ├── *-deployment.yaml       # K8s部署配置
+│   └── *-service.yaml          # K8s服务配置
 ├── scheduler/                  # 任务调度器
-│   ├── main/
-│   │   ├── scheduler-*-deployment.yaml
-│   │   └── scheduler-*-hpa.yaml
+│   ├── main/                   # 源代码
+│   ├── scheduler-*-deployment.yaml
+│   └── scheduler-*-hpa.yaml
 ├── postgres/                   # 数据库
 ├── redis/                      # Redis集群
 ├── secret/                     # 密钥管理
 └── system/                     # 系统组件
+```
+#### 网关 (服务分发与权限认证)
+
+```
+Nginx Ingress Controller/
+├── main/                       # 源代码
+├── gateway-deployment.yaml     
+├── gateway-ingress.yaml        
+├── gateway-service.yaml        
+└── jwt-secret.yaml             # JWT密钥
 ```
 
 ### ⚙️ 核心技术
