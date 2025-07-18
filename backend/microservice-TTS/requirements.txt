@@ -1,0 +1,6 @@
+fastapi
+uvicorn
+httpx
+aioboto3
+pydantic
+google-genai
